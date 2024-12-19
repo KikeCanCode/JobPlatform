@@ -14,4 +14,4 @@ dotenv.config()
 }).promise();
 
 //Export: export default db; allows easy importing in other files
-export default db;
+export default databaseConnection;
