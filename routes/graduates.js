@@ -6,7 +6,9 @@ import databaseConnection from "../database.js"; //
 import multer from "multer"; // Multer is a node.js middleware for handling multipart/form-data, which is primarily usedused to uplode file
 import path from "path";
 import fetch from "node-fetch";
-import { Router } from "express";
+import { Router } from "express"; //with brackets { }) are used when exporting specific functions, objects, or variables.
+import verifyToken from "../middleware/verifyToken.js";
+import { verifyCaptcha } from "../middlewares/captchaMiddleware.js";
 
 
 
@@ -14,22 +16,22 @@ const router = express.Router();
 
 // Graduate Sign-up 
 router.post("/signup", async (req, res) => {
-    const { username, first_name, last_name, email, contact_number, password_hash, qualification, bootcamp_institute, graduation_year, skills, location} = req.body;
+    const {username, first_name, last_name, email, contact_number, password, qualification, bootcamp_institute, graduation_year, skills, location} = req.body;
 try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     databaseConnection.query( 
         "INSERT INTO graduates (username, first_name, last_name, email, contact_number, password_hash, qualification, bootcamp_institute, graduation_year, skills, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-            [username, first_name, last_name, email, contact_number, password_hash, qualification, bootcamp_institute, graduation_year, skills, location],
+            [username, first_name, last_name, email, contact_number, hashedPassword, qualification, bootcamp_institute, graduation_year, skills, location],
         
         (err) => {
-            if (err) return res.status(500).send(err);
-            res.status(201).send("Graduate account created successfully!");
+            if (err) return res.status(500)..json({ error: "Database error while creating account. Please try again later." });
+            res.status(201).send({message: "Graduate account created successfully!"});
         } 
     );
 
 } catch (err) {
-    res.status(500).send("Error hashing password.");
+    res.status(500).send({Error: "Error hashing password"});
 }
 });
 
@@ -43,24 +45,24 @@ router.post("/login", (req, res) => {
     [username],
     async (err, results) => {
         if (err) return res.status(500).send(err);
-        if(results.lenght === 0) return res.status(4001).send("Invalid password or username");
+        if(results.lenght === 0) return res.status(401).send("Invalid password or username");
       
         try {
-            const isMatch = await bcrypt.compare(password, results[0].password);
+            const isMatch = await bcrypt.compare(password, results[0].password_hash);
             if(isMatch) {
-               res.json({ message: " login sucessful!"});
+               res.json({ message: " Login sucessful!"});
             } else {
-                res.status(401).send("Invalid username or passowrd");
+                res.status(401).json({ error: "Incorrect username or password. Please check your credentials."});
             }
 
         } catch (err) {
-            res.status(500).status("Error comparing password");
+            res.status(500).send("Error comparing password");
         }
     });
 });
 
 // Search for jobs
-router.get("jobs", (req, res) => {
+router.get("/jobs", (req, res) => {
     const {lcation, skills, education, datePosted } = req.query;
     let query = " SELECT * FROM jobs WHERE 1=1";
     let queryParams = [];
@@ -83,12 +85,13 @@ router.get("jobs", (req, res) => {
     }
 
     databaseConnection.query(query, queryParams, (err, results) => {
-        if (err) return res.status(500).send(err);
+        if (err) return res.status(500).json({error: err.message});
+        res.json({data: results});
     });
 });
 
 //Garduates apply for a job 
-router.get("/jobs/:jodId/apply", verifyToken, (req, res) => {
+router.get("/jobs/:jobId/apply", verifyToken, (req, res) => {
     const {jobId} = req.params;
     const graduateId = req.graduateId;
 
@@ -97,7 +100,7 @@ router.get("/jobs/:jodId/apply", verifyToken, (req, res) => {
         [graduateId, jobId],
         (err) => {
             if (err) return res.status(500).send(err);
-            res.send("Job application submitted successfully!");
+            res.json({message:"Job application submitted successfully!"});
         }
     );
 });
@@ -105,10 +108,10 @@ router.get("/jobs/:jodId/apply", verifyToken, (req, res) => {
 // View  Job applications 
 router.get("/applications", verifyToken, (req, res) => {
     databaseConnection.query(
-        `SELECT job.job_tittle, jobs.company, jobs.location, application.date_applied
+        `SELECT job.job_title, jobs.company, jobs.location, applications.date_applied
         FROM applications
         JOIN jobs ON aplications.job_id = jobs.job_id
-        WHERE applications.graduates_id = ?`,
+        WHERE applications.graduate_id = ?`,
         [req.graduateId],
         (err, results) => {
             if (err) return res.status(500).send(err);
@@ -120,7 +123,7 @@ router.get("/applications", verifyToken, (req, res) => {
 // View Graduate profile
 router.get("/profile", verifyToken, (req, res) => {
     databaseConnection.query(
-        "SELECT username, email, full_name FROM graduates WHERE graduate_id = ?",
+        "SELECT username, email, first_name, last_name FROM graduates WHERE graduate_id = ?",
         [req.graduateId],
         (err, results) => {
             if(err) return res.status(500).send(err);
@@ -161,14 +164,14 @@ router.post("/upload-certificate", upload.single("certificate"), (req, res) => {
 //Delete Graduate Account
 router.delete("/account", verifyToken, (req,res)=> {
     const graduateId = req.graduateId;
-    databaseConnection.query("DELETE FROM applications WHRE graduate_id = ?", //Delete graduate's applications first 
+    databaseConnection.query("DELETE FROM applications WHERE graduate_id = ?", //Delete graduate's applications first 
         [graduateId], (err) => {
             if (err) return res.status(500).send("Error deleting applications");
 
             databaseConnection.query("DELETE FROM graduates WHERE graduate_id =?",
                 [graduateId], (err) => {
                     if (err) return res.status(500).send("Error deleting account");
-                res.send("Account successfully deleted");
+                res.json("Account successfully deleted");
             });
         });        
 });
