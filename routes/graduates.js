@@ -6,63 +6,61 @@ import express from "express";
 import { Router } from "express"; //with brackets { }) are used when exporting specific functions, objects, or variables.
 import multer from "multer"; // Multer is a node.js middleware for handling multipart/form-data, which is primarily usedused to uplode file
 import fetch from "node-fetch";
+import db from "../db";
+import { graduatesTable } from "../db/schema.js";
 import verifyToken from "../middleware/verifyToken.js";
 import { verifyCaptcha } from "../middlewares/captchaMiddleware.js";
-import db from "../db"
-import { graduatesTable } from "../db/schema.js";
 
 const router = express.Router();
 
 // Graduate Sign-up
 router.post("/signup", async (req, res) => {
-    const {
-        password,
-    } = req.body;
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
+	const { password } = req.body;
+	try {
+		const hashedPassword = await bcrypt.hash(password, 10);
 
-        await db.insert(graduatesTable).values({
-            ...req.body,
-            password_hash: hashedPassword,
-        });
+		await db.insert(graduatesTable).values({
+			...req.body,
+			password_hash: hashedPassword,
+		});
 
-        return res
-            .status(201)
-            .send({ message: "Graduate account created successfully!" });
-    } catch (err) {
-        res.status(500).send({ Error: "Error hashing password" });
-    }
+		return res
+			.status(201)
+			.send({ message: "Graduate account created successfully!" });
+	} catch (err) {
+		res.status(500).send({ Error: "Error hashing password" });
+	}
 });
 
 // Graduate Login
 router.post("/login", (req, res) => {
-    const { username, password } = req.body;
-    db.select().from(graduatesTable).where({ username }).execute().then(async (results) => {
-        if (results.length === 0) {
-            return res.status(401).send("Invalid password or username");
-        }
+	const { username, password } = req.body;
+	db.select()
+		.from(graduatesTable)
+		.where({ username })
+		.execute()
+		.then(async (results) => {
+			if (results.length === 0) {
+				return res.status(401).send("Invalid password or username");
+			}
 
-        result = results[0];
+			result = results[0];
 
-        try {
-            const isMatch = await bcrypt.compare(
-                password,
-                result.password_hash,
-            );
+			try {
+				const isMatch = await bcrypt.compare(password, result.password_hash);
 
-            if (isMatch) {
-                res.json({ message: " Login sucessful!" });
-            } else {
-                res.status(401).json({
-                    error:
-                        "Incorrect username or password. Please check your credentials.",
-                });
-            }
-        } catch (err) {
-            res.status(500).send("Error comparing password");
-        }
-    },
-    );
+				if (isMatch) {
+					res.json({ message: " Login sucessful!" });
+				} else {
+					res.status(401).json({
+						error:
+							"Incorrect username or password. Please check your credentials.",
+					});
+				}
+			} catch (err) {
+				res.status(500).send("Error comparing password");
+			}
+		});
 });
 
 // Search for jobs
