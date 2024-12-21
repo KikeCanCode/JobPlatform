@@ -6,92 +6,63 @@ import express from "express";
 import { Router } from "express"; //with brackets { }) are used when exporting specific functions, objects, or variables.
 import multer from "multer"; // Multer is a node.js middleware for handling multipart/form-data, which is primarily usedused to uplode file
 import fetch from "node-fetch";
-import databaseConnection from "../database.js"; //
 import verifyToken from "../middleware/verifyToken.js";
 import { verifyCaptcha } from "../middlewares/captchaMiddleware.js";
+import db from "../db"
+import { graduatesTable } from "../db/schema.js";
 
 const router = express.Router();
 
 // Graduate Sign-up
 router.post("/signup", async (req, res) => {
-	const {
-		username,
-		first_name,
-		last_name,
-		email,
-		contact_number,
-		password,
-		qualification,
-		bootcamp_institute,
-		graduation_year,
-		skills,
-		location,
-	} = req.body;
-	try {
-		const hashedPassword = await bcrypt.hash(password, 10);
+    const {
+        password,
+    } = req.body;
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-		databaseConnection.query(
-			"INSERT INTO graduates (username, first_name, last_name, email, contact_number, password_hash, qualification, bootcamp_institute, graduation_year, skills, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-			[
-				username,
-				first_name,
-				last_name,
-				email,
-				contact_number,
-				hashedPassword,
-				qualification,
-				bootcamp_institute,
-				graduation_year,
-				skills,
-				location,
-			],
+        await db.insert(graduatesTable).values({
+            ...req.body,
+            password_hash: hashedPassword,
+        });
 
-			(err) => {
-				if (err)
-					return res.status(500).json({
-						error:
-							"Database error while creating account. Please try again later.",
-					});
-				res
-					.status(201)
-					.send({ message: "Graduate account created successfully!" });
-			},
-		);
-	} catch (err) {
-		res.status(500).send({ Error: "Error hashing password" });
-	}
+        return res
+            .status(201)
+            .send({ message: "Graduate account created successfully!" });
+    } catch (err) {
+        res.status(500).send({ Error: "Error hashing password" });
+    }
 });
 
 // Graduate Login
 router.post("/login", (req, res) => {
-	const { username, password } = req.body;
-	databaseConnection.query(
-		"SELECT * FROM graduates WHERE username = ?",
+    const { username, password } = req.body;
+    db.select().from(graduatesTable).where({ username }).execute().then(async (results) => {
+        if (results.length === 0) {
+            return res.status(401).send("Invalid password or username");
+        }
 
-		[username],
-		async (err, results) => {
-			if (err) return res.status(500).send(err);
-			if (results.lenght === 0)
-				return res.status(401).send("Invalid password or username");
+        result = results[0];
 
-			try {
-				const isMatch = await bcrypt.compare(
-					password,
-					results[0].password_hash,
-				);
-				if (isMatch) {
-					res.json({ message: " Login sucessful!" });
-				} else {
-					res.status(401).json({
-						error:
-							"Incorrect username or password. Please check your credentials.",
-					});
-				}
-			} catch (err) {
-				res.status(500).send("Error comparing password");
-			}
-		},
-	);
+        try {
+            const isMatch = await bcrypt.compare(
+                password,
+                result.password_hash,
+            );
+
+            if (isMatch) {
+                res.json({ message: " Login sucessful!" });
+            } else {
+                res.status(401).json({
+                    error:
+                        "Incorrect username or password. Please check your credentials.",
+                });
+            }
+        } catch (err) {
+            res.status(500).send("Error comparing password");
+        }
+    },
+    );
 });
 
 // Search for jobs
