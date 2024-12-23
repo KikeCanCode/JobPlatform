@@ -25,7 +25,7 @@ try {
             [username, first_name, last_name, email, contact_number, hashedPassword, qualification, bootcamp_institute, graduation_year, skills, location],
         
         (err) => {
-            if (err) return res.status(500)..json({ error: "Database error while creating account. Please try again later." });
+            if (err) return res.status(500).json({ error: "Database error while creating account. Please try again later." });
             res.status(201).send({message: "Graduate account created successfully!"});
         } 
     );
@@ -65,7 +65,7 @@ router.post("/login", (req, res) => {
 router.get("/jobs", (req, res) => {
     const {lcation, skills, education, datePosted } = req.query;
     let query = " SELECT * FROM jobs WHERE 1=1";
-    let queryParams = [];
+    const queryParams = [];
 
     if(location) {
         query += "AND location = ?";
@@ -198,4 +198,5 @@ export default router;
 /*
 https://www.npmjs.com/package/multer
 https://www.geeksforgeeks.org/how-to-verify-recaptcha-in-node-js-server-call/
+https://dvmhn07.medium.com/jwt-authentication-in-node-js-a-practical-guide-c8ab1b432a49
 */
