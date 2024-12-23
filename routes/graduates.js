@@ -6,7 +6,8 @@ import express from "express";
 import { Router } from "express"; //with brackets { }) are used when exporting specific functions, objects, or variables.
 import multer from "multer"; // Multer is a node.js middleware for handling multipart/form-data, which is primarily usedused to uplode file
 import fetch from "node-fetch";
-import databaseConnection from "../database.js"; //
+import db from "../db";
+import { graduatesTable } from "../db/schema.js";
 import verifyToken from "../middleware/verifyToken.js";
 import { verifyCaptcha } from "../middlewares/captchaMiddleware.js";
 
@@ -14,61 +15,18 @@ const router = express.Router();
 
 // Graduate Sign-up
 router.post("/signup", async (req, res) => {
-	const {
-		username,
-		first_name,
-		last_name,
-		email,
-		contact_number,
-		password,
-		qualification,
-		bootcamp_institute,
-		graduation_year,
-		skills,
-		location,
-	} = req.body;
+	const { password } = req.body;
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-<<<<<<< HEAD
-    databaseConnection.query( 
-        "INSERT INTO graduates (username, first_name, last_name, email, contact_number, password_hash, qualification, bootcamp_institute, graduation_year, skills, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-            [username, first_name, last_name, email, contact_number, hashedPassword, qualification, bootcamp_institute, graduation_year, skills, location],
-        
-        (err) => {
-            if (err) return res.status(500).json({ error: "Database error while creating account. Please try again later." });
-            res.status(201).send({message: "Graduate account created successfully!"});
-        } 
-    );
-=======
-		databaseConnection.query(
-			"INSERT INTO graduates (username, first_name, last_name, email, contact_number, password_hash, qualification, bootcamp_institute, graduation_year, skills, location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-			[
-				username,
-				first_name,
-				last_name,
-				email,
-				contact_number,
-				hashedPassword,
-				qualification,
-				bootcamp_institute,
-				graduation_year,
-				skills,
-				location,
-			],
->>>>>>> 742aea75387f7471129901030141d5a0208ac5bc
+		await db.insert(graduatesTable).values({
+			...req.body,
+			password_hash: hashedPassword,
+		});
 
-			(err) => {
-				if (err)
-					return res.status(500).json({
-						error:
-							"Database error while creating account. Please try again later.",
-					});
-				res
-					.status(201)
-					.send({ message: "Graduate account created successfully!" });
-			},
-		);
+		return res
+			.status(201)
+			.send({ message: "Graduate account created successfully!" });
 	} catch (err) {
 		res.status(500).send({ Error: "Error hashing password" });
 	}
@@ -77,20 +35,20 @@ router.post("/signup", async (req, res) => {
 // Graduate Login
 router.post("/login", (req, res) => {
 	const { username, password } = req.body;
-	databaseConnection.query(
-		"SELECT * FROM graduates WHERE username = ?",
-
-		[username],
-		async (err, results) => {
-			if (err) return res.status(500).send(err);
-			if (results.lenght === 0)
+	db.select()
+		.from(graduatesTable)
+		.where({ username })
+		.execute()
+		.then(async (results) => {
+			if (results.length === 0) {
 				return res.status(401).send("Invalid password or username");
+			}
+
+			result = results[0];
 
 			try {
-				const isMatch = await bcrypt.compare(
-					password,
-					results[0].password_hash,
-				);
+				const isMatch = await bcrypt.compare(password, result.password_hash);
+
 				if (isMatch) {
 					res.json({ message: " Login sucessful!" });
 				} else {
@@ -102,21 +60,14 @@ router.post("/login", (req, res) => {
 			} catch (err) {
 				res.status(500).send("Error comparing password");
 			}
-		},
-	);
+		});
 });
 
 // Search for jobs
 router.get("/jobs", (req, res) => {
-<<<<<<< HEAD
-    const {lcation, skills, education, datePosted } = req.query;
-    let query = " SELECT * FROM jobs WHERE 1=1";
-    const queryParams = [];
-=======
 	const { lcation, skills, education, datePosted } = req.query;
 	let query = " SELECT * FROM jobs WHERE 1=1";
 	const queryParams = [];
->>>>>>> 742aea75387f7471129901030141d5a0208ac5bc
 
 	if (location) {
 		query += "AND location = ?";
@@ -253,9 +204,5 @@ export default router;
 /*
 https://www.npmjs.com/package/multer
 https://www.geeksforgeeks.org/how-to-verify-recaptcha-in-node-js-server-call/
-<<<<<<< HEAD
 https://dvmhn07.medium.com/jwt-authentication-in-node-js-a-practical-guide-c8ab1b432a49
 */
-=======
-*/
->>>>>>> 742aea75387f7471129901030141d5a0208ac5bc
