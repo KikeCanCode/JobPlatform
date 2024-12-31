@@ -75,7 +75,7 @@ router.post("/login", async (req, res) => {
 // Post a Job 
 router.post("/jobs", verifyToken, async (req, res) => {
     const { title, description, salary, location } = req.body;
-    const companyId =req.user.id; // Extracted from the token by verifyToken middleware
+    const companyId = req.user.id; // Extracted from the token by verifyToken middleware
 
  try {
     await db.insert(jobsTable).values({ // Used to add data 
@@ -91,6 +91,21 @@ router.post("/jobs", verifyToken, async (req, res) => {
     res.status(500).send({error: "Error posting job"});
  }
 });
+
+/* // Post a Job - Option 2 which one is suitable?
+router.post("/", verifyToken, async (req, res) => {
+    const { title, description, salary } = req.body;
+    const companyId = req.user.id; // Extracted from token by authMiddleware
+
+    try {
+        await Job.create({ title, description, salary, companyId });
+        res.status(201).send({ message: "Job posted successfully!" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: "Error posting job" });
+    }
+});
+*/
 
 //Review applications 
 router.get("/applications/:jobId", verifyToken, async(req, res) => {
