@@ -44,19 +44,20 @@ router.post("/signup", async (req, res) => {
 // Companies Login
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
-
-    try {
         const results = await db
             .select()
             .from(companiesTable)
-            .where(companiesTable.email, "=", email);
-
+            .where({email})
+            .execute()
+            
         if (results.length === 0) {
             return res.status(401).send({ error: "Invalid email or password" });
         }
 
         const company = results[0];
-        const isMatch = await bcrypt.compare(password, company.password_hash);
+
+  /*      try {
+            const isMatch = await bcrypt.compare(password, company.password_hash);
 
         if (!isMatch) {
             return res.status(401).json({
@@ -70,7 +71,24 @@ router.post("/login", async (req, res) => {
         console.error(err);
         res.status(500).send({ error: "Error during login" });
     }
-});
+});*/
+try {
+                const isMatch = await bcrypt.compare(password, result.password_hash);
+
+                if (isMatch) {
+                    res.json({ message: " Login sucessful!" });
+                } else {
+                    res.status(401).json({
+                        error:
+                            "Incorrect username or password. Please check your credentials.",
+                    });
+                }
+            } catch (err) {
+                res.status(500).send("Error comparing password");
+            }
+        });
+
+
 
 // Post a Job 
 router.post("/jobs", verifyToken, async (req, res) => {
@@ -78,7 +96,9 @@ router.post("/jobs", verifyToken, async (req, res) => {
     const companyId = req.user.id; // Extracted from the token by verifyToken middleware
 
  try {
-    await db.insert(jobsTable).values({ // Used to add data 
+    await db
+    .insert(jobsTable)
+    .values({ // Used to add data 
         title,
         description,
         salary,
@@ -112,12 +132,13 @@ router.get("/applications/:jobId", verifyToken, async(req, res) => {
     const {jobId} = req.params;
     try {
         const applications = await db
-		.select({
-			applicationId: applicationsTable.id,
-			graduateId: applicationsTable.graduate_id,
-			graduateName: graduatesTable.name,
-			dateApplied: applicationsTable.date_applied,
-		})
+            .select()
+		// .select({
+		// 	applicationId: applicationsTable.id,
+		// 	graduateId: applicationsTable.graduate_id,
+		// 	graduateName: graduatesTable.name,
+		// 	dateApplied: applicationsTable.date_applied,
+		// })
 		.from(applicationsTable)
 		.innerJoin(graduatesTable, graduatesTable.id, "=", applicationsTable.graduate_id)
 		.where(applicationsTable.job_id, "=", jobId);
@@ -134,6 +155,32 @@ router.get("/applications/:jobId", verifyToken, async(req, res) => {
 }
 });
 
+// Companies Update detais
+router.put("/update-profile", async (req, res) => {
+    const { companyId, companyName, email, username, contactNumber, companyAddress, companyProfile } = req.body
+
+	try {
+		const results = await db 
+		.update(graduatesTable)
+		.set({
+			company_name: companyName,
+                username,
+                email,
+                contact_number: contactNumber,
+                company_address: companyAddress,
+                company_profiles: companyProfile	
+		})
+		.where("id", graduateId)
+		.execute();
+
+		if (results.affectedRows === 0) {  //If affectedRows is 0, it means that no rows in the database were updated, 
+			return res.status(404).json({ error: "Company not found" });
+        }
+        res.json({ message: "Company details updated successfully!" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // Delete Account
 router.delete("/delete", verifyToken, async (req, res) => {
@@ -142,7 +189,9 @@ router.delete("/delete", verifyToken, async (req, res) => {
 		.delete()
         .from(companiesTable)
         .where({ id: companyId });
-        res.send({ message: "company account deleted uccessfuly!"});
+
+        res.send({ message: "company account deleted successfuly!"});
+
     } catch (error) {
         console.error(err);
         res.status(500).send({ error: "error deleting account"});
