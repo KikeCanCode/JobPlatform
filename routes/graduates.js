@@ -172,31 +172,7 @@ router.get("/jobs/:jobId/apply", verifyToken, async (req, res) => {
 		},
 	);
 });*/
-async function getJobApplicationsByGraduateId(graduateId) {
-    return db
-		.select()
-        // .select({
-        //     jobTitle: jobsTable.job_title,
-        //     company: jobsTable.company,
-        //     location: jobsTable.location,
-        //     dateApplied: applicationsTable.date_applied,
-        // })
-		
-        .from(applicationsTable)
-        .join(jobsTable, applicationsTable.job_id, '=', jobsTable.job_id) // = is a comparison operator used in SQL or query builders to check equality between two values.
-        .where(eq(applicationsTable.graduate_id, graduateId));
-}
-router.get("/applications", verifyToken, async (req, res) => {
-    const graduateId = req.graduateId;
 
-    try {
-        const applications = await getJobApplicationsByGraduateId(graduateId);
-        res.json({ data: applications });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "An error occurred while fetching job applications." });
-    }
-});
 
 // View Graduate profile
 /*router.get("/profile", verifyToken, (req, res) => {
