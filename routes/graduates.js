@@ -54,9 +54,9 @@ router.post("/login", (req, res) => {
 					req.session.mode = "graduate";
 					req.session.graduateId = graduate.id;
 
-					res.json({ message: " Login sucessful!" });
+					res.redirect("/graduates/dashboard");
 				} else {
-					req.session = null
+					req.session = null;
 
 					res.status(401).json({
 						error:
@@ -67,6 +67,33 @@ router.post("/login", (req, res) => {
 				res.status(500).send("Error logging in");
 			}
 		});
+});
+
+async function getCurrentUser(req, res) {
+	if (req.session?.graduateId) {
+		const results = await db
+			.select()
+			.from(graduatesTable)
+			.where({ id: req.session.graduateId });
+
+		if (results.length !== 1) {
+			req.session = null; // Delete any session state and logout for safety
+			res.redirect("/");
+		}
+
+		return results[0];
+	}
+
+	return null;
+}
+
+router.get("/dashboard", async (req, res) => {
+	const graduate = await getCurrentUser(req, res);
+	if (!graduate) {
+		return res.redirect("/");
+	}
+
+	res.render("graduates/dashboard", { graduate: graduate });
 });
 
 // Search for jobs

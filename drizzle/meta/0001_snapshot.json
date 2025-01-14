@@ -1,420 +1,408 @@
 {
-  "version": "5",
-  "dialect": "mysql",
-  "id": "438251bd-e11f-4140-9886-e85d8b1733c7",
-  "prevId": "c2f2038f-4cc3-42d3-8599-8770586e1065",
-  "tables": {
-    "admin": {
-      "name": "admin",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "username": {
-          "name": "username",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "password_hash": {
-          "name": "password_hash",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "admin_id": {
-          "name": "admin_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "applications": {
-      "name": "applications",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "job_id": {
-          "name": "job_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "graduate_id": {
-          "name": "graduate_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "date_applied": {
-          "name": "date_applied",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "applications_id": {
-          "name": "applications_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "companies": {
-      "name": "companies",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "company_name": {
-          "name": "company_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "username": {
-          "name": "username",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "contact_number": {
-          "name": "contact_number",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "company_address": {
-          "name": "company_address",
-          "type": "varchar(500)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "company_profile": {
-          "name": "company_profile",
-          "type": "varchar(500)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "companies_id": {
-          "name": "companies_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "graduates": {
-      "name": "graduates",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "first_name": {
-          "name": "first_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "last_name": {
-          "name": "last_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "username": {
-          "name": "username",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "contact_number": {
-          "name": "contact_number",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "password_hash": {
-          "name": "password_hash",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "qualification": {
-          "name": "qualification",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "bootcamp_institute": {
-          "name": "bootcamp_institute",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "graduation_year": {
-          "name": "graduation_year",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "skills": {
-          "name": "skills",
-          "type": "varchar(4000)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "graduates_id": {
-          "name": "graduates_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "jobs": {
-      "name": "jobs",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "company_id": {
-          "name": "company_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "title": {
-          "name": "title",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "job_description": {
-          "name": "job_description",
-          "type": "varchar(1000)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "location": {
-          "name": "location",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "salary": {
-          "name": "salary",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "jobs_id": {
-          "name": "jobs_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "payments": {
-      "name": "payments",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "company_id": {
-          "name": "company_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "amount": {
-          "name": "amount",
-          "type": "decimal(10,2)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "currency": {
-          "name": "currency",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'GBP'"
-        },
-        "payment_status": {
-          "name": "payment_status",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'Pending'"
-        },
-        "transaction_id": {
-          "name": "transaction_id",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "payment_method": {
-          "name": "payment_method",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "(now())"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "payments_id": {
-          "name": "payments_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    }
-  },
-  "views": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "tables": {},
-    "indexes": {}
-  }
+	"version": "5",
+	"dialect": "mysql",
+	"id": "438251bd-e11f-4140-9886-e85d8b1733c7",
+	"prevId": "c2f2038f-4cc3-42d3-8599-8770586e1065",
+	"tables": {
+		"admin": {
+			"name": "admin",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": true
+				},
+				"username": {
+					"name": "username",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"email": {
+					"name": "email",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"password_hash": {
+					"name": "password_hash",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false,
+					"default": "(now())"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {
+				"admin_id": {
+					"name": "admin_id",
+					"columns": ["id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraint": {}
+		},
+		"applications": {
+			"name": "applications",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": true
+				},
+				"job_id": {
+					"name": "job_id",
+					"type": "int",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"graduate_id": {
+					"name": "graduate_id",
+					"type": "int",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"date_applied": {
+					"name": "date_applied",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false,
+					"default": "(now())"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {
+				"applications_id": {
+					"name": "applications_id",
+					"columns": ["id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraint": {}
+		},
+		"companies": {
+			"name": "companies",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": true
+				},
+				"company_name": {
+					"name": "company_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"username": {
+					"name": "username",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"email": {
+					"name": "email",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"contact_number": {
+					"name": "contact_number",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"company_address": {
+					"name": "company_address",
+					"type": "varchar(500)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"company_profile": {
+					"name": "company_profile",
+					"type": "varchar(500)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {
+				"companies_id": {
+					"name": "companies_id",
+					"columns": ["id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraint": {}
+		},
+		"graduates": {
+			"name": "graduates",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": true
+				},
+				"first_name": {
+					"name": "first_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"last_name": {
+					"name": "last_name",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"username": {
+					"name": "username",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"email": {
+					"name": "email",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"contact_number": {
+					"name": "contact_number",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"password_hash": {
+					"name": "password_hash",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"qualification": {
+					"name": "qualification",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"bootcamp_institute": {
+					"name": "bootcamp_institute",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"graduation_year": {
+					"name": "graduation_year",
+					"type": "int",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"skills": {
+					"name": "skills",
+					"type": "varchar(4000)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {
+				"graduates_id": {
+					"name": "graduates_id",
+					"columns": ["id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraint": {}
+		},
+		"jobs": {
+			"name": "jobs",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": true
+				},
+				"company_id": {
+					"name": "company_id",
+					"type": "int",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"title": {
+					"name": "title",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"job_description": {
+					"name": "job_description",
+					"type": "varchar(1000)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"location": {
+					"name": "location",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"salary": {
+					"name": "salary",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false,
+					"default": "(now())"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {
+				"jobs_id": {
+					"name": "jobs_id",
+					"columns": ["id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraint": {}
+		},
+		"payments": {
+			"name": "payments",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": true
+				},
+				"company_id": {
+					"name": "company_id",
+					"type": "int",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"amount": {
+					"name": "amount",
+					"type": "decimal(10,2)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"currency": {
+					"name": "currency",
+					"type": "varchar(10)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false,
+					"default": "'GBP'"
+				},
+				"payment_status": {
+					"name": "payment_status",
+					"type": "varchar(50)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false,
+					"default": "'Pending'"
+				},
+				"transaction_id": {
+					"name": "transaction_id",
+					"type": "varchar(255)",
+					"primaryKey": false,
+					"notNull": true,
+					"autoincrement": false
+				},
+				"payment_method": {
+					"name": "payment_method",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": false,
+					"autoincrement": false,
+					"default": "(now())"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {
+				"payments_id": {
+					"name": "payments_id",
+					"columns": ["id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"checkConstraint": {}
+		}
+	},
+	"views": {},
+	"_meta": {
+		"schemas": {},
+		"tables": {},
+		"columns": {}
+	},
+	"internal": {
+		"tables": {},
+		"indexes": {}
+	}
 }

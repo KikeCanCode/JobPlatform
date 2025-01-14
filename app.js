@@ -49,7 +49,7 @@ app.use("/payments", paymentsRoutes);
 
 //Homepage Route - to diplay the homepage
 app.get("/", (req, res) => {
-	res.render("graduates/login")
+	res.render("graduates/login");
 });
 
 // Start the server
