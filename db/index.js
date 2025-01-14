@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
+import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2";
+import databaseConnection from "../database";
 
 dotenv.config();
 
@@ -14,5 +16,6 @@ const pool = mysql
 	})
 	.promise();
 
-//Export: export default db; allows easy importing in other files
-export default databaseConnection;
+const db = drizzle({ pool: databaseConnection });
+
+export default db;

@@ -13,7 +13,7 @@ import jobsRoutes from "./routes/jobs.js";
 import paymentsRoutes from "./routes/payments.js";
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Set EJS as the view engine - this is for the Front-End
 app.set("view engine", "ejs");
@@ -43,6 +43,7 @@ app.listen(port, () => {
 
 /*
 https://blog.logrocket.com/node-js-project-architecture-best-practices/
+
 https://dev.to/santypk4/bulletproof-node-js-project-architecture-4epf
 https://developerport.medium.com/understanding-process-env-port-in-node-js-e09aef80384c
 https://stackoverflow.com/questions/55363851/how-i-display-index-js-file-onto-the-server-in-js
