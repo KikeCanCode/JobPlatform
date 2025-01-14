@@ -6,6 +6,9 @@
 		"lint": "biome lint --fix",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
+	"engines": {
+		"node": ">= 22.5.0"
+	},
 	"keywords": [],
 	"type": "module",
 	"author": "",
