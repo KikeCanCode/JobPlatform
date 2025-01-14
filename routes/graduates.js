@@ -45,21 +45,26 @@ router.post("/login", (req, res) => {
 				return res.status(401).send("Invalid password or username");
 			}
 
-			const graduates = results[0];
+			const graduate = results[0];
 
 			try {
-				const isMatch = await bcrypt.compare(password, result.password_hash);
+				const isMatch = await bcrypt.compare(password, graduate.password_hash);
 
 				if (isMatch) {
+					req.session.mode = "graduate";
+					req.session.graduateId = graduate.id;
+
 					res.json({ message: " Login sucessful!" });
 				} else {
+					req.session = null
+
 					res.status(401).json({
 						error:
 							"Incorrect username or password. Please check your credentials.",
 					});
 				}
 			} catch (err) {
-				res.status(500).send("Error comparing password");
+				res.status(500).send("Error logging in");
 			}
 		});
 });

@@ -13,8 +13,7 @@ const pool = mysql
 		password: process.env.MYSQL_PASSWORD,
 		database: process.env.MYSQL_DATABASE,
 	})
-	.promise();
 
-const db = drizzle({ pool: pool });
+const db = drizzle({ client: pool });
 
 export default db;
