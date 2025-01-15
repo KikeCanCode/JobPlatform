@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import db from "../db/index.js"; // database connection
 import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 import verifyToken from "../Middlewares/verifyAdminToken.js";
-
+import Stripe from "stripe"; // Import Stripe for payment processing
 const router = express.Router();
 
 // Function to generate a JWT token
@@ -83,8 +83,21 @@ router.post("/login", async (req, res) => {
 	}
 });
 
-// Post a Job
-router.post("/jobs", verifyToken, async (req, res) => {
+// Post a Job with payment
+router.post("/post-job", verifyToken, async (req, res) => {
+    const companyId = req.user.id; // Extracted from token
+    const jobDetails = req.body;
+    const paymentDetails = req.body.paymentDetails; // e.g., Stripe token or payment method
+
+    try {
+        const result = await Company.postJobWithPayment(companyId, jobDetails, paymentDetails);
+        res.status(201).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+// Post a Job without payment 
+/*router.post("/jobs", verifyToken, async (req, res) => {
 	const { title, description, salary, location } = req.body;
 	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
 
@@ -102,7 +115,7 @@ router.post("/jobs", verifyToken, async (req, res) => {
 		console.error(err);
 		res.status(500).send({ error: "Error posting job" });
 	}
-});
+});*/
 
 /* // Post a Job - Option 2 which one is suitable?
 router.post("/", verifyToken, async (req, res) => {
@@ -154,7 +167,7 @@ router.get("/applications/:jobId", verifyToken, async (req, res) => {
 	}
 });
 
-// Companies Update detais
+// Companies Update details
 router.put("/update-profile", async (req, res) => {
 	const {
 		companyId,
@@ -203,5 +216,62 @@ router.delete("/delete", verifyToken, async (req, res) => {
 });
 
 // Pay Fee for posting a job
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key
+
+// Post a Job with Payment
+router.post("/jobs-with-payment", verifyToken, async (req, res) => {
+	const { title, description, salary, location, amount, currency } = req.body;
+	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
+
+	try {
+		// Step 1: Create a Payment Intent
+		const paymentIntent = await stripe.paymentIntents.create({
+			amount, // Amount in the smallest currency unit (e.g., 500 for £5.00)
+			currency, // Currency code, e.g., 'gbp'
+			description: `Job Post Payment for ${title}`, // Payment description
+			metadata: { companyId, title }, // Add metadata for tracking
+		});
+
+		// Step 2: Confirm the payment (frontend should send client_secret for this)
+		// For now, return the client secret to the frontend
+		return res.status(201).send({
+			clientSecret: paymentIntent.client_secret,
+			message: "Payment intent created successfully. Confirm payment to post the job!",
+		});
+	} catch (err) {
+		console.error(err.message);
+		return res.status(500).send({ error: "Error processing payment" });
+	}
+});
+
+// Confirm Job Posting after Payment
+router.post("/confirm-job-post", verifyToken, async (req, res) => {
+	const { title, description, salary, location, paymentIntentId } = req.body;
+	const companyId = req.user.id;
+
+	try {
+		// Step 1: Retrieve the payment intent to confirm successful payment
+		const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+		if (paymentIntent.status !== "succeeded") {
+			return res.status(400).send({ error: "Payment not completed. Cannot post the job." });
+		}
+
+		// Step 2: Insert the job into the database after successful payment
+		await db.insert(jobsTable).values({
+			title,
+			description,
+			salary,
+			location,
+			company_id: companyId,
+		});
+
+		res.status(201).send({ message: "Job posted successfully after payment!" });
+	} catch (err) {
+		console.error(err.message);
+		return res.status(500).send({ error: "Error confirming job post after payment" });
+	}
+});
 
 export default router;

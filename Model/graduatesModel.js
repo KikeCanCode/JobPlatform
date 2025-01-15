@@ -46,7 +46,7 @@ class Graduate {
 			throw new Error(`Error during signup: ${err.message}`);
 		}
 	}
-	// Graduate login and validate password
+// Graduate login and validate password
 	static async login(username, password) {
 		try {
 			const results = await db
@@ -72,7 +72,7 @@ class Graduate {
 		}
 	}
 
-	// Update graduate profile
+// Update graduate profile
 
 	/*static async updateProfile(graduateId, firstName, lastName, email, contactNumber, qualification, bootcampInstitute, graduationYear, skills) {
     
@@ -132,7 +132,7 @@ class Graduate {
 		}
 	}
 
-	// Upload graduate certificate
+// Upload graduate certificate
 	static async uploadCertificate(graduateId, certificatePath) {
 		try {
 			const result = await db
@@ -147,7 +147,7 @@ class Graduate {
 		}
 	}
 
-	// Get graduate profile details
+// Get graduate profile details
 	static async getProfile(graduateId) {
 		try {
 			const results = await db
@@ -166,7 +166,7 @@ class Graduate {
 		}
 	}
 
-	// Delete graduate account
+// Delete graduate account
 	static async deleteAccount(graduateId) {
 		try {
 			await db.delete().from("graduates").where({ id: graduateId }).execute();
@@ -177,7 +177,7 @@ class Graduate {
 		}
 	}
 
-	// Graduate apply for job
+// Graduate apply for job
 	static async applyForJob(graduateId, jobId) {
 		try {
 			await db
