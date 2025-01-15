@@ -1,7 +1,8 @@
-import path from "node:path"; // Node.js's built-in path module, which provides utilities for working with file and directory paths.
 import bodyParser from "body-parser";
-import ejs from "ejs";
+import cookieSession from "cookie-session";
+import dotenv from "dotenv";
 import express from "express";
+import path from "node:path"; // Node.js's built-in path module, which provides utilities for working with file and directory paths.
 
 // import the CRUD from the routes folder for each of the entities.
 
@@ -12,10 +13,25 @@ import graduatesRoutes from "./routes/graduates.js";
 import jobsRoutes from "./routes/jobs.js";
 import paymentsRoutes from "./routes/payments.js";
 
+dotenv.config();
+
 const app = express();
 const port = process.env.PORT || 3000;
 
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret) {
+	console.error("SESSION_SECRET environment variable not set");
+	process.exit(1);
+}
+app.use(
+	cookieSession({
+		name: "session",
+		keys: [sessionSecret],
+	}),
+);
+
 // Set EJS as the view engine - this is for the Front-End
+app.set("views", path.join(process.cwd(), "Views"));
 app.set("view engine", "ejs");
 
 // Middleware
@@ -31,9 +47,9 @@ app.use("/applications", applicationsRoutes);
 app.use("/admin", adminRoutes);
 app.use("/payments", paymentsRoutes);
 
-//Homepage Route -to diplay the homepage
+//Homepage Route - to diplay the homepage
 app.get("/", (req, res) => {
-	res.sendFile(path.join(process.cwd(), "public", "index.html")); //The process.cwd() method returns the current working directory of the Node.js process.
+	res.render("graduates/login");
 });
 
 // Start the server

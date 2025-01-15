@@ -1,31 +1,26 @@
-<<<<<<< HEAD
-=======
 // Gradutes CRUD Operations
 
-import path from "node:path";
 import bcrypt from "bcrypt";
 import express from "express";
-import { Router } from "express"; //with brackets { }) are used when exporting specific functions, objects, or variables.
 import multer from "multer"; // Multer is a node.js middleware for handling multipart/form-data, which is primarily usedused to uplode file
 import fetch from "node-fetch";
-import db from "../db"; // Drizzle Orm Connection 
+import db from "../db/index.js"; // Drizzle Orm Connection
 import { graduatesTable } from "../db/schema.js";
-import verifyToken from "../middleware/verifyToken.js";
-import { verifyCaptcha } from "../middlewares/captchaMiddleware.js";
+import verifyToken from "../Middlewares/verifyAdminToken.js";
 
 const router = express.Router();
 
 // Graduate Sign-up
 router.post("/signup", async (req, res) => {
-	const { username, email, password  } = req.body;
-	
+	const { username, email, password } = req.body;
+
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
 
 		await db.insert(graduatesTable).values({
 			//...req.body,
 			username,
-            email,
+			email,
 			password_hash: hashedPassword,
 		});
 
@@ -37,11 +32,10 @@ router.post("/signup", async (req, res) => {
 	}
 });
 
-// Graduate Login 
+// Graduate Login
 router.post("/login", (req, res) => {
-	
 	const { username, password } = req.body;
-	
+
 	db.select()
 		.from(graduatesTable)
 		.where({ username })
@@ -51,23 +45,55 @@ router.post("/login", (req, res) => {
 				return res.status(401).send("Invalid password or username");
 			}
 
-			const graduates = results[0];
+			const graduate = results[0];
 
 			try {
-				const isMatch = await bcrypt.compare(password, result.password_hash);
+				const isMatch = await bcrypt.compare(password, graduate.password_hash);
 
 				if (isMatch) {
-					res.json({ message: " Login sucessful!" });
+					req.session.mode = "graduate";
+					req.session.graduateId = graduate.id;
+
+					res.redirect("/graduates/dashboard");
 				} else {
+					req.session = null;
+
 					res.status(401).json({
 						error:
 							"Incorrect username or password. Please check your credentials.",
 					});
 				}
 			} catch (err) {
-				res.status(500).send("Error comparing password");
+				res.status(500).send("Error logging in");
 			}
 		});
+});
+
+async function getCurrentUser(req, res) {
+	if (req.session?.graduateId) {
+		const results = await db
+			.select()
+			.from(graduatesTable)
+			.where({ id: req.session.graduateId });
+
+		if (results.length !== 1) {
+			req.session = null; // Delete any session state and logout for safety
+			res.redirect("/");
+		}
+
+		return results[0];
+	}
+
+	return null;
+}
+
+router.get("/dashboard", async (req, res) => {
+	const graduate = await getCurrentUser(req, res);
+	if (!graduate) {
+		return res.redirect("/");
+	}
+
+	res.render("graduates/dashboard", { graduate: graduate });
 });
 
 // Search for jobs
@@ -102,32 +128,30 @@ router.post("/login", (req, res) => {
 //Search for jobs
 router.get("/jobs", async (req, res) => {
 	const { title, location, skills, education, datePosted } = req.query;
-    // Start with the base query
-    let query = db.select('*').from('jobs'); // Select all fields from jobs table
+	// Start with the base query
+	let query = db.select("*").from("jobs"); // Select all fields from jobs table
 
-    // Dynamically build query based on filters provided in query params
-    if (location) {
-        query = query.where('location', location); // Apply location filter
-    }
-    if (skills) {
-        query = query.where('skills', 'LIKE', `%${skills}%`); // Apply skills filter using LIKE
-    }
-    if (education) {
-        query = query.where('education', education); // Apply education filter
-    }
-    if (datePosted) {
-        query = query.where('date_posted', '>=', datePosted); // Apply datePosted filter
-    }
+	// Dynamically build query based on filters provided in query params
+	if (location) {
+		query = query.where("location", location); // Apply location filter
+	}
+	if (skills) {
+		query = query.where("skills", "LIKE", `%${skills}%`); // Apply skills filter using LIKE
+	}
+	if (education) {
+		query = query.where("education", education); // Apply education filter
+	}
+	if (datePosted) {
+		query = query.where("date_posted", ">=", datePosted); // Apply datePosted filter
+	}
 
-    try {   
-        const results = await query.execute(); 
-        res.json({ data: results });
-    } catch (err) {
-       
-        res.status(500).json({ error: err.message });
-    }
+	try {
+		const results = await query.execute();
+		res.json({ data: results });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
 });
-
 
 //Garduates apply for a job
 /*router.get("/jobs/:jobId/apply", verifyToken, (req, res) => {
@@ -145,28 +169,29 @@ router.get("/jobs", async (req, res) => {
 });*/
 
 router.get("/jobs/:jobId/apply", verifyToken, async (req, res) => {
-    const { jobId } = req.params;
-    const graduateId = req.graduateId;
+	const { jobId } = req.params;
+	const graduateId = req.graduateId;
 
-    try {
-        await db.insert()
-            .into('applications')
-            .values({ graduate_id: graduateId, job_id: jobId })
-            .execute();
+	try {
+		await db
+			.insert()
+			.into("applications")
+			.values({ graduate_id: graduateId, job_id: jobId })
+			.execute();
 
-        res.json({ message: "Job application submitted successfully!" });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+		res.json({ message: "Job application submitted successfully!" });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
 });
 
 // View  Job applications
 /*router.get("/applications", verifyToken, (req, res) => {
 	databaseConnection.query(
 		`SELECT job.job_title, jobs.company, jobs.location, applications.date_applied
-        FROM applications
-        JOIN jobs ON aplications.job_id = jobs.job_id
-        WHERE applications.graduate_id = ?`,
+				FROM applications
+				JOIN jobs ON aplications.job_id = jobs.job_id
+				WHERE applications.graduate_id = ?`,
 		[req.graduateId],
 		(err, results) => {
 			if (err) return res.status(500).send(err);
@@ -174,7 +199,6 @@ router.get("/jobs/:jobId/apply", verifyToken, async (req, res) => {
 		},
 	);
 });*/
-
 
 // View Graduate profile
 /*router.get("/profile", verifyToken, (req, res) => {
@@ -190,21 +214,21 @@ router.get("/jobs/:jobId/apply", verifyToken, async (req, res) => {
 
 // View Graduate profile
 router.get("/profile", verifyToken, async (req, res) => {
-    try {
-        const results = await db
-            .select('username', 'email', 'first_name', 'last_name')
-            .from('graduates')
-            .where('graduate_id', req.graduateId)
-            .execute();
+	try {
+		const results = await db
+			.select("username", "email", "first_name", "last_name")
+			.from("graduates")
+			.where("graduate_id", req.graduateId)
+			.execute();
 
-        if (results.length === 0) {
-            return res.status(404).json({ error: "Graduate profile not found" });
-        }
+		if (results.length === 0) {
+			return res.status(404).json({ error: "Graduate profile not found" });
+		}
 
-        res.json(results[0]);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+		res.json(results[0]);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
 });
 
 // Bootcamp Certificate Uploading -
@@ -238,55 +262,71 @@ const upload = multer({ storage });
 
 // upload certificatte Rooute
 
-router.post("/upload-certificate", upload.single("certificate"), async (req, res) => {
-    const graduateId = req.body.graduateId;
-    const certificatePath = req.file.path;
+router.post(
+	"/upload-certificate",
+	upload.single("certificate"),
+	async (req, res) => {
+		const graduateId = req.body.graduateId;
+		const certificatePath = req.file.path;
 
-    try {
-        const results = await db
-            .update('graduates')
-            .set({ certificate: certificatePath })
-            .where('graduate_id', graduateId)
-            .execute();
+		try {
+			const results = await db
+				.update("graduates")
+				.set({ certificate: certificatePath })
+				.where("graduate_id", graduateId)
+				.execute();
 
-        if (results.affectedRows === 0) {
-            return res.status(404).json({ error: "Graduate not found" });
-        }
+			if (results.affectedRows === 0) {
+				return res.status(404).json({ error: "Graduate not found" });
+			}
 
-        res.json({ message: "Certificate uploaded successfully!" });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+			res.json({ message: "Certificate uploaded successfully!" });
+		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	},
+);
 
 // Graduates Update detais
 router.put("/update-profile", async (req, res) => {
-	const { graduateId, firstName, lastName, email, username, contactNumber, qualification, bootcampInstitute, graduationYear, skills } = req.body;
+	const {
+		graduateId,
+		firstName,
+		lastName,
+		email,
+		username,
+		contactNumber,
+		qualification,
+		bootcampInstitute,
+		graduationYear,
+		skills,
+	} = req.body;
 
 	try {
-		const results = await db 
-		.update(graduatesTable)
-		.set({
-			first_name: firstName,
-			last_name: lastName,
-			email,
-			username,
-			contact_number: contactNumber,
-			qualification,
-			bootcamp_institute: bootcampInstitute,
-			graduation_year: graduationYear,
-			skills	
-		})
-		.where("id", graduateId)
-		.execute();
+		const results = await db
+			.update(graduatesTable)
+			.set({
+				first_name: firstName,
+				last_name: lastName,
+				email,
+				username,
+				contact_number: contactNumber,
+				qualification,
+				bootcamp_institute: bootcampInstitute,
+				graduation_year: graduationYear,
+				skills,
+			})
+			.where("id", graduateId)
+			.execute();
 
-		if (results.affectedRows === 0) {  //If affectedRows is 0, it means that no rows in the database were updated, 
+		if (results.affectedRows === 0) {
+			//If affectedRows is 0, it means that no rows in the database were updated,
 			return res.status(404).json({ error: "Graduate not found" });
-        }
-        res.json({ message: "Graduate profile updated successfully!" });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+		}
+		res.json({ message: "Graduate profile updated successfully!" });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
 });
 
 //Delete Graduate Account
@@ -310,16 +350,13 @@ router.put("/update-profile", async (req, res) => {
 // 	);
 // });
 router.delete("/delete", verifyToken, async (req, res) => {
-    try {
-        await db
-		.delete()
-        .from(graduatesTable)
-        .where({ id: companyId });
-        res.send({ message: "Graduate account deleted successfuly!"});
-    } catch (error) {
-        console.error(err);
-        res.status(500).send({ error: "error deleting account"});
-    }
+	try {
+		await db.delete().from(graduatesTable).where({ id: companyId });
+		res.send({ message: "Graduate account deleted successfuly!" });
+	} catch (error) {
+		console.error(err);
+		res.status(500).send({ error: "error deleting account" });
+	}
 });
 
 // Integrating CAPTCHA verification
@@ -344,4 +381,3 @@ https://www.npmjs.com/package/multer
 https://www.geeksforgeeks.org/how-to-verify-recaptcha-in-node-js-server-call/
 https://dvmhn07.medium.com/jwt-authentication-in-node-js-a-practical-guide-c8ab1b432a49
 */
->>>>>>> OrmRoutes
