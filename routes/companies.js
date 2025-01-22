@@ -38,49 +38,66 @@ router.post("/signup", async (req, res) => {
 });
 
 // Companies Login
-router.post("/login", async (req, res) => {
-	const { email, password } = req.body;
-	const results = await db
-		.select()
+router.post("/login", (req, res) => {
+	const { email, password } = req.body; //const { username, password } = req.body;
+	db.select()
 		.from(companiesTable)
-		.where({ email })
-		.execute();
-
-	if (results.length === 0) {
-		return res.status(401).send({ error: "Invalid email or password" });
-	}
-
-	const company = results[0];
-
-	/*      try {
-							const isMatch = await bcrypt.compare(password, company.password_hash);
-
-					if (!isMatch) {
-							return res.status(401).json({
-									error: "Incorrect email or password. Please check your credentials.",
-							});
-					}
-
-					const token = generateToken(company);
-					res.json({ message: "Login successful!", token });
-			} catch (err) {
-					console.error(err);
-					res.status(500).send({ error: "Error during login" });
+		.where({ email })//.where({ username })
+		.execute()
+		.then(async (results) => {
+			if (results.length === 0) {
+				return res.status(401).send("Invalid password or username");
 			}
-	});*/
-	try {
-		const isMatch = await bcrypt.compare(password, result.password_hash);
 
-		if (isMatch) {
-			res.json({ message: " Login sucessful!" });
-		} else {
-			res.status(401).json({
-				error: "Incorrect username or password. Please check your credentials.",
-			});
+			const graduate = results[0];
+
+			try {
+				const isMatch = await bcrypt.compare(password, company.password_hash);
+
+				if (isMatch) {
+					req.session.mode = "company";
+					req.session.companyId = company.id;
+
+					res.redirect("/company/dashboard");
+				} else {
+					req.session = null;
+
+					res.status(401).json({
+						error:
+							"Incorrect username or password. Please check your credentials.",
+					});
+				}
+			} catch (err) {
+				res.status(500).send("Error logging in");
+			}
+		});
+});
+// Take graduates to the Dashbord
+async function getCurrentUser(req, res) {
+	if (req.session?.companyId) {
+		const results = await db
+			.select()
+			.from(companiesTable)
+			.where({ id: req.session.companyId });
+
+		if (results.length !== 1) {
+			req.session = null; // Delete any session state and logout for safety
+			res.redirect("/");
 		}
-	} catch (err) {
-		res.status(500).send("Error comparing password");
+
+		return results[0];
 	}
+
+	return null;
+}
+
+router.get("/dashboard", async (req, res) => {
+	const company = await getCurrentUser(req, res);
+	if (!company) {
+		return res.redirect("/");
+	}
+
+	res.render("company/dashboard", { company: company });
 });
 
 // Post a Job with payment
@@ -96,6 +113,7 @@ router.post("/post-job", verifyToken, async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 // Post a Job without payment 
 /*router.post("/jobs", verifyToken, async (req, res) => {
 	const { title, description, salary, location } = req.body;

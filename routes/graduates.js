@@ -34,11 +34,10 @@ router.post("/signup", async (req, res) => {
 
 // Graduate Login
 router.post("/login", (req, res) => {
-	const { username, password } = req.body;
-
+	const { email, password } = req.body; //const { username, password } = req.body;
 	db.select()
 		.from(graduatesTable)
-		.where({ username })
+		.where({ email })//.where({ username })
 		.execute()
 		.then(async (results) => {
 			if (results.length === 0) {
@@ -68,7 +67,7 @@ router.post("/login", (req, res) => {
 			}
 		});
 });
-
+// Take graduates to the Dashbord
 async function getCurrentUser(req, res) {
 	if (req.session?.graduateId) {
 		const results = await db
@@ -125,6 +124,7 @@ router.get("/dashboard", async (req, res) => {
 	});
 });
 */
+
 //Search for jobs
 router.get("/jobs", async (req, res) => {
 	const { title, location, skills, education, datePosted } = req.query;
@@ -287,7 +287,7 @@ router.post(
 	},
 );
 
-// Graduates Update detais
+// Graduates Update details
 router.put("/update-profile", async (req, res) => {
 	const {
 		graduateId,

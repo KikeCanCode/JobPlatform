@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import verifyAdminToken from "../Middlewares/verifyAdminToken.js";
 import db from "../db/index.js"; // database connection
 import { companiesTable, graduatesTable } from "../db/schema.js";
+import Admin from "../Model/adminModel.js";
+
 
 const router = express.Router();
 
@@ -14,7 +16,7 @@ const generateAdminToken = (admin) => {
 };
 
 const isAdmin = () => true;
-
+/*
 // Admin Login
 router.post("/login", async (req, res) => {
 	const { username, password } = req.body;
@@ -43,7 +45,8 @@ router.post("/login", async (req, res) => {
 		console.error(error);
 		res.status(500).send({ error: "Error during login" });
 	}
-});
+});*/ 
+
 
 //Get Company by Id
 router.get("/companies/:id", verifyAdminToken, isAdmin, async (req, res) => {
@@ -139,5 +142,17 @@ router.delete("/graduates/:id", verifyAdminToken, async (req, res) => {
 });
 
 // Add Update Endpoint? To enable them to update details?
+
+// Delete a Job Posting by ID
+router.delete("/jobs/:id", verifyAdminToken, async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const response = await Admin.deleteJobById(id);
+		res.status(200).json(response);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+});
 
 export default router;

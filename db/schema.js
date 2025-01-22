@@ -6,12 +6,13 @@ import {
 	timestamp,
 	decimal,
 } from "drizzle-orm/mysql-core";
+
 // Graduates Table
 export const graduatesTable = mysqlTable("graduates", {
 	id: serial().primaryKey(),
 	first_name: varchar({ length: 255 }),
 	last_name: varchar({ length: 255 }),
-	username: varchar({ length: 100 }).notNull().unique(),
+	username: varchar({ length: 100 }).notNull(),
 	email: varchar({ length: 100 }).notNull().unique(),
 	contact_number: varchar({ length: 255 }),
 	password_hash: varchar({ length: 255 }).notNull(),
@@ -26,7 +27,7 @@ export const companiesTable = mysqlTable("companies", {
 	id: serial().primaryKey(),
 	company_name: varchar({ length: 255 }),
 	username: varchar({ length: 100 }).notNull(),
-	email: varchar({ length: 100 }).notNull(),
+	email: varchar({ length: 100 }).notNull().unique(),
 	contact_number: varchar({ length: 255 }),
 	company_address: varchar({ length: 500 }),
 	company_profile: varchar({ length: 500 }),
@@ -55,7 +56,7 @@ export const applicationsTable = mysqlTable("applications", {
 export const adminTable = mysqlTable("admin", {
 	id: serial().primaryKey(),
 	username: varchar({ length: 100 }).notNull(),
-	email: varchar({ length: 100 }).notNull(),
+	email: varchar({ length: 100 }).notNull().unique(),
 	password_hash: varchar({ length: 255 }).notNull(), // Store hashed passwords
 	created_at: timestamp().defaultNow(), // Automatically set to the current timestamp
 });
