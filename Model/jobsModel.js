@@ -1,10 +1,12 @@
-//The Job class is a model class designed to perform database operations related to jobs. It provides static methods for interacting with the database, such as creating or retrieving jobs.
-//Useful when the focus is on performing CRUD operations on the database.
-// Differ from gragaute& companies because they are creating an instance 
+/*The Job class is a model class designed to perform database operations related to jobs. 
+It provides static methods for interacting with the database, such as creating or retrieving jobs.
+Useful when the focus is on performing CRUD operations on the database.
+Differ from gragaute& companies because they are creating an instance */
+
 export default {};
 
 import db from "../db/index.js";
-import { jobsTable } from "../schema/jobsTable.js"; // Import the table schema
+import { jobsTable } from "../db/schema.js"; // Import the table schema
 
 // JobModel Class
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>

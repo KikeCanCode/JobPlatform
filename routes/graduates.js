@@ -86,8 +86,8 @@ async function getCurrentUser(req, res) {
 	return null;
 }
 
-router.get("/dashboard", async (req, res) => {
-	const graduate = await getCurrentUser(req, res);
+router.get("/dashboard", async (req, res) => { 
+	const graduate = await getCurrentUser(req, res); // Coukd extract this to use as Middleware - put in Middle folder for reusability for bigger project.
 	if (!graduate) {
 		return res.redirect("/");
 	}

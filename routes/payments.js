@@ -1,10 +1,10 @@
 export default () => undefined;
 
 import express from "express";
-import db from "../db.js"; // Database connection
-import { paymentsTable, jobsTable, companiesTable, paymentTable } from "../db/schema.js";
-import verifyToken from "../middlewares/verifyToken.js"; // Middleware for authentication
-import { processStripePayment, processPayPalPayment } from "../services/paymentService.js"; // Payment service
+import db from "../db/index.js"; // Database connection
+import { paymentTable, jobsTable, companiesTable } from "../db/schema.js";
+import verifyToken from "../Middlewares/authMiddleware.js"; // Middleware for authentication
+//import { processStripePayment, processPayPalPayment } from "../Services/paymentService.js"; // Payment service
 
 const router = express.Router();
 
@@ -61,17 +61,17 @@ router.get("/", verifyToken, async (req, res) => {
     try {
     const payments = await db 
     .select({
-        paymentId: paymentsTable.id,
-        jobId: paymentsTable.job_id,
-        amount: paymentsTable.amount,
-        paymentMethod: paymentsTable.payment_method,
-        status: paymentsTable.status,
-        paymentDate: paymentsTable.payment_date,
+        paymentId: paymentTable.id,
+        jobId: paymentTable.job_id,
+        amount: paymentTable.amount,
+        paymentMethod: paymentTable.payment_method,
+        status: paymentTable.status,
+        paymentDate: paymentTable.payment_date,
 
     })
-    .from (paymentsTable)
+    .from (paymentTable)
     .where({ company_id: companyId })
-    res.status(200).json(paymnets);
+    res.status(200).json(paymnet);
     } catch (error) {
         console.error(error);
         res.status(500).send({ error: "Error retrieving payment history." });

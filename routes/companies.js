@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import db from "../db/index.js"; // database connection
 import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 import verifyToken from "../Middlewares/verifyAdminToken.js";
-import Stripe from "stripe"; // Import Stripe for payment processing
+//import Stripe from "stripe"; // Import Stripe for payment processing 
 const router = express.Router();
 
 // Function to generate a JWT token
@@ -235,7 +235,7 @@ router.delete("/delete", verifyToken, async (req, res) => {
 
 // Pay Fee for posting a job
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key
+//const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key
 
 // Post a Job with Payment
 router.post("/jobs-with-payment", verifyToken, async (req, res) => {

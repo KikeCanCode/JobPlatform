@@ -23,7 +23,7 @@ if (!sessionSecret) {
 	console.error("SESSION_SECRET environment variable not set");
 	process.exit(1);
 }
-app.use(
+app.use( // Middleware - provided by the library 
 	cookieSession({
 		name: "session",
 		keys: [sessionSecret],
