@@ -1,5 +1,5 @@
-import db from "../db.js"; // Database connection
-import { paymentsTable } from "../db/schema.js";
+import db from "../db/index.js"; // Database connection
+import { paymentTable } from "../db/schema.js";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 class Payment {
@@ -7,7 +7,7 @@ class Payment {
     static async createPayment({ companyId, jobId, amount, paymentMethod, status }) {
         try {
             const [payment] = await db
-                .insert(paymentsTable)
+                .insert(paymentTable)
                 .values({
                     company_id: companyId,
                     job_id: jobId,
@@ -28,14 +28,14 @@ class Payment {
         try {
             const payments = await db
                 .select({
-                    paymentId: paymentsTable.id,
-                    jobId: paymentsTable.job_id,
-                    amount: paymentsTable.amount,
-                    paymentMethod: paymentsTable.payment_method,
-                    status: paymentsTable.status,
-                    paymentDate: paymentsTable.payment_date,
+                    paymentId: paymentTable.id,
+                    jobId: paymentTable.job_id,
+                    amount: paymentTable.amount,
+                    paymentMethod: paymentTable.payment_method,
+                    status: paymentTable.status,
+                    paymentDate: paymentTable.payment_date,
                 })
-                .from(paymentsTable)
+                .from(paymentTable)
                 .where({ company_id: companyId });
 
             return payments;
@@ -49,7 +49,7 @@ class Payment {
         try {
             const payment = await db
                 .select()
-                .from(paymentsTable)
+                .from(paymentTable)
                 .where({ id: paymentId })
                 .first();
 

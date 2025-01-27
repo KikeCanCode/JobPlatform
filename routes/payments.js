@@ -5,7 +5,8 @@ import db from "../db/index.js"; // Database connection
 import { paymentTable, jobsTable, companiesTable } from "../db/schema.js";
 import verifyToken from "../Middlewares/authMiddleware.js"; // Middleware for authentication
 //import { processStripePayment, processPayPalPayment } from "../Services/paymentService.js"; // Payment service
-//import { processStripePayment } from "../Service/paymentService.js"; // Payment service
+import { processStripePayment } from "../Service/paymentService.js"; // Payment service
+import Payment from "../Model/paymentModel.js";
 
 const router = express.Router();
 
@@ -55,7 +56,22 @@ const [payment] = await db
 }
 });
 
-// Get Payment History for a Company
+// Get Payment History for a Company 
+router.get("/", verifyToken, async (req, res) => {
+    const companyId = req.user.id;
+
+    try {
+        const payments = await Payment.getPaymentHistory(companyId);
+        res.status(200).json(payments);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: "Error retrieving payment history." });
+    }
+});
+
+ 
+/* This is in Payment model 
+// Get Payment History for a Company 
 router.get("/", verifyToken, async (req, res) => {
     const companyId = req.user.id;
 
@@ -77,6 +93,7 @@ router.get("/", verifyToken, async (req, res) => {
         console.error(error);
         res.status(500).send({ error: "Error retrieving payment history." });
     }
-});
+});*/
+
 
 
