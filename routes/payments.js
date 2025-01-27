@@ -1,10 +1,11 @@
 export default () => undefined;
 
 import express from "express";
-import db from "../db.js"; // Database connection
-import { paymentsTable, jobsTable, companiesTable, paymentTable } from "../db/schema.js";
-import verifyToken from "../middlewares/verifyToken.js"; // Middleware for authentication
-import { processStripePayment, processPayPalPayment } from "../services/paymentService.js"; // Payment service
+import db from "../db/index.js"; // Database connection
+import { paymentTable, jobsTable, companiesTable } from "../db/schema.js";
+import verifyToken from "../Middlewares/authMiddleware.js"; // Middleware for authentication
+//import { processStripePayment, processPayPalPayment } from "../services/paymentService.js"; // Payment service
+import { processStripePayment } from "../Service/paymentService.js"; // Payment service
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ if(paymentMethod !== "Stripe") {
 }
 // Process payment
 let paymentStatus = "failed"; 
-paymentStatus = await proccprocessStripePayment(amount); // Stripe payment logic
+paymentStatus = await processStripePayment(amount); // Stripe payment logic
 
 //Save payment record 
 const [payment] = await db 
