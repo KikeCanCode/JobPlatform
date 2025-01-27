@@ -5,11 +5,7 @@ import jwt from "jsonwebtoken";
 import db from "../db/index.js"; // database connection
 import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 import verifyToken from "../Middlewares/verifyAdminToken.js";
-<<<<<<< HEAD
 //import Stripe from "stripe"; // Import Stripe for payment processing 
-=======
-//import Stripe from "stripe"; // Import Stripe for payment processing
->>>>>>> BackEnd
 const router = express.Router();
 
 // Function to generate a JWT token
@@ -76,7 +72,7 @@ router.post("/login", (req, res) => {
 			}
 		});
 });
-// Take graduates to the Dashbord
+// Take Companies to the Dashbord
 async function getCurrentUser(req, res) {
 	if (req.session?.companyId) {
 		const results = await db
@@ -103,56 +99,6 @@ router.get("/dashboard", async (req, res) => {
 
 	res.render("company/dashboard", { company: company });
 });
-
-// Post a Job with payment
-router.post("/post-job", verifyToken, async (req, res) => {
-    const companyId = req.user.id; // Extracted from token
-    const jobDetails = req.body;
-    const paymentDetails = req.body.paymentDetails; // e.g., Stripe token or payment method
-
-    try {
-        const result = await Company.postJobWithPayment(companyId, jobDetails, paymentDetails);
-        res.status(201).json(result);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Post a Job without payment 
-/*router.post("/jobs", verifyToken, async (req, res) => {
-	const { title, description, salary, location } = req.body;
-	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
-
-	try {
-		await db.insert(jobsTable).values({
-			// Used to add data
-			title,
-			description,
-			salary,
-			location,
-			company_id: companyId,
-		});
-		res.status(201).send({ message: "Job posted successfuly!" });
-	} catch (err) {
-		console.error(err);
-		res.status(500).send({ error: "Error posting job" });
-	}
-});*/
-
-/* // Post a Job - Option 2 which one is suitable?
-router.post("/", verifyToken, async (req, res) => {
-		const { title, description, salary } = req.body;
-		const companyId = req.user.id; // Extracted from token by authMiddleware
-
-		try {
-				await Job.create({ title, description, salary, companyId });
-				res.status(201).send({ message: "Job posted successfully!" });
-		} catch (err) {
-				console.error(err);
-				res.status(500).send({ error: "Error posting job" });
-		}
-});
-*/
 
 //Review applications
 router.get("/applications/:jobId", verifyToken, async (req, res) => {
