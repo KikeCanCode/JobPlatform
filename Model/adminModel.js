@@ -1,9 +1,5 @@
 import db from "../db/index.js"; // Database connection
-<<<<<<< HEAD
 //import { adminTable, companiesTable, graduatesTable, jobsTable } from "../db/schema.js";
-=======
-//import { adminsTable, companiesTable, graduatesTable, jobsTable } from "../db/schema.js";
->>>>>>> CompaniesRoutesUpdate
 import { companiesTable, graduatesTable, jobsTable } from "../db/schema.js";
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
