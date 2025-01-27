@@ -4,7 +4,7 @@
 export default {};
 
 import db from "../db/index.js";
-import { jobsTable } from "../schema/jobsTable.js"; // Import the table schema
+import { jobsTable } from "../db/schema.js"; // Import the table schema
 
 // JobModel Class
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
