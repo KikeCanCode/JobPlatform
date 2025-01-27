@@ -4,8 +4,8 @@ import express from "express";
 import db from "../db/index.js"; // Database connection
 import { paymentTable, jobsTable, companiesTable } from "../db/schema.js";
 import verifyToken from "../Middlewares/authMiddleware.js"; // Middleware for authentication
-//import { processStripePayment, processPayPalPayment } from "../services/paymentService.js"; // Payment service
-import { processStripePayment } from "../Service/paymentService.js"; // Payment service
+//import { processStripePayment, processPayPalPayment } from "../Services/paymentService.js"; // Payment service
+//import { processStripePayment } from "../Service/paymentService.js"; // Payment service
 
 const router = express.Router();
 
