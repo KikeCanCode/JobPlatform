@@ -1,7 +1,8 @@
 import express from "express";
-import verifyToken from "../middlewares/authMiddleware.js";
+import verifyToken from "../Middlewares/authMiddleware.js";
 import Job from "../Model/jobsModel.js";
 import { jobsTable } from "../db/schema.js";
+
 const router = express.Router();
 
 // Post a Job
