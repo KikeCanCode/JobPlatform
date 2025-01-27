@@ -1,5 +1,5 @@
 import db from "../db/index.js";
-import { applicationsTable } from "../schema/applicationsTable.js"; // Import the table schema
+import { applicationsTable } from "../db/schema.js"; // Import the table schema
 
 class Application {
 	constructor(id, jobId, graduateId, dateApplied) {

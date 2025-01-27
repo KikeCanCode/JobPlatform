@@ -1,6 +1,6 @@
 export default () => undefined;
 
-export const proccprocessStripePayment = async (amount) => {
+export const processStripePayment = async (amount) => {
     
     try {
 //stripe payment login

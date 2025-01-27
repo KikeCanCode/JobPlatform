@@ -5,7 +5,11 @@ import jwt from "jsonwebtoken";
 import db from "../db/index.js"; // database connection
 import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 import verifyToken from "../Middlewares/verifyAdminToken.js";
+<<<<<<< HEAD
 //import Stripe from "stripe"; // Import Stripe for payment processing 
+=======
+//import Stripe from "stripe"; // Import Stripe for payment processing
+>>>>>>> BackEnd
 const router = express.Router();
 
 // Function to generate a JWT token

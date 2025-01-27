@@ -2,6 +2,7 @@ import db from "../db/index.js"; // Import your Drizzle ORM instance
 import bcrypt from "bcryptjs";
 //import multer from "multer";
 
+
 class Graduate {
 	constructor(
 		username,

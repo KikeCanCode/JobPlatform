@@ -150,7 +150,7 @@ static async postJobWithPayment(companyId, jobDetails, paymentDetails) {
 // Step 1: Verify company exists
 const companyExists = await db
     .select()
-    from(companiesTable)
+    .from(companiesTable)
     .where("id", companyId)
     .execute();
 
