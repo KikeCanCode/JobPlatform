@@ -1,3 +1,4 @@
+
 import bodyParser from "body-parser";
 import cookieSession from "cookie-session";
 import dotenv from "dotenv";
@@ -54,7 +55,7 @@ app.get("/", (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-	console.log(`Server running on port ${port}`);
+	console.log(`Server is running on port ${port}`);
 });
 
 /*
