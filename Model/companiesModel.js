@@ -1,7 +1,7 @@
 import db from "../db/index.js"; 
 import bcrypt from "bcryptjs";
-import paymentProcessor from "../utils/paymentProcessor"; // Example payment processor function
-
+import { processStripePayment } from "../Service/paymentService.js";
+import { companiesTable, jobsTable, applicationsTable, graduatesTable } from "../db/schema.js";
 class Company {
 	constructor(
 		name,
@@ -88,14 +88,19 @@ static async login(email, password) {
 static async reviewApplications(jobId) {
 	try {
 		const applications = await db
-			.select()
-			.from("applications")
+			.select({
+				applicationId: applicationsTable.id,
+				graduateId: graduatesTable.id,
+				graduateName: graduatesTable.name,
+				applicationDate: applicationsTable.created_at,
+			})
+			.from(applicationsTable)
 			.innerJoin(
-				"graduates",
-				"graduates.id",
-				"applications.graduate_id",
+				graduatesTable, 
+				graduatesTable.id, 
+				applicationsTable.graduate_id
 			)
-			.where("applications.job_id", "=", jobId)
+			.where(applicationsTable.job_id, "=", jobId)
 			.execute();
 			
         if (applications.length === 0) {
@@ -121,7 +126,7 @@ static async updateProfile(opts = {}) {
 
 	try {
 		const results = await db
-			.update("companies")
+			.update(companiesTable)
 			.set({
 				name,
 				email,
@@ -129,7 +134,8 @@ static async updateProfile(opts = {}) {
 				address,
 				profile,
 			})
-			.where("id", "=", companyId)
+			//.where("id", "=", companyId)
+			.where(companiesTable.id, "=", companyId) //ensures there’s no confusion between the id column of companiesTable and any potential id column in jobsTable.
 			.execute();
 
 		if (results.affectedRows === 0) {
@@ -151,7 +157,8 @@ static async postJobWithPayment(companyId, jobDetails, paymentDetails) {
 const companyExists = await db
     .select()
     .from(companiesTable)
-    .where("id", companyId)
+    //.where("id", companyId)
+	.where(companiesTable.id, "=", companyId)
     .execute();
 
     if (companyExists.length === 0) {
@@ -159,9 +166,9 @@ const companyExists = await db
     }
 
  // Step 2: Process payment
-    const paymentResult = await paymentProcessor(paymentDetails); // This could be Stripe/PayPal logic
-        if (!paymentResult.success) {
-            throw new Error("Payment failed");
+    const paymentResult = await processStripePayment(paymentDetails.amount); // This could be Stripe/PayPal logic
+        if (paymentResult !== "success") {
+			throw new Error("Payment failed");
          }
 
 // Step 3: Post job
@@ -185,7 +192,15 @@ const job = await db.insert(jobsTable).values({
 // Delete Account
 static async deleteAccount(companyId) {
 	try {
-	    await db.delete().from("companies").where({ id: companyId }).execute();
+		const result = await db
+		.delete()
+		.from(companiesTable)
+		.where({ id: companyId })
+		.execute();
+
+		if (result.length === 0) {
+			throw new Error("Company not found");
+		}
 
 	return { message: "Company account deleted successfully!" };
 	} catch (err) {
