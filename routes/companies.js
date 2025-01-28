@@ -49,7 +49,7 @@ router.post("/login", (req, res) => {
 				return res.status(401).send("Invalid password or username");
 			}
 
-			const graduate = results[0];
+			const company = results[0];
 
 			try {
 				const isMatch = await bcrypt.compare(password, company.password_hash);
@@ -149,7 +149,7 @@ router.put("/update-profile", async (req, res) => {
 
 	try {
 		const results = await db
-			.update(graduatesTable)
+			.update(companiesTable)
 			.set({
 				company_name: companyName,
 				username,
@@ -158,7 +158,7 @@ router.put("/update-profile", async (req, res) => {
 				company_address: companyAddress,
 				company_profiles: companyProfile,
 			})
-			.where("id", graduateId)
+			.where("id", companyId)
 			.execute();
 
 		if (results.affectedRows === 0) {
