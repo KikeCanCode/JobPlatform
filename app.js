@@ -33,11 +33,13 @@ app.use( // Middleware - provided by the library
 
 // Set EJS as the view engine - this is for the Front-End
 app.set("views", path.join(process.cwd(), "Views"));
+
 app.set("view engine", "ejs");
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
 app.use(express.static("public"));
 
 //Routes/Endpoints
@@ -50,18 +52,17 @@ app.use("/payments", paymentsRoutes);
 
 //Homepage Route - to diplay the homepage
 app.get("/", (req, res) => {
+	res.render("homepage/index");
+});
+
+/*app.get("/", (req, res) => {
 	res.render("graduates/login");
 });
+*/
 
 // Start the server
 app.listen(port, () => {
 	console.log(`Server is running on port ${port}`);
 });
 
-/*
-https://blog.logrocket.com/node-js-project-architecture-best-practices/
 
-https://dev.to/santypk4/bulletproof-node-js-project-architecture-4epf
-https://developerport.medium.com/understanding-process-env-port-in-node-js-e09aef80384c
-https://stackoverflow.com/questions/55363851/how-i-display-index-js-file-onto-the-server-in-js
- */
