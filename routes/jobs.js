@@ -64,4 +64,72 @@ router.patch("/:jobId/status", verifyToken, async (req, res) => {
 	}
 });
 
+// Search for jobs
+/*router.get("/jobs", (req, res) => {
+	const { lcation, skills, education, datePosted } = req.query;
+	let query = " SELECT * FROM jobs WHERE 1=1";
+	const queryParams = [];
+
+	if (location) {
+		query += "AND location = ?";
+		queryParams.push(location);
+	}
+	if (skills) {
+		query += "AND skills LIKE ?";
+		queryParams.push(`%${skills}%`);
+	}
+	if (education) {
+		query += "AND education =?";
+		queryParams.push(education);
+	}
+	if (datePosted) {
+		query += "AND date_posted >= ?";
+		queryParams.push(datePosted);
+	}
+
+	db.query(query, queryParams, (err, results) => {
+		if (err) return res.status(500).json({ error: err.message });
+		res.json({ data: results });
+	});
+});
+*/
+
+//Search for jobs
+router.get("/jobs", async (req, res) => {
+	const { title, location, skills, education, datePosted } = req.query;
+	// Start with the base query
+	let query = db.select("*").from("jobs"); // Select all fields from jobs table
+
+	// Dynamically build query based on filters provided in query params
+	if (title) {
+        query = query.where("title", "LIKE", `${title}%`); 
+    }
+	if (location) {
+		query = query.where("location", location); // Apply location filter
+	}
+	if (skills) {
+		query = query.where("skills", "LIKE", `%${skills}%`); // Apply skills filter using LIKE
+	}
+	if (education) {
+		query = query.where("education", education); // Apply education filter
+	}
+	if (datePosted) {
+		query = query.where("date_posted", ">=", datePosted); // Apply datePosted filter
+	}
+
+	/*try {
+		const results = await query.execute();
+		res.json({ data: results });
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}*/
+	try {
+        const results = await query.execute();
+        res.render("jobs/results", { jobs: results }); // Render results in a view
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 export default router;
