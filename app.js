@@ -55,10 +55,13 @@ app.get("/", (req, res) => {
 	res.render("homepage/index");
 });
 
-/*app.get("/", (req, res) => {
-	res.render("graduates/login");
-});
-*/
+// app.get("/graduates/lgin", (req, res) => {
+// 	res.render("graduates/login");
+// });
+
+// router.get("graduates/signup", (req, res) => {
+//     res.render("graduates/signup"); 
+// });
 
 // Start the server
 app.listen(port, () => {
