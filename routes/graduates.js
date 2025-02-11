@@ -10,6 +10,18 @@ import verifyToken from "../Middlewares/verifyAdminToken.js";
 
 const router = express.Router();
 
+
+// Display Graduates Login Page  
+app.get("/graduates/login", (req, res) => {
+    res.render("graduates/login");
+});
+
+// Display Graduates Sign-Up Page  
+app.get("/graduates/signup", (req, res) => {
+    res.render("graduates/signup");
+});
+
+
 // Graduate Sign-up
 router.post("/signup", async (req, res) => {
 	const { username, email, password } = req.body;
