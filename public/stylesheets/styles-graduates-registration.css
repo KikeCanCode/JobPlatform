@@ -1,0 +1,66 @@
+/* Apply basic styling */
+body {
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+/* Form container */
+.form-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* Form heading */
+.form-container h2 {
+    margin-bottom: 1rem;
+    color: #000000;
+}
+
+/* Input fields */
+.form-container input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* File input */
+.form-container input[type="file"] {
+    border: none;
+}
+
+/* Submit button */
+.form-container button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: #fd8e18;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+/* Button hover effect */
+.form-container button:hover {
+    background: #e19947;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+    .form-container {
+        width: 90%;
+    }
+}

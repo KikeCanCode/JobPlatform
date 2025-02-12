@@ -24,7 +24,7 @@ app.get("/graduates/signup", (req, res) => {
 
 // Graduate Sign-up
 router.post("/signup", async (req, res) => {
-	const { username, email, password } = req.body;
+	const { email, password } = req.body;
 
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
@@ -42,6 +42,56 @@ router.post("/signup", async (req, res) => {
 	} catch (err) {
 		res.status(500).send({ Error: "Error hashing password" });
 	}
+});
+
+// Graduate Sign-up process handling - redirect to registration page 
+router.post("/signup", async (req, res) => {
+	const { email, password } = req.body;
+
+	try {
+		const hashedPassword = await bcrypt.hash(password, 10);
+
+		// Store email & password temporarily (for registration step)
+		req.session.tempUser = { email, password: hashedPassword }; // req.session.tempUseris a temporary storage for user data using sessions in Express
+
+		// Redirect to registration form
+		res.redirect("/graduates/registrationForm");
+	} catch (err) {
+		console.error(err);
+		res.status(500).send({ Error: "Error hashing password" });
+	}
+});
+
+router.post("/register", async (req, res) => { // no need to include email and password in the constructor as they were already collected.
+    const { firstName, lastName, contactNumber, qualification, bootcampInstitute, graduationYear, skills, certificatePath } = req.body;
+
+    try {
+        // Retrieve email & password from session
+        const { email, password } = req.session.tempUser;
+
+        // Insert user into the database
+        await db.insert(graduatesTable).values({
+            email,
+            password_hash: password, // Already hashed
+            firstName,
+            lastName,
+            contactNumber,
+            qualification,
+            bootcampInstitute,
+            graduationYear,
+            skills,
+            certificatePath
+        });
+
+        // Clear session data
+        req.session.tempUser = null;
+
+        // Redirect to the dashboard (to be created later)
+        res.redirect("graduates/dashboard");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server Error");
+    }
 });
 
 // Graduate Login
@@ -79,6 +129,7 @@ router.post("/login", (req, res) => {
 			}
 		});
 });
+
 // Take graduates to the Dashbord
 async function getCurrentUser(req, res) {
 	if (req.session?.graduateId) {
