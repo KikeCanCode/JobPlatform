@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="stylesheets/styles-graduates-login.css"> 
-  <link rel="stylesheet" href="stylesheets/styles-template.css">
+  <link rel="stylesheet" href="/stylesheets/styles-graduates-login.css"> 
+  <link rel="stylesheet" href="/stylesheets/styles-template.css">
 
   <title> Job Platform Homepage</title>
 </head>
@@ -26,7 +26,7 @@
 <div class="auth-container">
     <h2>Sign Up</h2>
     <form action="/graduates/signup" method="post">
-        <input type="email" name="email" placeholder="Enter your email" value="<%= email || '' %>" required>
+        <input type="email" name="email" placeholder="Enter your email" value="email" required>
         <input type="password" name="password" placeholder="Password" required>
         <button type="submit" class="login-btn">Create an Account</button>
     </form>
