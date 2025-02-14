@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="stylesheets/styles-homepage.css">
+  <link rel="stylesheet" href="/stylesheets/styles-homepage.css">
 
-  <link rel="stylesheet" href="stylesheets/styles-graduates-registration.css">
+  <link rel="stylesheet" href="/stylesheets/styles-graduates-registration.css">
 
   <title> Job Platform Homepage</title>
 </head>
@@ -24,9 +24,48 @@
     <li><a href="/pages/contactUs"> Contact Us </a></li>
   </ul>
 </nav>
-
+<br>
+<br>
+<br>
+<br>
 <div class="registration-container">
   <h2>Register</h2>
+  <form action="graduates/dashboard" method="POST">
+    <!-- First Name -->
+    <input type="text" name="firstName" placeholder="Enter your first name" value="firstName" required>
+ <br>
+ <br>
+    <!-- Last Name -->
+    <input type="text" name="lastName" placeholder="Enter your last name" value="lastName" required>
+ <br>
+  <br>
+    <!-- Contact Number -->
+    <input type="text" name="contactNumber" placeholder="Enter your contact number" value="contactNumber" required>
+ <br>
+  <br>
+    <!-- Qualification -->
+    <input type="text" name="qualification" placeholder="Enter your qualification" value="qualification" required>
+  <br>
+  <br>
+    <!-- Bootcamp Institute -->
+    <input type="text" name="bootcampInstitute" placeholder="Enter your bootcamp institute" value="bootcampInstitute" required>
+  <br>
+  <br>
+    <!-- Graduation Year -->
+    <input type="number" name="graduationYear" placeholder="Enter your graduation year" value="graduationYear" required>
+  <br>
+  <br>
+    <!-- Skills -->
+    <input type="text" name="skills" placeholder="Enter your skills (comma-separated)" value="skills" required>
+  <br>
+  <br>
+    <!-- Certificate Upload -->
+    <input type="file" name="certificatePath">
+  <br>
+  <br>
+    <!-- Submit Button -->
+    <button type="submit">Submit</button>
+ </form>
 
   <form action="graduates/dashboard" method="POST">
    <!-- Email (Readonly, from session) -->
