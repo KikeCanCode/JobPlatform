@@ -11,7 +11,6 @@ import verifyToken from "../Middlewares/verifyAdminToken.js";
 const router = express.Router();
 
 
-<<<<<<< HEAD
 // Display Graduates Login Page
 router.get("/login", (req, res) => {
 	res.render("graduates/login");
@@ -20,16 +19,7 @@ router.get("/login", (req, res) => {
 // Display Graduates Sign-Up Page
 router.get("/signup", (req, res) => {
 	res.render("graduates/signup");
-=======
-// Display Graduates Login Page  
-router.get("/graduates/login", (req, res) => {
-    res.render("graduates/login");
-});
-
-// Display Graduates Sign-Up Page  
-router.get("/graduates/signup", (req, res) => {
-    res.render("graduates/signup");
->>>>>>> GraduatesRegistration
+	
 });
 
 
