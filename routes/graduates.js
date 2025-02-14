@@ -12,13 +12,19 @@ const router = express.Router();
 
 
 // Display Graduates Login Page  
-app.get("/login", (req, res) => {
+router.get("/login", (req, res) => {
     res.render("graduates/login");
 });
 
 // Display Graduates Sign-Up Page  
-app.get("/signup", (req, res) => {
+router.get("/signup", (req, res) => {
     res.render("graduates/signup");
+	
+});
+// Display Graduates Registration Page  
+router.get("/registrationForm", (req, res) => {
+    res.render("graduates/registrationForm");
+	
 });
 
 
