@@ -21,10 +21,14 @@ router.get("/signup", (req, res) => {
     res.render("graduates/signup");
 	
 });
-// Display Graduates Registration Page  
-router.get("/registrationForm", (req, res) => {
-    res.render("graduates/registrationForm");
-	
+// Display Graduates Registration Page  - Ensure to render login page when clicked or back 
+router.get("/registrationForm", async (req, res) => {
+	// const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
+	// if (!graduate) {
+		// return res.redirect("/graduates/login"); // redirecct to login page 
+	// }
+    res.render("graduates/registrationForm"); // redirect to registeration page after login 
+	 
 });
 
 
@@ -37,15 +41,17 @@ router.post("/signup", async (req, res) => {
 
 		await db.insert(graduatesTable).values({
 			//...req.body,
-			username,
+			// username
 			email,
 			password_hash: hashedPassword,
 		});
 
 		return res
-			.status(201)
-			.send({ message: "Graduate account created successfully!" });
-	} catch (err) {
+			// .status(201)
+			.redirect("/graduates/registrationForm")
+			// .send({ message: "Graduate account created successfully!" });
+	} catch (err) { 
+		console.log(err)
 		res.status(500).send({ Error: "Error hashing password" });
 	}
 });
@@ -156,7 +162,7 @@ async function getCurrentUser(req, res) {
 }
 
 router.get("/dashboard", async (req, res) => { 
-	const graduate = await getCurrentUser(req, res); // Coukd extract this to use as Middleware - put in Middle folder for reusability for bigger project.
+	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
 	if (!graduate) {
 		return res.redirect("/");
 	}
@@ -228,7 +234,7 @@ router.get("/jobs/:jobId/apply", verifyToken, async (req, res) => {
 router.get("/profile", verifyToken, async (req, res) => {
 	try {
 		const results = await db
-			.select("username", "email", "first_name", "last_name")
+			.select("email", "first_name", "last_name")
 			.from("graduates")
 			.where("graduate_id", req.graduateId)
 			.execute();
@@ -306,7 +312,7 @@ router.put("/update-profile", async (req, res) => {
 		firstName,
 		lastName,
 		email,
-		username,
+		// username,
 		contactNumber,
 		qualification,
 		bootcampInstitute,
@@ -321,7 +327,7 @@ router.put("/update-profile", async (req, res) => {
 				first_name: firstName,
 				last_name: lastName,
 				email,
-				username,
+				// username,
 				contact_number: contactNumber,
 				qualification,
 				bootcamp_institute: bootcampInstitute,
@@ -373,7 +379,7 @@ router.delete("/delete", verifyToken, async (req, res) => {
 
 // Integrating CAPTCHA verification
 router.post("/signup", async (req, res) => {
-	const { username, password, recaptchaToken } = req.body;
+	const { password, recaptchaToken } = req.body;
 	const verifyUrl = " "; // register domain name on google recaptcha to get the url
 
 	try {

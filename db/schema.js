@@ -12,7 +12,7 @@ export const graduatesTable = mysqlTable("graduates", {
 	id: serial().primaryKey(),
 	first_name: varchar({ length: 255 }),
 	last_name: varchar({ length: 255 }),
-	username: varchar({ length: 100 }).notNull(),
+	// username: varchar({ length: 100 }).notNull(),
 	email: varchar({ length: 100 }).notNull().unique(),
 	contact_number: varchar({ length: 255 }),
 	password_hash: varchar({ length: 255 }).notNull(),
@@ -26,7 +26,7 @@ export const graduatesTable = mysqlTable("graduates", {
 export const companiesTable = mysqlTable("companies", {
 	id: serial().primaryKey(),
 	company_name: varchar({ length: 255 }),
-	username: varchar({ length: 100 }).notNull(),
+	// username: varchar({ length: 100 }).notNull(),
 	email: varchar({ length: 100 }).notNull().unique(),
 	contact_number: varchar({ length: 255 }),
 	company_address: varchar({ length: 500 }),
@@ -55,7 +55,7 @@ export const applicationsTable = mysqlTable("applications", {
 // Admin Table -
 export const adminTable = mysqlTable("admin", {
 	id: serial().primaryKey(),
-	username: varchar({ length: 100 }).notNull(),
+	// username: varchar({ length: 100 }).notNull(),
 	email: varchar({ length: 100 }).notNull().unique(),
 	password_hash: varchar({ length: 255 }).notNull(), // Store hashed passwords
 	created_at: timestamp().defaultNow(), // Automatically set to the current timestamp

@@ -1,31 +1,34 @@
 /* Apply basic styling */
-body {
+/* .registration-container body {
     background-color: #f4f4f9;
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0;
-}
+} */
 
 /* Form container */
-.form-container {
+.registration-container {
     background: white;
     padding: 2rem;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
+    width: 80%;
+    max-width: 600px;
+    margin: auto;
     text-align: center;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Form heading */
-.form-container h2 {
+.registration h2 {
     margin-bottom: 1rem;
     color: #000000;
 }
 
 /* Input fields */
-.form-container input {
+.registration-container input {
     width: 100%;
     padding: 10px;
     margin: 8px 0;
@@ -35,13 +38,13 @@ body {
 }
 
 /* File input */
-.form-container input[type="file"] {
+.registration-container input[type="file"] {
     border: none;
 }
 
 /* Submit button */
-.form-container button {
-    width: 100%;
+.registration-container button {
+    width: 50%;
     padding: 12px;
     margin-top: 10px;
     background: #fd8e18;
