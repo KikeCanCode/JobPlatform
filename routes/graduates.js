@@ -23,7 +23,7 @@ router.get("/signup", (req, res) => {
 });
 
 // Display Graduates Dashboard Page  
-router.get("/dashborad", (req, res) => {
+router.get("/dashboard", (req, res) => {
     res.render("graduates/dashboard");
 	
 });
@@ -104,8 +104,8 @@ router.post("/register", async (req, res) => { // no need to include email and p
         // Clear session data
         req.session.tempUser = null;
 
-        // Redirect to the dashboard (to be created later)
-        res.redirect("graduates/dashboard");
+        // Redirect to the dashboard 
+        res.redirect("/graduates/dashboard");
     } catch (error) {
         console.error(error);
         res.status(500).send("Server Error");
