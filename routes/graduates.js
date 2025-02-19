@@ -28,12 +28,17 @@ router.get("/dashboard", (req, res) => {
 	
 });
 
+ // Handle form submission, e.g., save data, then redirect
+router.post("/dashboard", (req, res) => {  
+    res.redirect("/graduates/dashboard");
+});
+
 // Display Graduates Registration Page  - Ensure to render login page when clicked or back 
 router.get("/registrationForm", async (req, res) => {
-	// const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
-	// if (!graduate) {
-		// return res.redirect("/graduates/login"); // redirecct to login page 
-	// }
+	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
+	if (!graduate) {
+		return res.redirect("/graduates/login"); // redirecct to login page 
+	}
     res.render("graduates/registrationForm"); // redirect to registeration page after login 
 	 
 });
