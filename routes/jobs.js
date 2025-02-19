@@ -5,8 +5,6 @@ import { jobsTable } from "../db/schema.js";
 
 const router = express.Router();
 
-
-
 //Display job list on a webpage - (Webpage route) Fetches jobs from the database/Renders an HTML page (jobs/jobList.ejs) to display
 
 router.post("/jobsList", (req, res) => {  
