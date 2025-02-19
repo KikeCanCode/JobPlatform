@@ -21,6 +21,13 @@ router.get("/signup", (req, res) => {
     res.render("graduates/signup");
 	
 });
+
+// Display Graduates Dashboard Page  
+router.get("/dashborad", (req, res) => {
+    res.render("graduates/dashboard");
+	
+});
+
 // Display Graduates Registration Page  - Ensure to render login page when clicked or back 
 router.get("/registrationForm", async (req, res) => {
 	// const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
@@ -30,7 +37,6 @@ router.get("/registrationForm", async (req, res) => {
     res.render("graduates/registrationForm"); // redirect to registeration page after login 
 	 
 });
-
 
 // Graduate Sign-up
 router.post("/signup", async (req, res) => {
