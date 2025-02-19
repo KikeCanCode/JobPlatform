@@ -5,6 +5,65 @@ import { jobsTable } from "../db/schema.js";
 
 const router = express.Router();
 
+
+
+//Display job list on a webpage - (Webpage route) Fetches jobs from the database/Renders an HTML page (jobs/jobList.ejs) to display
+
+router.post("/jobsList", (req, res) => {  
+    res.redirect("/jobs/jobList"); 
+});
+
+router.get("/jobList", async (req, res) => {
+	try {
+		const jobs = await db
+		.select()
+		.from(jobsTable)
+		.execute();
+		res.render("jobs/jobList", { jobs });
+		
+	} catch (err) {
+		console.error("Error fetching job list:", err);
+		res.status(500).send({ error: "Error fetching job list" });
+	}
+});
+
+// Get a single job by ID 
+router.get("/jobs/:id", async (req, res) => {
+	const jobId = req.params.id;
+
+	try {
+		const job = await db
+			.select()
+			.from(jobsTable)
+			.where({ id: jobId })
+			.execute();
+
+		if (job.length === 0) {
+			return res.status(404).send({ error: "Job not found" });
+		}
+
+		res.json(job[0]);
+	} catch (err) {
+		console.error("Error fetching job:", err);
+		res.status(500).send({ error: "Error fetching job details" });
+	}
+});
+
+// Get all jobs Routes 
+router.get("/jobs", async (req, res) => {
+	try {
+		const jobs = await db
+		.select()
+		.from(jobsTable)
+		.execute();
+
+		res.json(jobs);
+	} catch (err) {
+		console.error("Error fetching jobs:", err);
+		res.status(500).send({ error: "Error fetching job list" });
+	}
+});
+
 // Post a Job
 router.post("/jobs", verifyToken, async (req, res) => {
 	const {
@@ -125,7 +184,7 @@ router.get("/jobs", async (req, res) => {
 	}*/
 	try {
         const results = await query.execute();
-        res.render("jobs/results", { jobs: results }); // Render results in a view
+        res.render("jobs/jobsList", { jobs: jobsList }); // Render results in a view
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

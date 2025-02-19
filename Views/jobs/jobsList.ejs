@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="stylesheets/styles-homepage.css">
+  <link rel="stylesheet" href="stylesheets/styles-template.css">
+  <link rel="stylesheet" href="stylesheets/styles-jobs.css">
+
+    <title> Job List Page </title>
+</head>
+<body>
+    <header>
+    <h1> LOGO </h1> 
+        
+    </header>
+     
+    <nav class="menu">
+       <ul>
+         <li><a href="/">Home</a></li>
+         <li><a href="/jobs/jobs"> Find a jobs</a></li>
+         <li><a href="aboutUs">About Us </a></li>
+         <li><a href="/pages/contactUs"> Contact Us </a></li>
+       </ul>
+    </nav>
+     
+    <div class="header-container">
+
+    <form action="/jobs/search" method="GET" class="search-container">
+      <input type="text" name="query" class="search-input" placeholder="Search for jobs...">
+      <button type="submit" class="search-btn">Search</button>
+    </form>
+  
+  <!--Login | Post a Job Section -->
+    <div class="login-divider">
+      <a href="/login" class="login-link">Login</a>
+      <span class="divider">|</span>
+      <a href="/companies/post-job" class="login-link">Post a Job</a> 
+    </div>
+  </div>
+  <hr>
+  <br>
+  <div class="jobs-list-container">
+    <h1>Jobs</h1>
+    <ul class="job-list">
+        <% jobs.forEach(job => { %>
+            <li class="job-card">
+                <div class="job-title"><%= job.title %></div>
+                <div class="job-details">
+                    <strong>Company:</strong> <%= job.company %> - <strong>Location:</strong> <%= job.location %>
+                </div>
+                <p class="job-description">
+                    <%= job.description.length > 150 ? job.description.substring(0, 150) + "..." : job.description %>
+                </p>
+                <div class="job-actions">
+                    <a href="/apply/<%= job.id %>" class="apply-btn">Apply Now</a>
+                    <a href="/saveJob/<%= job.id %>" class="save-btn">Save Job</a>
+                </div>
+            </li>
+        <% }); %>
+    </ul>
+</div>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+      <div class="footer-band">
+      <footer>
+        <ul>
+          <a href="homepage/index.ejs"> Home </a>
+          <a href="pages/aboutUs.html"> About Us</a>
+          <a href="pages/pricing.html"> Pricing </a>
+          <a href="pages/contactMe.html"> Contact Us </a>
+      </ul>
+            
+      <div class="copyright">
+                
+        <p>&copy; 2025 Job Platform. All Rights Reserved.</p>
+      </div>
+    
+      </footer>
+    </div>
+</body>
+</html>
