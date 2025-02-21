@@ -8,6 +8,38 @@ import verifyToken from "../Middlewares/verifyAdminToken.js";
 //import Stripe from "stripe"; // Import Stripe for payment processing 
 const router = express.Router();
 
+// Display companies Login Page  
+router.get("/login", (req, res) => {
+    res.render("companies/login");
+});
+
+// Display companies Sign-Up Page  
+router.get("/signup", (req, res) => {
+    res.render("companies/signup");
+	
+});
+
+// Display companies Dashboard Page  
+router.get("/dashboard", (req, res) => {
+    res.render("companies/dashboard");
+	
+});
+
+ // Handle form submission, e.g., save data, then redirect
+router.post("/dashboard", (req, res) => {  
+    res.redirect("/companies/dashboard");
+});
+
+// Display companies Registration Page  - Ensure to render login page when clicked or back 
+router.get("/registrationForm", async (req, res) => {
+	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
+	if (!graduate) {
+		return res.redirect("/companies/login"); // redirecct to login page 
+	}
+    res.render("companies/registrationForm"); // redirect to registeration page after login 
+	 
+});
+
 // Function to generate a JWT token
 
 const generateToken = (company) => {
@@ -18,23 +50,71 @@ const generateToken = (company) => {
 
 // Companies Sign-up
 router.post("/signup", async (req, res) => {
-	const { name, email, password } = req.body;
+	const { email, password } = req.body;
 
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
 		// Insert into the database using Drizzle ORM
 		await db.insert(companiesTable).values({
-			name,
 			email,
 			password_hash: hashedPassword,
 		});
 
 		return res
-			.status(201)
-			.send({ message: "Company account created successfully!" });
+			// .status(201)
+			.redirect("/companies/registrationForm")
+			// .send({ message: "Company account created successfully!" });
 	} catch (err) {
-		res.status(500).send({ Error: "Error creating account" });
+		console.log(err)
+		res.status(500).send({ Error: "Error hashing password" });
 	}
+});
+
+
+// Graduate Sign-up process handling - redirect to registration page 
+router.post("/signup", async (req, res) => {
+	const { email, password } = req.body;
+
+	try {
+		const hashedPassword = await bcrypt.hash(password, 10);
+
+		// Store email & password temporarily (for registration step)
+		req.session.tempUser = { email, password: hashedPassword }; // req.session.tempUseris a temporary storage for user data using sessions in Express
+
+		// Redirect to registration form
+		res.redirect("/companies/registrationForm");
+	} catch (err) {
+		console.error(err);
+		res.status(500).send({ Error: "Error hashing password" });
+	}
+});
+
+router.post("/register", async (req, res) => { // no need to include email and password in the constructor as they were already collected.
+    const { companyName, contactNumber, companyAddress, companyProfile } = req.body;
+
+    try {
+        // Retrieve email & password from session
+        const { email, password } = req.session.tempUser;
+
+        // Insert user into the database
+        await db.insert(companiesTable).values({
+            password_hash: password, // Already hashed
+			companyName,
+			email,
+			contactNumber,
+			companyAddress,
+			companyProfile		
+        });
+
+        // Clear session data
+        req.session.tempUser = null;
+
+        // Redirect to the dashboard 
+        res.redirect("/companies/dashboard");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server Error");
+    }
 });
 
 // Companies Login
@@ -97,7 +177,7 @@ router.get("/dashboard", async (req, res) => {
 		return res.redirect("/");
 	}
 
-	res.render("company/dashboard", { company: company });
+	res.render("companies/dashboard", { company: company });
 });
 
 //Review applications
@@ -106,12 +186,6 @@ router.get("/applications/:jobId", verifyToken, async (req, res) => {
 	try {
 		const applications = await db
 			.select()
-			// .select({
-			// 	applicationId: applicationsTable.id,
-			// 	graduateId: applicationsTable.graduate_id,
-			// 	graduateName: graduatesTable.name,
-			// 	dateApplied: applicationsTable.date_applied,
-			// })
 			.from(applicationsTable)
 			.innerJoin(
 				graduatesTable,
