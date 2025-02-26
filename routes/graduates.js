@@ -5,124 +5,23 @@ import express from "express";
 import multer from "multer"; // Multer is a node.js middleware for handling multipart/form-data, which is primarily usedused to uplode file
 import fetch from "node-fetch";
 import db from "../db/index.js"; // Drizzle Orm Connection
-import { graduatesTable } from "../db/schema.js";
+import { applicationsTable, graduatesTable, jobsTable } from "../db/schema.js";
 import verifyToken from "../Middlewares/verifyAdminToken.js";
+import { eq } from "drizzle-orm";
 
 const router = express.Router();
-
 
 // Display Graduates Login Page  
 router.get("/login", (req, res) => {
     res.render("graduates/login");
 });
 
-// Display Graduates Sign-Up Page  
-router.get("/signup", (req, res) => {
-    res.render("graduates/signup");
-	
-});
-
-// Display Graduates Dashboard Page  
-router.get("/dashboard", (req, res) => {
-    res.render("graduates/dashboard");
-	
-});
-
- // Handle form submission, e.g., save data, then redirect
-router.post("/dashboard", (req, res) => {  
-    res.redirect("/graduates/dashboard");
-});
-
-// Display Graduates Registration Page  - Ensure to render login page when clicked or back 
-router.get("/registrationForm", async (req, res) => {
-	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
-	if (!graduate) {
-		return res.redirect("/graduates/login"); // redirecct to login page 
-	}
-    res.render("graduates/registrationForm"); // redirect to registeration page after login 
-	 
-});
-
-// Graduate Sign-up
-router.post("/signup", async (req, res) => {
-	const { email, password } = req.body;
-
-	try {
-		const hashedPassword = await bcrypt.hash(password, 10);
-
-		await db.insert(graduatesTable).values({
-			//...req.body,
-			// username
-			email,
-			password_hash: hashedPassword,
-		});
-
-		return res
-			// .status(201)
-			.redirect("/graduates/registrationForm")
-			// .send({ message: "Graduate account created successfully!" });
-	} catch (err) { 
-		console.log(err)
-		res.status(500).send({ Error: "Error hashing password" });
-	}
-});
-
-// Graduate Sign-up process handling - redirect to registration page 
-router.post("/signup", async (req, res) => {
-	const { email, password } = req.body;
-
-	try {
-		const hashedPassword = await bcrypt.hash(password, 10);
-
-		// Store email & password temporarily (for registration step)
-		req.session.tempUser = { email, password: hashedPassword }; // req.session.tempUseris a temporary storage for user data using sessions in Express
-
-		// Redirect to registration form
-		res.redirect("/graduates/registrationForm");
-	} catch (err) {
-		console.error(err);
-		res.status(500).send({ Error: "Error hashing password" });
-	}
-});
-
-router.post("/register", async (req, res) => { // no need to include email and password in the constructor as they were already collected.
-    const { firstName, lastName, contactNumber, qualification, bootcampInstitute, graduationYear, skills, certificatePath } = req.body;
-
-    try {
-        // Retrieve email & password from session
-        const { email, password } = req.session.tempUser;
-
-        // Insert user into the database
-        await db.insert(graduatesTable).values({
-            email,
-            password_hash: password, // Already hashed
-            firstName,
-            lastName,
-            contactNumber,
-            qualification,
-            bootcampInstitute,
-            graduationYear,
-            skills,
-            certificatePath
-        });
-
-        // Clear session data
-        req.session.tempUser = null;
-
-        // Redirect to the dashboard 
-        res.redirect("/graduates/dashboard");
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Server Error");
-    }
-});
-
-// Graduate Login
+//  Route - Graduate Login
 router.post("/login", (req, res) => {
-	const { email, password } = req.body; //const { username, password } = req.body;
+	const { email, password } = req.body;
 	db.select()
 		.from(graduatesTable)
-		.where({ email })//.where({ username })
+		.where({ email })
 		.execute()
 		.then(async (results) => {
 			if (results.length === 0) {
@@ -153,6 +52,97 @@ router.post("/login", (req, res) => {
 		});
 });
 
+// Display Graduates Sign-Up Page  
+router.get("/signup", (req, res) => {
+    res.render("graduates/signup");
+	
+});
+
+// Route - Graduate Sign-up
+router.post("/signup", async (req, res) => {
+	const { email, password } = req.body;
+
+	try {
+		const hashedPassword = await bcrypt.hash(password, 10);
+
+		const { id } = await db
+		.insert(graduatesTable)
+		.values({ // id property - descontructing
+			email,
+			password_hash: hashedPassword,
+		}).$returningId();
+
+		req.session.graduateId = id; // read back into session
+
+		return res
+			.redirect("/graduates/registrationForm")
+	} catch (err) { 
+		console.log(err)
+		res.status(500).send({ Error: "Error creating account" });
+	}
+}); 
+
+// Display Graduates Registration Page  - Ensure to render login page when clicked or back 
+// router.get("/registrationForm", async (req, res) => {
+// 	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
+// 	if (!graduate) {
+// 		return res.redirect("/graduates/login"); // redirecct to login page 
+// 	}
+//     res.render("graduates/registrationForm"); // redirect to registeration page after login 
+	 
+// });
+
+// Display Graduates Registration Page
+router.get("/registrationForm", async (req, res) => {
+    const graduate = await getCurrentUser(req, res); 
+
+    if (!graduate) {
+        return res.render("graduates/registrationForm");
+    }
+    // res.redirect("/graduates/dashboard"); 
+	return res.redirect("/graduates/dashboard"); 
+
+});
+
+//Route - Graduates Registration 
+router.post("/registrationForm", async (req, res) => { // no need to include email and password in the constructor as they were already collected.
+    const { firstName, lastName, contactNumber, qualification, bootcampInstitute, graduationYear, skills, certificatePath } = req.body;
+
+    try {
+        // Retrieve email & password from session
+        const id  = req.session.graduateId;
+        await db
+		.update(graduatesTable)
+		.set({
+            firstName,
+            lastName,
+            contactNumber,
+            qualification,
+            bootcampInstitute,
+            graduationYear,
+            skills,
+            certificatePath
+        })
+		.where(eq(graduatesTable.id, id)); // In Drizzle, updates are usually done like this (eq)?
+
+        // Redirect to the dashboard 
+        res.redirect("/graduates/dashboard");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error saving registration details");
+    }
+});
+
+// Display Graduates Dashboard
+router.get("/dashboard", async (req, res) => { 
+	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middleware folder for reusability for bigger project.
+	if (!graduate) {
+		return res.redirect("/");		
+	}
+	res.render("graduates/dashboard", { graduate: graduate });
+	
+});
+
 // Take graduates to the Dashbord
 async function getCurrentUser(req, res) {
 	if (req.session?.graduateId) {
@@ -163,7 +153,8 @@ async function getCurrentUser(req, res) {
 
 		if (results.length !== 1) {
 			req.session = null; // Delete any session state and logout for safety
-			res.redirect("/");
+			// res.redirect("/"); //redirect to homepage
+			return null; // Instead of redirecting to homepage
 		}
 
 		return results[0];
@@ -172,31 +163,7 @@ async function getCurrentUser(req, res) {
 	return null;
 }
 
-router.get("/dashboard", async (req, res) => { 
-	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
-	if (!graduate) {
-		return res.redirect("/");
-	}
-
-	res.render("graduates/dashboard", { graduate: graduate });
-});
-
-
-//Garduates apply for a job
-/*router.get("/jobs/:jobId/apply", verifyToken, (req, res) => {
-	const { jobId } = req.params;
-	const graduateId = req.graduateId;
-
-	databaseConnection.query(
-		"INSERT INTO applications (graduate_id, job_id) VALUES (?, ?)",
-		[graduateId, jobId],
-		(err) => {
-			if (err) return res.status(500).send(err);
-			res.json({ message: "Job application submitted successfully!" });
-		},
-	);
-});*/
-
+//Apply for jobs
 router.get("/jobs/:jobId/apply", verifyToken, async (req, res) => {
 	const { jobId } = req.params;
 	const graduateId = req.graduateId;
@@ -204,8 +171,8 @@ router.get("/jobs/:jobId/apply", verifyToken, async (req, res) => {
 	try {
 		await db
 			.insert()
-			.into("applications")
-			.values({ graduate_id: graduateId, job_id: jobId })
+			.into(applicationsTable)
+			.values({ graduate_id: graduateId, job_id: jobId }) //map to the respective database column names 
 			.execute();
 
 		res.json({ message: "Job application submitted successfully!" });
@@ -214,54 +181,48 @@ router.get("/jobs/:jobId/apply", verifyToken, async (req, res) => {
 	}
 });
 
-// View  Job applications
-/*router.get("/applications", verifyToken, (req, res) => {
-	databaseConnection.query(
-		`SELECT job.job_title, jobs.company, jobs.location, applications.date_applied
-				FROM applications
-				JOIN jobs ON aplications.job_id = jobs.job_id
-				WHERE applications.graduate_id = ?`,
-		[req.graduateId],
-		(err, results) => {
-			if (err) return res.status(500).send(err);
-			res.json(results);
-		},
-	);
-});*/
+// View Job applications
+router.get("/myApplications", verifyToken, async (req, res) => {
+	const graduateId = req.graduateId;
 
-// View Graduate profile
-/*router.get("/profile", verifyToken, (req, res) => {
-	databaseConnection.query(
-		"SELECT username, email, first_name, last_name FROM graduates WHERE graduate_id = ?",
-		[req.graduateId],
-		(err, results) => {
-			if (err) return res.status(500).send(err);
-			res.json(results[0]);
-		},
-	);
-});*/
+	try {
+		const results = await db
+			.select()
+			.from( applicationsTable)
+			.join( jobsTable, 'applications.job_id', '=', 'jobsTable.job_id') //jobsTable.job_id: Refers to the column job_id in the jobsTable (database).
+			.where('applications.graduate_id', graduateId)
+			.execute();
+
+		res.render("graduates/myApplications", { applications: results }); // aplication is aproperty - result is any 
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
 
 // View Graduate profile
 router.get("/profile", verifyToken, async (req, res) => {
 	try {
+		// Query to fetch specific fields from the graduatesTable
 		const results = await db
-			.select("email", "first_name", "last_name")
-			.from("graduates")
-			.where("graduate_id", req.graduateId)
+			.select()
+			.from(graduatesTable)
+			.where({id: req.graduateId})
 			.execute();
 
 		if (results.length === 0) {
 			return res.status(404).json({ error: "Graduate profile not found" });
 		}
 
-		res.json(results[0]);
+		// res.json(results[0]);
+		// Render the profile page, passing the profile data
+		res.render("graduates/profile")
 	} catch (err) {
 		res.status(500).json({ error: err.message });
 	}
+
 });
 
-// Bootcamp Certificate Uploading -
-// Configure Multer storage
+// Bootcamp Certificate Uploading - Configure Multer storage
 const storage = multer.diskStorage({
 	destination: (req, file, callBack) => {
 		callBack(null, "uploads/certificates");
@@ -275,34 +236,16 @@ const upload = multer({ storage });
 
 // upload certificatte Rooute
 
-/*router.post("/upload-certificate", upload.single("certificate"), (req, res) => {
-	const graduateId = req.body.graduateId;
-	const certificatePath = req.file.path;
+router.post("/upload-certificate",upload.single("certificate"),async (req, res) => {
 
-	databaseConnection.query(
-		"UPDATE graduates SET certificate = ? WHERE graduate_id = ?",
-		[certificatePath, graduateId],
-		(err) => {
-			if (err) return res.status(500).send("Error uploading certificate.");
-			res.send("Certificate upload succesfully.");
-		},
-	);
-});*/
-
-// upload certificatte Rooute
-
-router.post(
-	"/upload-certificate",
-	upload.single("certificate"),
-	async (req, res) => {
 		const graduateId = req.body.graduateId;
 		const certificatePath = req.file.path;
 
 		try {
 			const results = await db
-				.update("graduates")
+				.update(graduatesTable)
 				.set({ certificate: certificatePath })
-				.where("graduate_id", graduateId)
+				.where(eq(graduatesTable.id, graduateId))
 				.execute();
 
 			if (results.affectedRows === 0) {
@@ -319,17 +262,7 @@ router.post(
 // Graduates Update details
 router.put("/update-profile", async (req, res) => {
 	const {
-		graduateId,
-		firstName,
-		lastName,
-		email,
-		// username,
-		contactNumber,
-		qualification,
-		bootcampInstitute,
-		graduationYear,
-		skills,
-	} = req.body;
+		graduateId, firstName, lastName, email, contactNumber, qualification, bootcampInstitute, graduationYear, skills, } = req.body;
 
 	try {
 		const results = await db
@@ -338,7 +271,6 @@ router.put("/update-profile", async (req, res) => {
 				first_name: firstName,
 				last_name: lastName,
 				email,
-				// username,
 				contact_number: contactNumber,
 				qualification,
 				bootcamp_institute: bootcampInstitute,
@@ -359,28 +291,13 @@ router.put("/update-profile", async (req, res) => {
 });
 
 //Delete Graduate Account
-// router.delete("/account", verifyToken, (req, res) => {
-// 	const graduateId = req.graduateId;
-// 	databaseConnection.query(
-// 		"DELETE FROM applications WHERE graduate_id = ?", //Delete graduate's applications first
-// 		[graduateId],
-// 		(err) => {
-// 			if (err) return res.status(500).send("Error deleting applications");
 
-// 			databaseConnection.query(
-// 				"DELETE FROM graduates WHERE graduate_id =?",
-// 				[graduateId],
-// 				(err) => {
-// 					if (err) return res.status(500).send("Error deleting account");
-// 					res.json("Account successfully deleted");
-// 				},
-// 			);
-// 		},
-// 	);
-// });
 router.delete("/delete", verifyToken, async (req, res) => {
 	try {
-		await db.delete().from(graduatesTable).where({ id: companyId });
+		await db
+		.delete()
+		.from(graduatesTable)
+		.where({ id: req.graduateId });
 		res.send({ message: "Graduate account deleted successfuly!" });
 	} catch (error) {
 		console.error(err);
@@ -404,9 +321,11 @@ router.post("/signup", async (req, res) => {
 	}
 });
 
+//Logout Route - this destroys session and redirects to login
+router.get("/logout", (req, res) => {
+    req.session.destroy(() => {
+        res.redirect("/graduates/login");
+    });
+});
+
 export default router;
-/*
-https://www.npmjs.com/package/multer
-https://www.geeksforgeeks.org/how-to-verify-recaptcha-in-node-js-server-call/
-https://dvmhn07.medium.com/jwt-authentication-in-node-js-a-practical-guide-c8ab1b432a49
-*/

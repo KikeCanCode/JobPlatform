@@ -55,13 +55,16 @@ body {
     justify-content: center; /* Center search bar */
     align-items: center;
     padding: 10px 20px;
-    position: relative; /* Allows absolute positioning inside */
+    flex-wrap: wrap; /* Ensures it wraps on smaller screens */
+    /* position: relative;  */
   }
-  
   /* Search Bar */
   .search-container {
     display: flex;
     align-items: center;
+    flex: 1; /* Allows it to grow */
+    max-width: 500px; /* Prevents it from getting too wide */
+    gap: 5px;
   }
   
   .search-input {

@@ -1,11 +1,11 @@
 // Companies Routes
 import bcrypt from "bcrypt";
 import express from "express";
-import jwt from "jsonwebtoken";
 import db from "../db/index.js"; // database connection
 import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 import verifyToken from "../Middlewares/verifyAdminToken.js";
 //import Stripe from "stripe"; // Import Stripe for payment processing 
+import { eq } from "drizzle-orm";
 const router = express.Router();
 
 // Display companies Login Page  
@@ -13,113 +13,9 @@ router.get("/login", (req, res) => {
     res.render("companies/login");
 });
 
-// Display companies Sign-Up Page  
-router.get("/signup", (req, res) => {
-    res.render("companies/signup");
-	
-});
-
-// Display companies Dashboard Page  
-router.get("/dashboard", (req, res) => {
-    res.render("companies/dashboard");
-	
-});
-
- // Handle form submission, e.g., save data, then redirect
-router.post("/dashboard", (req, res) => {  
-    res.redirect("/companies/dashboard");
-});
-
-// Display companies Registration Page  - Ensure to render login page when clicked or back 
-router.get("/registrationForm", async (req, res) => {
-	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
-	if (!graduate) {
-		return res.redirect("/companies/login"); // redirecct to login page 
-	}
-    res.render("companies/registrationForm"); // redirect to registeration page after login 
-	 
-});
-
-// Function to generate a JWT token
-
-const generateToken = (company) => {
-	return jwt.sign({ id: company.id, role: "company" }, process.env.JWT_SECRET, {
-		expiresIn: "1h",
-	});
-};
-
-// Companies Sign-up
-router.post("/signup", async (req, res) => {
-	const { email, password } = req.body;
-
-	try {
-		const hashedPassword = await bcrypt.hash(password, 10);
-		// Insert into the database using Drizzle ORM
-		await db.insert(companiesTable).values({
-			email,
-			password_hash: hashedPassword,
-		});
-
-		return res
-			// .status(201)
-			.redirect("/companies/registrationForm")
-			// .send({ message: "Company account created successfully!" });
-	} catch (err) {
-		console.log(err)
-		res.status(500).send({ Error: "Error hashing password" });
-	}
-});
-
-
-// Graduate Sign-up process handling - redirect to registration page 
-router.post("/signup", async (req, res) => {
-	const { email, password } = req.body;
-
-	try {
-		const hashedPassword = await bcrypt.hash(password, 10);
-
-		// Store email & password temporarily (for registration step)
-		req.session.tempUser = { email, password: hashedPassword }; // req.session.tempUseris a temporary storage for user data using sessions in Express
-
-		// Redirect to registration form
-		res.redirect("/companies/registrationForm");
-	} catch (err) {
-		console.error(err);
-		res.status(500).send({ Error: "Error hashing password" });
-	}
-});
-
-router.post("/register", async (req, res) => { // no need to include email and password in the constructor as they were already collected.
-    const { companyName, contactNumber, companyAddress, companyProfile } = req.body;
-
-    try {
-        // Retrieve email & password from session
-        const { email, password } = req.session.tempUser;
-
-        // Insert user into the database
-        await db.insert(companiesTable).values({
-            password_hash: password, // Already hashed
-			companyName,
-			email,
-			contactNumber,
-			companyAddress,
-			companyProfile		
-        });
-
-        // Clear session data
-        req.session.tempUser = null;
-
-        // Redirect to the dashboard 
-        res.redirect("/companies/dashboard");
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Server Error");
-    }
-});
-
 // Companies Login
 router.post("/login", (req, res) => {
-	const { email, password } = req.body; //const { username, password } = req.body;
+	const { email, password } = req.body; 
 	db.select()
 		.from(companiesTable)
 		.where({ email })//.where({ username })
@@ -152,6 +48,92 @@ router.post("/login", (req, res) => {
 			}
 		});
 });
+// Display companies Sign-Up Page  
+router.get("/signup", (req, res) => {
+    res.render("companies/signup");
+	
+});
+
+// Companies Sign-up
+router.post("/signup", async (req, res) => {
+	const { email, password } = req.body;
+
+	try {
+		const hashedPassword = await bcrypt.hash(password, 10);
+		const { id } = await db
+		.insert(graduatesTable)
+		.values({ 
+			email,
+			password_hash: hashedPassword,
+		}).$returningId();
+
+		req.session.graduateId = id; // read back into session
+
+		return res
+			.redirect("/companies/registrationForm")
+	} catch (err) { 
+		console.log(err)
+		res.status(500).send({ Error: "Error creating account" });
+	}
+}); 
+
+// Display Companies Registration Page  - Ensure to render login page when clicked or back 
+// router.get("/registrationForm", async (req, res) => {
+// 	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
+// 	if (!graduate) {
+// 		return res.redirect("/companies/login"); // redirecct to login page 
+// 	}
+//     res.render("companies/registrationForm"); // redirect to registeration page after login 
+	 
+// });
+
+// Display Graduates Registration Page
+router.get("/registrationForm", async (req, res) => {
+    const graduate = await getCurrentUser(req, res); 
+
+    if (!graduate) {
+        return res.render("companies/registrationForm");
+    }
+    // res.redirect("/companies/dashboard"); 
+	return res.redirect("/companies/dashboard"); 
+
+});
+
+// Route - Companies Registration 
+router.post("/registrationForm", async (req, res) => { // no need to include email and password in the constructor as they were already collected.
+    const { companyName, contactNumber, companyAddress, companyProfile } = req.body;
+
+    try {
+       		 // Retrieve email & password from session
+        const id  = req.session.companyId;
+        await db
+		.update(companiesTable)
+		.set({
+			companyName,
+			contactNumber,
+			companyAddress,
+			companyProfile		
+        })
+		.where(eq(companiesTable.id, id)); // In Drizzle, updates are usually done like this (eq)?
+
+		// Redirect to the dashboard 
+		res.redirect("/companies/dashboard");
+	} catch (error) {
+		console.error(error);
+		res.status(500).send("Error saving registration details");
+	}
+});
+
+// Display companies Dashboard
+router.get("/dashboard", async (req, res) => {
+	const company = await getCurrentUser(req, res);
+	if (!company) {
+		return res.redirect("/");
+	}
+
+	res.render("companies/dashboard", { company: company });
+});
+
 // Take Companies to the Dashbord
 async function getCurrentUser(req, res) {
 	if (req.session?.companyId) {
@@ -162,7 +144,8 @@ async function getCurrentUser(req, res) {
 
 		if (results.length !== 1) {
 			req.session = null; // Delete any session state and logout for safety
-			res.redirect("/");
+			// res.redirect("/");
+			return null; // Instead of redirecting to homepage
 		}
 
 		return results[0];
@@ -171,14 +154,6 @@ async function getCurrentUser(req, res) {
 	return null;
 }
 
-router.get("/dashboard", async (req, res) => {
-	const company = await getCurrentUser(req, res);
-	if (!company) {
-		return res.redirect("/");
-	}
-
-	res.render("companies/dashboard", { company: company });
-});
 
 //Review applications
 router.get("/applications/:jobId", verifyToken, async (req, res) => {
@@ -314,6 +289,28 @@ router.post("/confirm-job-post", verifyToken, async (req, res) => {
 		console.error(err.message);
 		return res.status(500).send({ error: "Error confirming job post after payment" });
 	}
+});
+// Integrating CAPTCHA verification
+router.post("/signup", async (req, res) => {
+	const { password, recaptchaToken } = req.body;
+	const verifyUrl = " "; // register domain name on google recaptcha to get the url
+
+	try {
+		const captchaResponse = await fetch(verifyUrl, { method: " POST" });
+		const data = await captchaResponse.json();
+		if (!data.success) {
+			return res.status(400).send("CAPTCHA verification failed.");
+		}
+	} catch (err) {
+		res.status(500).send("CAPTCHA verification erro.");
+	}
+});
+
+//Logout Route - this destroys session and redirects to login
+router.get("/logout", (req, res) => {
+	req.session.destroy(() => {
+		res.redirect("/companies/login");
+	});
 });
 
 export default router;
