@@ -54,20 +54,20 @@ router.get("/signup", (req, res) => {
 	
 });
 
-// Companies Sign-up
+// Route - Companies Sign-up
 router.post("/signup", async (req, res) => {
 	const { email, password } = req.body;
 
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const { id } = await db
-		.insert(graduatesTable)
+		.insert(companiesTable)
 		.values({ 
 			email,
 			password_hash: hashedPassword,
 		}).$returningId();
 
-		req.session.graduateId = id; // read back into session
+		req.session.companyId = id; // read back into session
 
 		return res
 			.redirect("/companies/registrationForm")
@@ -87,11 +87,11 @@ router.post("/signup", async (req, res) => {
 	 
 // });
 
-// Display Graduates Registration Page
+//Route - Display Companies Registration Page
 router.get("/registrationForm", async (req, res) => {
-    const graduate = await getCurrentUser(req, res); 
+    const company = await getCurrentUser(req, res); 
 
-    if (!graduate) {
+    if (!company) {
         return res.render("companies/registrationForm");
     }
     // res.redirect("/companies/dashboard"); 
@@ -166,7 +166,7 @@ router.get("/applications/:jobId", verifyToken, async (req, res) => {
 				graduatesTable,
 				graduatesTable.id,
 				"=",
-				applicationsTable.graduate_id,
+				applicationsTable.company_id,
 			)
 			.where(applicationsTable.job_id, "=", jobId);
 
@@ -190,7 +190,6 @@ router.put("/update-profile", async (req, res) => {
 		companyId,
 		companyName,
 		email,
-		username,
 		contactNumber,
 		companyAddress,
 		companyProfile,
@@ -201,7 +200,6 @@ router.put("/update-profile", async (req, res) => {
 			.update(companiesTable)
 			.set({
 				company_name: companyName,
-				username,
 				email,
 				contact_number: contactNumber,
 				company_address: companyAddress,
