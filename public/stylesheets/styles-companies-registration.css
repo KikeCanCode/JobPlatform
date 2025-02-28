@@ -7,10 +7,14 @@ body {
 }
 
 /* Container for the Form */
-.container {
-    width: 50%;
-    margin: 50px auto;
+.registration-container {
     background: white;
+    width: 70%;
+    margin: auto;
+    max-width: 600px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -26,22 +30,22 @@ label {
 
 /* Form Inputs */
 input, textarea {
-    width: 100%;
+    width: 95%;
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #ddd;
+    border: 1px solid #000000;
     border-radius: 5px;
     font-size: 16px;
 }
 
 /* Textarea */
 textarea {
-    height: 100px;
+    height: 150px;
     resize: vertical;
 }
 
 /* Submit Button */
-button {
+.registration-container button {
     background: #fd8e18;
     color: white;
     padding: 10px 15px;
@@ -49,7 +53,7 @@ button {
     cursor: pointer;
     border-radius: 5px;
     font-size: 16px;
-    width: 100%;
+    width: 30%;
     transition: background 0.3s ease;
 }
 

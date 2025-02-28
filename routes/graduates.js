@@ -47,6 +47,7 @@ router.post("/login", (req, res) => {
 					});
 				}
 			} catch (err) {
+				console.log(err) // Just notification 
 				res.status(500).send("Error logging in");
 			}
 		});
@@ -67,7 +68,7 @@ router.post("/signup", async (req, res) => {
 
 		const { id } = await db
 		.insert(graduatesTable)
-		.values({ // id property - descontructing
+		.values({ 
 			email,
 			password_hash: hashedPassword,
 		}).$returningId();
@@ -78,7 +79,7 @@ router.post("/signup", async (req, res) => {
 			.redirect("/graduates/registrationForm")
 	} catch (err) { 
 		console.log(err)
-		res.status(500).send({ Error: "Error creating account" });
+		res.status(500).send("Error creating account" );
 	}
 }); 
 
@@ -114,17 +115,16 @@ router.post("/registrationForm", async (req, res) => { // no need to include ema
         await db
 		.update(graduatesTable)
 		.set({
-            firstName,
-            lastName,
-            contactNumber,
-            qualification,
-            bootcampInstitute,
-            graduationYear,
-            skills,
-            certificatePath
+           	 	first_name: firstName,
+                last_name: lastName,
+                contact_number: contactNumber,
+                qualification,
+                bootcamp_institute: bootcampInstitute,
+                graduation_year: graduationYear,
+                skills,
         })
 		.where(eq(graduatesTable.id, id)); // In Drizzle, updates are usually done like this (eq)?
-
+ 		// req.session.mode = "graduate"
         // Redirect to the dashboard 
         res.redirect("/graduates/dashboard");
     } catch (error) {
@@ -133,15 +133,26 @@ router.post("/registrationForm", async (req, res) => { // no need to include ema
     }
 });
 
-// Display Graduates Dashboard
-router.get("/dashboard", async (req, res) => { 
-	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middleware folder for reusability for bigger project.
-	if (!graduate) {
-		return res.redirect("/");		
+//Display Graduates Dashboard
+router.get("/dashboard", async (req, res) => {
+	const graduate = await getCurrentUser(req, res);
+	// if (!graduate) { // Removed !
+	if (graduate) {
+		// return res.redirect("/"); // This was the issue why it logged me out and redirect to the home page.
 	}
-	res.render("graduates/dashboard", { graduate: graduate });
-	
+
+	res.render("graduates/dashboard", { graduate: graduate});
 });
+
+// // Display Graduates Dashboard
+// router.get("/dashboard", async (req, res) => { 
+// 	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middleware folder for reusability for bigger project.
+// 	if (!graduate) {
+// 		// return res.redirect("/"); // This was the issue why it loggin me out and redirect to the home page.
+// 	}
+// 	res.render("graduates/dashboard", { graduate: graduate });
+	
+// });
 
 // Take graduates to the Dashbord
 async function getCurrentUser(req, res) {
@@ -152,8 +163,9 @@ async function getCurrentUser(req, res) {
 			.where({ id: req.session.graduateId });
 
 		if (results.length !== 1) {
-			req.session = null; // Delete any session state and logout for safety
+			// req.session = null; // Delete any session state and logout for safety
 			// res.redirect("/"); //redirect to homepage
+			res.redirect("/gradautes/dashboard");
 			return null; // Instead of redirecting to homepage
 		}
 

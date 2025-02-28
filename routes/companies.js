@@ -13,12 +13,12 @@ router.get("/login", (req, res) => {
     res.render("companies/login");
 });
 
-// Companies Login
+//  Route - Companies Login
 router.post("/login", (req, res) => {
 	const { email, password } = req.body; 
 	db.select()
 		.from(companiesTable)
-		.where({ email })//.where({ username })
+		.where({ email }) 
 		.execute()
 		.then(async (results) => {
 			if (results.length === 0) {
@@ -34,7 +34,7 @@ router.post("/login", (req, res) => {
 					req.session.mode = "company";
 					req.session.companyId = company.id;
 
-					res.redirect("/company/dashboard");
+					res.redirect("/companies/dashboard");
 				} else {
 					req.session = null;
 
@@ -43,12 +43,15 @@ router.post("/login", (req, res) => {
 							"Incorrect username or password. Please check your credentials.",
 					});
 				}
+				
 			} catch (err) {
+				console.log(err) // Just notification 
 				res.status(500).send("Error logging in");
 			}
 		});
 });
-// Display companies Sign-Up Page  
+
+// Route - Display companies Sign-Up Page  
 router.get("/signup", (req, res) => {
     res.render("companies/signup");
 	
@@ -62,7 +65,7 @@ router.post("/signup", async (req, res) => {
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const { id } = await db
 		.insert(companiesTable)
-		.values({ 
+		.values({ // id property - descontructing
 			email,
 			password_hash: hashedPassword,
 		}).$returningId();
@@ -73,7 +76,7 @@ router.post("/signup", async (req, res) => {
 			.redirect("/companies/registrationForm")
 	} catch (err) { 
 		console.log(err)
-		res.status(500).send({ Error: "Error creating account" });
+		res.status(500).send("Error creating account");
 	}
 }); 
 
@@ -87,7 +90,7 @@ router.post("/signup", async (req, res) => {
 	 
 // });
 
-//Route - Display Companies Registration Page
+// Display Graduates Registration Page
 router.get("/registrationForm", async (req, res) => {
     const company = await getCurrentUser(req, res); 
 
@@ -107,34 +110,45 @@ router.post("/registrationForm", async (req, res) => { // no need to include ema
        		 // Retrieve email & password from session
         const id  = req.session.companyId;
         await db
-		.update(companiesTable)
-		.set({
-			companyName,
-			contactNumber,
-			companyAddress,
-			companyProfile		
-        })
-		.where(eq(companiesTable.id, id)); // In Drizzle, updates are usually done like this (eq)?
+    .update(companiesTable)
+    .set({
+        company_name: companyName,  // Ensure correct column names
+        contact_number: contactNumber,
+        company_address: companyAddress,
+        company_profile: companyProfile		
+    })
+    .where(eq(companiesTable.id, id));
 
 		// Redirect to the dashboard 
 		res.redirect("/companies/dashboard");
 	} catch (error) {
-		console.error(error);
+		console.log(error);
 		res.status(500).send("Error saving registration details");
 	}
 });
 
-// Display companies Dashboard
+//Display companies Dashboard
 router.get("/dashboard", async (req, res) => {
 	const company = await getCurrentUser(req, res);
-	if (!company) {
-		return res.redirect("/");
+	// if (!company) {// Removed ! - if company doesn't exist
+		if (company) {
+		// return res.redirect("/"); // This was the issue why it logged me out and redirect to the home page.
 	}
 
 	res.render("companies/dashboard", { company: company });
 });
 
-// Take Companies to the Dashbord
+// // Display Graduates Dashboard
+// router.get("/dashboard", async (req, res) => { 
+// 	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middleware folder for reusability for bigger project.
+// 	if (!graduate) {
+// 		// return res.redirect("/"); // This was the issue why it loggin me out and redirect to the home page.
+// 	}
+// 	res.render("graduates/dashboard", { graduate: graduate });
+	
+// });
+
+//Take Companies to the Dashbord
 async function getCurrentUser(req, res) {
 	if (req.session?.companyId) {
 		const results = await db
@@ -143,8 +157,9 @@ async function getCurrentUser(req, res) {
 			.where({ id: req.session.companyId });
 
 		if (results.length !== 1) {
-			req.session = null; // Delete any session state and logout for safety
-			// res.redirect("/");
+			// req.session = null; // Delete any session state and logout for safety
+			// res.redirect("/"); //redirect to homepage
+			res.redirect("/companies/dashboard");
 			return null; // Instead of redirecting to homepage
 		}
 
@@ -154,6 +169,18 @@ async function getCurrentUser(req, res) {
 	return null;
 }
 
+// async function getCurrentUser(req, res) {
+//     if (!req.session?.companyId) {
+//         return null;
+//     }
+
+//     const results = await db
+//         .select()
+//         .from(companiesTable)
+//         .where(eq(companiesTable.id, req.session.companyId));
+
+//     return results.length === 1 ? results[0] : null;
+// }
 
 //Review applications
 router.get("/applications/:jobId", verifyToken, async (req, res) => {
@@ -179,7 +206,7 @@ router.get("/applications/:jobId", verifyToken, async (req, res) => {
 
 		res.status(200).json(applications);
 	} catch (error) {
-		console.error(error);
+		console.error(err);
 		res.status(500).send({ error: "Error retrieving applications" });
 	}
 });

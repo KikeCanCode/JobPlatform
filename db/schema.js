@@ -28,6 +28,7 @@ export const companiesTable = mysqlTable("companies", {
 	company_name: varchar({ length: 255 }),
 	// username: varchar({ length: 100 }).notNull(),
 	email: varchar({ length: 100 }).notNull().unique(),
+	password_hash: varchar({ length: 255 }).notNull(),
 	contact_number: varchar({ length: 255 }),
 	company_address: varchar({ length: 500 }),
 	company_profile: varchar({ length: 500 }),
