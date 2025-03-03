@@ -5,3 +5,13 @@ body {
 .heading h1 {
     color: #000000;
 }
+
+.profile-icon {
+    font-size: 50px;
+    color: #d89837;
+    transition: transform 0.3s;
+}
+
+.profile-icon:hover {
+    transform: scale(1.1); /* Enlarge icon on hover */
+}

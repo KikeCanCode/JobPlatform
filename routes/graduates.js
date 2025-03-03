@@ -222,17 +222,52 @@ router.get("/profile", verifyToken, async (req, res) => {
 			.execute();
 
 		if (results.length === 0) {
-			return res.status(404).json({ error: "Graduate profile not found" });
+			return res.status(404)("Graduate profile not found" );
 		}
-
 		// res.json(results[0]);
+
 		// Render the profile page, passing the profile data
 		res.render("graduates/profile")
 	} catch (err) {
-		res.status(500).json({ error: err.message });
+		console.log(err)
+		res.status(500)("Internal Server Error");
 	}
 
 });
+
+// Graduates Update details
+router.put("/updateProfile", async (req, res) => {
+	const {
+		graduateId, firstName, lastName, email, contactNumber, qualification, bootcampInstitute, graduationYear, skills, } = req.body;
+
+	try {
+		const results = await db
+			.update(graduatesTable)
+			.set({
+				first_name: firstName,
+				last_name: lastName,
+				email,
+				contact_number: contactNumber,
+				qualification,
+				bootcamp_institute: bootcampInstitute,
+				graduation_year: graduationYear,
+				skills,
+			})
+			.where("id", graduateId)
+			.execute();
+
+		if (results.affectedRows === 0) {
+			//If affectedRows is 0, it means that no rows in the database were updated,
+			return res.status(404).json({ error: "Graduate not found" });
+		}
+		res.json({ message: "Graduate profile updated successfully!" });
+	} catch (err) {
+		// res.status(500).json({ error: err.message });
+		res.status(500).json({ error: err.message });
+
+	}
+});
+
 
 // Bootcamp Certificate Uploading - Configure Multer storage
 const storage = multer.diskStorage({
@@ -270,37 +305,6 @@ router.post("/upload-certificate",upload.single("certificate"),async (req, res) 
 		}
 	},
 );
-
-// Graduates Update details
-router.put("/update-profile", async (req, res) => {
-	const {
-		graduateId, firstName, lastName, email, contactNumber, qualification, bootcampInstitute, graduationYear, skills, } = req.body;
-
-	try {
-		const results = await db
-			.update(graduatesTable)
-			.set({
-				first_name: firstName,
-				last_name: lastName,
-				email,
-				contact_number: contactNumber,
-				qualification,
-				bootcamp_institute: bootcampInstitute,
-				graduation_year: graduationYear,
-				skills,
-			})
-			.where("id", graduateId)
-			.execute();
-
-		if (results.affectedRows === 0) {
-			//If affectedRows is 0, it means that no rows in the database were updated,
-			return res.status(404).json({ error: "Graduate not found" });
-		}
-		res.json({ message: "Graduate profile updated successfully!" });
-	} catch (err) {
-		res.status(500).json({ error: err.message });
-	}
-});
 
 //Delete Graduate Account
 

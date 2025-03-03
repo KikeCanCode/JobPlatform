@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/stylesheets/styles-companies-profile.css"> 
+    <link rel="stylesheet" href="/stylesheets/styles-homepage.css">
+    <link rel="stylesheet" href="/stylesheets/styles-template.css">
+    <link rel="stylesheet" href="/stylesheets/styles-companies-dashboard.css">
+
+    
+    <title> Companies Profile</title>   
+</head>
+<body>
+    <header>
+        <h1> LOGO </h1> 
+        
+     </header>
+     
+     <nav class="menu">
+       <ul>
+         <li><a href="/">Home</a></li>
+         <!-- <li><a href="/jobs/jobsList"> Find a jobs</a></li> -->
+         <li><a href="aboutUs">About Us </a></li>
+         <li><a href="/pages/contactUs"> Contact Us </a></li>
+       </ul>
+     </nav>
+    <div class="company-profile-container">
+        <h1> My Profile</h1>
+    
+        <div class="profile-card">
+            <p><strong>Company Name:</strong> <%= company.companyName %></p>
+            <p><strong>Contact Number:</strong> <%= company.contactNumber %></p>
+            <p><strong>Company Address:</strong> <%= company.companyAddress %></p>
+            <p><strong>Company Profile:</strong> <%= company.companyProfile %></p>
+    
+            <!-- Edit Buttons -->
+            <a href="/companies/updateProfile" class="btn">Update Profile</a>
+             <!--Delete Buttons -->
+            <a href="/companies/deleteAccount" class="btn">Delete Account</a>
+        </div>
+    </div>
+
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div class="footer-band">
+            <footer>
+              <ul>
+                <a href="homepage/index.ejs"> Home </a>
+                <a href="pages/aboutUs.html"> About Us</a>
+                <a href="pages/pricing.html"> Pricing </a>
+                <a href="pages/contactMe.html"> Contact Us </a>
+            </ul>
+                  
+            <div class="copyright">
+                      
+              <p>&copy; 2025 Job Platform. All Rights Reserved.</p>
+            </div>
+          
+            </footer>
+          </div>
+        
+
+</body>
+</html>
