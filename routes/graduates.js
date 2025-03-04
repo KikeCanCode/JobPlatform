@@ -227,7 +227,7 @@ router.get("/profile", verifyToken, async (req, res) => {
 		// res.json(results[0]);
 
 		// Render the profile page, passing the profile data
-		res.render("graduates/profile")
+		res.render("/graduates/profile")
 	} catch (err) {
 		console.log(err)
 		res.status(500)("Internal Server Error");
