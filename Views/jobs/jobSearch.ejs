@@ -16,7 +16,7 @@
      <nav class="menu">
        <ul>
          <li><a href="/">Home</a></li>
-         <li><a href="/jobs/jobs"> Find a jobs</a></li>
+         <li><a href="/jobs/jobsList"> Find a jobs</a></li>
          <li><a href="aboutUs">About Us </a></li>
          <li><a href="/pages/contactUs"> Contact Us </a></li>
        </ul>
@@ -27,12 +27,7 @@
      
       <div class="header-container">
        
-       <!--<div class="search-container">
-         <input type="text" class="search-input" placeholder="Search for jobs...">
-         <button class="search-btn">Search</button>
-     
-       </div>-->
-       <form action="/jobs/search" method="GET" class="search-container">
+       <form action="/jobs/JobSearch" method="GET" class="search-container">
          <input type="text" name="query" class="search-input" placeholder="Search for jobs...">
          <button type="submit" class="search-btn">Search</button>
        </form>
@@ -56,7 +51,7 @@
                     <p>Skills: <%= job.skills %></p>
                     <p>Education: <%= job.education %></p>
                     <p>Date Posted: <%= job.date_posted %></p>
-                    <a href="/jobs/<%= job.id %>">View Details</a>
+                    <a href="/jobs/jobsList/<%= job.id %>">View Details</a>
                 </li>
             <% }) %>
         </ul>

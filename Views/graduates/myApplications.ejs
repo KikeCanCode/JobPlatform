@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/stylesheets/styles-homepage.css">
+  <link rel="stylesheet" href="/stylesheets/styles-template.css">
+  <link rel="stylesheet" href="/stylesheets/styles-graduates-dashboard.css">
+  <link rel="stylesheet" href="/stylesheets/styles-my-applications.css">
+
+
+  <!--Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+
+  
+  <title> My Applications </title>
+</head>
+<body>
+  <header>
+   <h1> LOGO </h1> 
+   
+</header>
+
+<nav class="menu">
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/jobs/jobsList"> Find a jobs</a></li>
+    <li><a href="aboutUs">About Us </a></li>
+    <li><a href="/pages/contactUs"> Contact Us </a></li>
+  </ul>
+</nav>
+<br>
+
+ <div class="header-container">
+  
+  <form action="/jobs/JobSearch" method="GET" class="search-container">
+    <input type="text" name="query" class="search-input" placeholder="Search for jobs...">
+    <button type="submit" class="search-btn">Search</button>
+  </form>
+
+<!-- | -->
+  <div class="login-divider">
+    <a href="/graduates/savedJobs" class="login-link">Saved Jobs</a>     <span class="divider">|</span>
+    <a href="/graduates/myApplications" class="login-link"> My Applications </a> 
+    
+    <!-- Profile icon -->
+    <a href="/graduates/profile">
+    <i class="fas fa-user-circle" style="font-size: 50px; color: #d89837;"></i> 
+    </a>
+  </div>
+</div>
+<hr>
+<br>
+<br>
+<br>
+
+<div class="heading">
+<h1> My Applications </h1>
+</div>
+<div class="applications-container">
+    <h2>My Applications</h2>
+    <% if (applications.length > 0) { %>
+        <% applications.forEach(application => { %>
+            <div class="application">
+                <h3><%= application.title %></h3>
+                <p><strong>Company:</strong> <%= application.companyName %></p>
+                <p><strong>Salary:</strong> <%= application.salary %></p>
+                <p><strong>Qualification Required:</strong> <%= application.qualificationRequired %></p>
+                <p><strong>Application Limit:</strong> <%= application.applicationLimit %></p>
+                <p><strong>Expiration Date:</strong> <%= application.expirationDate %></p>
+                <p><strong>Location:</strong> <%= application.location %></p>
+                <p><strong>Status:</strong> <%= application.status %></p>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <p>No applications found</p>
+    <% } %>
+</div>
+<br>
+<br>
+<br>
+<div class="footer-band">
+    <footer>
+      <ul>
+        <a href="homepage/index.ejs"> Home </a>
+        <a href="pages/aboutUs.html"> About Us</a>
+        <a href="pages/pricing.html"> Pricing </a>
+        <a href="pages/contactMe.html"> Contact Us </a>
+    </ul>
+          
+    <div class="copyright">
+              
+      <p>&copy; 2025 Job Platform. All Rights Reserved.</p>
+    </div>
+  
+    </footer>
+  </div>
+  </body>
+  </html>

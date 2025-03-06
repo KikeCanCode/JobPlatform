@@ -1,0 +1,21 @@
+.application {
+    background-color: white;
+    border: 1px solid #000000;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
+
+.application h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.application p {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.application p strong {
+    color: #fd8e18; 
+}

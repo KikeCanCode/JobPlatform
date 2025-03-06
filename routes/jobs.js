@@ -48,7 +48,7 @@ router.get("/jobs/:id", async (req, res) => {
 });
 
 // Get all jobs Routes 
-router.get("/jobs", async (req, res) => {
+router.get("/jobsList", async (req, res) => {
 	try {
 		const jobs = await db
 		.select()
@@ -63,7 +63,7 @@ router.get("/jobs", async (req, res) => {
 });
 
 // Post a Job
-router.post("/jobs", verifyToken, async (req, res) => {
+router.post("/post-job", verifyToken, async (req, res) => {
 	const {
 		title,
 		description,
@@ -95,7 +95,7 @@ router.post("/jobs", verifyToken, async (req, res) => {
 });
 
 // Get All Jobs by a Company
-router.get("/", verifyToken, async (req, res) => {
+router.get("/postedJobs", verifyToken, async (req, res) => {
 	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
 
 	try {
@@ -152,7 +152,7 @@ router.patch("/:jobId/status", verifyToken, async (req, res) => {
 */
 
 //Search for jobs
-router.get("/jobs", async (req, res) => {
+router.get("/jobsList", async (req, res) => {
 	const { title, location, skills, education, datePosted } = req.query;
 	// Start with the base query
 	let query = db.select("*").from("jobs"); // Select all fields from jobs table

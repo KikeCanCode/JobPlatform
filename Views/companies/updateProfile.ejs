@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/stylesheets/styles-companies-updateprofile.css"> 
+
+    <title>Edit Company Profile</title>
+</head>
+<body>
+    
+
+    <div class="profile-container">
+        <h2>Edit Company Profile</h2>
+
+<form method="post" action="/companies/updateProfile/<%= company.id %>">
+    <label for="companyName"><strong>Company Name:</strong></label>
+    <input type="text" id="companyName" name="companyName" value="<%= company.companyName %>" required>
+    <br><br>
+
+    <label for="contactNumber"><strong>Contact Number:</strong></label>
+    <input type="tel" id="contactNumber" name="contactNumber" value="<%= company.contactNumber %>" required>
+    <br><br>
+
+    <label for="companyAddress"><strong>Company Address:</strong></label>
+    <textarea id="companyAddress" name="companyAddress" rows="3" required><%= company.companyAddress %></textarea>
+    <br><br>
+
+    <label for="companyProfile"><strong>Company Profile:</strong></label>
+    <textarea id="companyProfile" name="companyProfile" rows="4" required><%= company.companyProfile %></textarea>
+    <br><br>
+
+    <button type="submit" class="btn">Update Profile</button>
+</form>
+
+</div>
+
+<br>
+    <br>
+    <br>
+    <br>
+    <br>
+      <div class="footer-band">
+      <footer>
+        <ul>
+          <a href="homepage/index.ejs"> Home </a>
+          <a href="pages/aboutUs.html"> About Us</a>
+          <a href="pages/pricing.html"> Pricing </a>
+          <a href="pages/contactMe.html"> Contact Us </a>
+      </ul>
+            
+      <div class="copyright">
+                
+        <p>&copy; 2025 Job Platform. All Rights Reserved.</p>
+      </div>
+    
+      </footer>
+      </div>
+</body>
+</html>
