@@ -97,11 +97,11 @@ router.post("/signup", async (req, res) => {
 router.get("/registrationForm", async (req, res) => {
     const graduate = await getCurrentUser(req, res); 
 
-    if (!graduate) {
+    // if (!graduate) {
         return res.render("graduates/registrationForm");
-    }
+    
     // res.redirect("/graduates/dashboard"); 
-	return res.redirect("/graduates/dashboard"); 
+	// return res.redirect("/graduates/dashboard"); 
 
 });
 
@@ -212,22 +212,12 @@ router.get("/myApplications", verifyToken, async (req, res) => {
 });
 
 // View Graduate profile
-router.get("/profile", verifyToken, async (req, res) => {
+router.get("/profile", async (req, res) => {
 	try {
 		// Query to fetch specific fields from the graduatesTable
-		const results = await db
-			.select()
-			.from(graduatesTable)
-			.where({id: req.graduateId})
-			.execute();
-
-		if (results.length === 0) {
-			return res.status(404)("Graduate profile not found" );
-		}
-		// res.json(results[0]);
-
-		// Render the profile page, passing the profile data
-		res.render("/graduates/profile")
+		const graduate = await getCurrentUser(req, res);
+	
+		res.render("graduates/profile", { graduate: graduate} );
 	} catch (err) {
 		console.log(err)
 		res.status(500)("Internal Server Error");

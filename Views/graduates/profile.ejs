@@ -31,20 +31,20 @@
         <h1> My Profile</h1>
  
             <div class="profile-card">
-                <p><strong>Email:</strong> <%= profile.email %></p>
-                <p><strong>First Name:</strong> <%= profile.firstName %></p>
-                <p><strong>Last Name:</strong> <%= profile.lastName %></p>
-                <p><strong>Contact Number:</strong> <%= profile.contactNumber %></p>
-                <p><strong>Qualification:</strong> <%= profile.qualification %></p>
-                <p><strong>Bootcamp Institute:</strong> <%= profile.bootcampInstitute %></p>
-                <p><strong>Graduation Year:</strong> <%= profile.graduationYear %></p>
-                <p><strong>Skills:</strong> <%= profile.skills %></p>
+                <p><strong>Email:</strong> <%= graduate.email %></p> 
+                <p><strong>First Name:</strong> <%= graduate.first_name %></p>
+                <p><strong>Last Name:</strong> <%= graduate.lastName %></p>
+                <p><strong>Contact Number:</strong> <%= graduate.contactNumber %></p>
+                <p><strong>Qualification:</strong> <%= graduate.qualification %></p>
+                <p><strong>Bootcamp Institute:</strong> <%= graduate.bootcampInstitute %></p>
+                <p><strong>Graduation Year:</strong> <%= graduate.graduationYear %></p>
+                <p><strong>Skills:</strong> <%= graduate.skills %></p>
     
-                <% if (profile.certificatePath) { %>
+                <% if (graduate.certificatePath) { %>
                     <p><strong>Certificate:</strong></p>
-                    <iframe src="<%= profile.certificatePath %>" width="100%" height="400px"></iframe>
+                    <iframe src="<%= graduate.certificatePath %>" width="100%" height="400px"></iframe>
                     <br>
-                    <a href="<%= profile.certificatePath %>" download class="btn">Download Certificate</a>
+                    <a href="<%= graduate.certificatePath %>" download class="btn">Download Certificate</a>
                 <% } else { %>
                     <p><strong>Certificate:</strong> Not uploaded</p>
                 <% } %>
