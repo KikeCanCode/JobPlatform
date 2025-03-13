@@ -63,12 +63,13 @@ router.post("/signup", async (req, res) => {
 
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
-		const { id } = await db
+		const result = await db
 		.insert(companiesTable)
 		.values({ // id property - descontructing
 			email,
 			password_hash: hashedPassword,
 		}).$returningId();
+		const { id } = result[0]; // Extract the id from the result
 
 		req.session.companyId = id; // read back into session
 

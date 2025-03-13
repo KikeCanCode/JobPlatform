@@ -89,12 +89,14 @@ router.post("/signup", async (req, res) => {
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		const { id } = await db
+		const result = await db
 			.insert(graduatesTable)
 			.values({
 				email,
 				password_hash: hashedPassword,
-			}).$returningId();
+			}).$returningId()
+
+		const { id } = result[0]; // get the id of the inserted graduate
 
 		req.session.graduateId = id; // read back into session
 
