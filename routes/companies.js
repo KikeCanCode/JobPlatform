@@ -6,7 +6,32 @@ import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 import verifyToken from "../Middlewares/verifyAdminToken.js";
 //import Stripe from "stripe"; // Import Stripe for payment processing 
 import { eq } from "drizzle-orm";
+
 const router = express.Router();
+// Middleware to check if a company is logged in. Usage:
+//
+//  router.method("/path", ensureLoggedIn, (req, res) => { ...
+//
+// This puts the company object in req.company if they are logged in.
+async function ensureLoggedIn(req, res, next) {
+	if (!req.session?.companyId) {
+		return res.redirect("/companies/login");
+	}
+
+	const results = await db
+		.select()
+		.from(companiesTable)
+		.where({ id: req.session.companyId });
+
+	if (results.length !== 1) {
+		req.session = null; // Delete any session state and logout for safety
+		return res.redirect("/"); //redirect to homepage
+	}
+
+	req.company = results[0];
+
+	return next();
+}
 
 // Display companies Login Page  
 router.get("/login", (req, res) => {
@@ -34,11 +59,12 @@ router.post("/login", (req, res) => {
 					req.session.mode = "company";
 					req.session.companyId = company.id;
 
-					res.redirect("/companies/dashboard");
+					return res.redirect("/companies/dashboard");
+				// biome-ignore lint/style/noUselessElse: <explanation>
 				} else {
 					req.session = null;
 
-					res.status(401).json({
+					return res.status(401).json({
 						error:
 							"Incorrect username or password. Please check your credentials.",
 					});
@@ -63,12 +89,14 @@ router.post("/signup", async (req, res) => {
 
 	try {
 		const hashedPassword = await bcrypt.hash(password, 10);
+		
 		const result = await db
 		.insert(companiesTable)
 		.values({ // id property - descontructing
 			email,
 			password_hash: hashedPassword,
 		}).$returningId();
+
 		const { id } = result[0]; // Extract the id from the result
 
 		req.session.companyId = id; // read back into session
@@ -95,11 +123,10 @@ router.post("/signup", async (req, res) => {
 router.get("/registrationForm", async (req, res) => {
     const company = await getCurrentUser(req, res); 
 
-    if (!company) {
+    // if (!company) {
         return res.render("companies/registrationForm");
-    }
-    // res.redirect("/companies/dashboard"); 
-	return res.redirect("/companies/dashboard"); 
+    //}res.redirect("/companies/dashboard"); 
+	// return res.redirect("/companies/dashboard"); 
 
 });
 
@@ -123,20 +150,16 @@ router.post("/registrationForm", async (req, res) => { // no need to include ema
 		// Redirect to the dashboard 
 		res.redirect("/companies/dashboard");
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		res.status(500).send("Error saving registration details");
 	}
 });
 
 //Display companies Dashboard
-router.get("/dashboard", async (req, res) => {
-	const company = await getCurrentUser(req, res);
-	// if (!company) {// Removed ! - if company doesn't exist
-		if (company) {
-		// return res.redirect("/"); // This was the issue why it logged me out and redirect to the home page.
-	}
+router.get("/dashboard", ensureLoggedIn, async (req, res) => {
+	console.log(req.company);
 
-	res.render("companies/dashboard", { company: company });
+	res.render("companies/dashboard", { graduate: req.company });
 });
 
 // // Display Graduates Dashboard
@@ -149,39 +172,6 @@ router.get("/dashboard", async (req, res) => {
 	
 // });
 
-//Take Companies to the Dashbord
-async function getCurrentUser(req, res) {
-	if (req.session?.companyId) {
-		const results = await db
-			.select()
-			.from(companiesTable)
-			.where({ id: req.session.companyId });
-
-		if (results.length !== 1) {
-			// req.session = null; // Delete any session state and logout for safety
-			// res.redirect("/"); //redirect to homepage
-			res.redirect("/companies/dashboard");
-			return null; // Instead of redirecting to homepage
-		}
-
-		return results[0];
-	}
-
-	return null;
-}
-
-// async function getCurrentUser(req, res) {
-//     if (!req.session?.companyId) {
-//         return null;
-//     }
-
-//     const results = await db
-//         .select()
-//         .from(companiesTable)
-//         .where(eq(companiesTable.id, req.session.companyId));
-
-//     return results.length === 1 ? results[0] : null;
-// }
 
 //Review applications
 router.get("/applications/:jobId", verifyToken, async (req, res) => {
@@ -213,7 +203,7 @@ router.get("/applications/:jobId", verifyToken, async (req, res) => {
 });
 
 // Companies Update details
-router.put("/update-profile", async (req, res) => {
+router.put("/updateProfile", async (req, res) => {
 	const {
 		companyId,
 		companyName,

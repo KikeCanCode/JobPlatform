@@ -62,6 +62,7 @@ router.post("/login", (req, res) => {
 					req.session.graduateId = graduate.id;
 
 					return res.redirect("/graduates/dashboard");
+				// biome-ignore lint/style/noUselessElse: <explanation>
 				} else {
 					req.session = null;
 
@@ -125,7 +126,7 @@ router.get("/registrationForm", ensureLoggedIn, async (req, res) => {
 	// if (!graduate) {
 	return res.render("graduates/registrationForm");
 
-	// res.redirect("/graduates/dashboard");
+	//} res.redirect("/graduates/dashboard");
 	// return res.redirect("/graduates/dashboard");
 
 });
