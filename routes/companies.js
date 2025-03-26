@@ -3,7 +3,6 @@ import bcrypt from "bcrypt";
 import express from "express";
 import db from "../db/index.js"; // database connection
 import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
-import verifyToken from "../Middlewares/verifyAdminToken.js";
 //import Stripe from "stripe"; // Import Stripe for payment processing 
 import { eq } from "drizzle-orm";
 
@@ -60,7 +59,7 @@ router.post("/login", (req, res) => {
 					req.session.companyId = company.id;
 
 					return res.redirect("/companies/dashboard");
-				// biome-ignore lint/style/noUselessElse: <explanation>
+				
 				} else {
 					req.session = null;
 
@@ -121,9 +120,8 @@ router.post("/signup", async (req, res) => {
 
 // Display Graduates Registration Page
 router.get("/registrationForm", async (req, res) => {
-    const company = await getCurrentUser(req, res); 
+	const company = req.graduate;
 
-    // if (!company) {
         return res.render("companies/registrationForm");
     //}res.redirect("/companies/dashboard"); 
 	// return res.redirect("/companies/dashboard"); 
@@ -162,19 +160,59 @@ router.get("/dashboard", ensureLoggedIn, async (req, res) => {
 	res.render("companies/dashboard", { graduate: req.company });
 });
 
-// // Display Graduates Dashboard
-// router.get("/dashboard", async (req, res) => { 
-// 	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middleware folder for reusability for bigger project.
-// 	if (!graduate) {
-// 		// return res.redirect("/"); // This was the issue why it loggin me out and redirect to the home page.
-// 	}
-// 	res.render("graduates/dashboard", { graduate: graduate });
-	
-// });
 
+// View Companies profile
+router.get("/profile", ensureLoggedIn, async (req, res) => {
+	try {
+		// Query to fetch specific fields from the companiesTable
+		const company = req.company;
+
+		res.render("companies/profile", { company: company });
+	} catch (err) {
+		console.log(err)
+		res.status(500).body("Internal Server Error");
+	}
+});
+
+// Companies Update details
+router.post("/updateProfile", async (req, res) => {
+	const {
+		companyId,
+		companyName,
+		email,
+		contactNumber,
+		companyAddress,
+		companyProfile,
+	} = req.body;
+
+	try {
+		const results = await db
+			.update(companiesTable)
+			.set({
+				company_name: companyName,
+				email,
+				contact_number: contactNumber,
+				company_address: companyAddress,
+				company_profiles: companyProfile,
+			})
+			.where("id", companyId)
+			.execute();
+
+		if (results.affectedRows === 0) {
+			//If affectedRows is 0, it means that no rows in the database were updated,
+			return res.status(404).json({ error: "Company not found" });
+		}
+//		res.json({ message: "Company details updated successfully!" });
+		
+		res.redirect("/companies/profile"); // Redirect to the profile page after update	} catch (err) {
+
+} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
 
 //Review applications
-router.get("/applications/:jobId", verifyToken, async (req, res) => {
+router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 	const { jobId } = req.params;
 	try {
 		const applications = await db
@@ -202,42 +240,9 @@ router.get("/applications/:jobId", verifyToken, async (req, res) => {
 	}
 });
 
-// Companies Update details
-router.put("/updateProfile", async (req, res) => {
-	const {
-		companyId,
-		companyName,
-		email,
-		contactNumber,
-		companyAddress,
-		companyProfile,
-	} = req.body;
-
-	try {
-		const results = await db
-			.update(companiesTable)
-			.set({
-				company_name: companyName,
-				email,
-				contact_number: contactNumber,
-				company_address: companyAddress,
-				company_profiles: companyProfile,
-			})
-			.where("id", companyId)
-			.execute();
-
-		if (results.affectedRows === 0) {
-			//If affectedRows is 0, it means that no rows in the database were updated,
-			return res.status(404).json({ error: "Company not found" });
-		}
-		res.json({ message: "Company details updated successfully!" });
-	} catch (err) {
-		res.status(500).json({ error: err.message });
-	}
-});
 
 // Delete Account
-router.delete("/delete", verifyToken, async (req, res) => {
+router.delete("/delete", ensureLoggedIn, async (req, res) => {
 	try {
 		await db.delete().from(companiesTable).where({ id: companyId });
 
@@ -253,7 +258,7 @@ router.delete("/delete", verifyToken, async (req, res) => {
 //const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key
 
 // Post a Job with Payment
-router.post("/jobs-with-payment", verifyToken, async (req, res) => {
+router.post("/jobs-with-payment", ensureLoggedIn, async (req, res) => {
 	const { title, description, salary, location, amount, currency } = req.body;
 	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
 
@@ -279,7 +284,7 @@ router.post("/jobs-with-payment", verifyToken, async (req, res) => {
 });
 
 // Confirm Job Posting after Payment
-router.post("/confirm-job-post", verifyToken, async (req, res) => {
+router.post("/confirm-job-post", ensureLoggedIn, async (req, res) => {
 	const { title, description, salary, location, paymentIntentId } = req.body;
 	const companyId = req.user.id;
 

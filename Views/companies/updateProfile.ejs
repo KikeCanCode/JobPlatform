@@ -14,7 +14,12 @@
     <div class="profile-container">
         <h2>Edit Company Profile</h2>
 
-<form method="post" action="/companies/updateProfile/<%= company.id %>">
+<form method="post" action="/companies/updateProfile>">
+    
+  <label for="email"><strong>Email:</strong></label>
+    <input type="email" id="email" name="email" value="<%= company.email %>" readonly>
+    <br><br>
+  
     <label for="companyName"><strong>Company Name:</strong></label>
     <input type="text" id="companyName" name="companyName" value="<%= company.companyName %>" required>
     <br><br>

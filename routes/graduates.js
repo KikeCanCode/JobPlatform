@@ -62,7 +62,7 @@ router.post("/login", (req, res) => {
 					req.session.graduateId = graduate.id;
 
 					return res.redirect("/graduates/dashboard");
-				// biome-ignore lint/style/noUselessElse: <explanation>
+				
 				} else {
 					req.session = null;
 
@@ -166,18 +166,6 @@ router.get("/dashboard", ensureLoggedIn, async (req, res) => {
 	res.render("graduates/dashboard", { graduate: req.graduate });
 });
 
-// // Display Graduates Dashboard
-// router.get("/dashboard", async (req, res) => {
-// 	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middleware folder for reusability for bigger project.
-// 	if (!graduate) {
-// 		// return res.redirect("/"); // This was the issue why it loggin me out and redirect to the home page.
-// 	}
-// 	res.render("graduates/dashboard", { graduate: graduate });
-
-// });
-
-// Take graduates to the Dashbord
-
 
 //Apply for jobs
 router.get("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
@@ -229,9 +217,17 @@ router.get("/profile", ensureLoggedIn, async (req, res) => {
 });
 
 // Graduates Update details
-router.put("/updateProfile", async (req, res) => {
+router.post("/updateProfile", async (req, res) => { // Chnage PUT method to POST - (So No need script.js)
 	const {
-		graduateId, firstName, lastName, email, contactNumber, qualification, bootcampInstitute, graduationYear, skills, } = req.body;
+		graduateId, 
+		firstName, 
+		lastName, 
+		email, 
+		contactNumber, 
+		qualification, 
+		bootcampInstitute, 
+		graduationYear, 
+		skills, } = req.body;
 
 	try {
 		const results = await db
@@ -253,9 +249,11 @@ router.put("/updateProfile", async (req, res) => {
 			//If affectedRows is 0, it means that no rows in the database were updated,
 			return res.status(404).json({ error: "Graduate not found" });
 		}
-		res.json({ message: "Graduate profile updated successfully!" });
-	} catch (err) {
-		// res.status(500).json({ error: err.message });
+		// res.json({ message: "Graduate profile updated successfully!" });
+		
+		res.redirect("/graduates/profile"); // Redirect to the profile page after update	} catch (err) {
+		} catch (err) {
+			console.log(err)
 		res.status(500).json({ error: err.message });
 
 	}
