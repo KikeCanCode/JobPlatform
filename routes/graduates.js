@@ -63,9 +63,10 @@ router.post("/login", (req, res) => {
 
 					return res.redirect("/graduates/dashboard");
 				
-				} else {
+				// biome-ignore lint/style/noUselessElse: <explanation>
+								} else {
 					req.session = null;
-
+				
 					return res.status(401).json({
 						error:
 							"Incorrect username or password. Please check your credentials.",

@@ -60,7 +60,8 @@ router.post("/login", (req, res) => {
 
 					return res.redirect("/companies/dashboard");
 				
-				} else {
+				// biome-ignore lint/style/noUselessElse: <explanation>
+								} else {
 					req.session = null;
 
 					return res.status(401).json({
