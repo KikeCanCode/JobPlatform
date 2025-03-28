@@ -120,33 +120,33 @@ router.post("/signup", async (req, res) => {
 // });
 
 // Display Graduates Registration Page
-router.get("/registrationForm", async (req, res) => {
-	const company = req.graduate;
+router.get("/registrationForm", ensureLoggedIn, async (req, res) => {
+	const company = req.company;
 
-        return res.render("companies/registrationForm");
-    //}res.redirect("/companies/dashboard"); 
-	// return res.redirect("/companies/dashboard"); 
+	return res.render("companies/registrationForm", { company });
+	//}res.redirect("/companies/dashboard");
+	// return res.redirect("/companies/dashboard");
 
 });
 
-// Route - Companies Registration 
-router.post("/registrationForm", async (req, res) => { // no need to include email and password in the constructor as they were already collected.
-    const { companyName, contactNumber, companyAddress, companyProfile } = req.body;
+// Route - Companies Registration
+router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no need to include email and password in the constructor as they were already collected.
+	const { companyName, contactNumber, companyAddress, companyProfile } = req.body;
 
-    try {
-       		 // Retrieve email & password from session
-        const id  = req.session.companyId;
-        await db
-    .update(companiesTable)
-    .set({
-        company_name: companyName,  // Ensure correct column names
-        contact_number: contactNumber,
-        company_address: companyAddress,
-        company_profile: companyProfile		
-    })
-    .where(eq(companiesTable.id, id));
+	try {
+		// Retrieve email & password from session
+		const id = req.session.companyId;
+		await db
+			.update(companiesTable)
+			.set({
+				company_name: companyName,  // Ensure correct column names
+				contact_number: contactNumber,
+				company_address: companyAddress,
+				company_profile: companyProfile
+			})
+			.where(eq(companiesTable.id, id));
 
-		// Redirect to the dashboard 
+		// Redirect to the dashboard
 		res.redirect("/companies/dashboard");
 	} catch (error) {
 		console.error(error);
@@ -176,7 +176,7 @@ router.get("/profile", ensureLoggedIn, async (req, res) => {
 });
 
 // Companies Update details
-router.post("/updateProfile", async (req, res) => {
+router.post("/updateProfile", ensureLoggedIn, async (req, res) => {
 	const {
 		companyId,
 		companyName,
@@ -245,8 +245,12 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 // Delete Account
 router.delete("/delete", ensureLoggedIn, async (req, res) => {
 	try {
-		await db.delete().from(companiesTable).where({ id: companyId });
+		const companyID = req.company.id;
+		await db.delete().from(companiesTable).where({ id: companyID });
 
+		req.session = null; // Delete the session after deleting the account
+
+		// TODO: Redirect to homepage?
 		res.send({ message: "company account deleted successfuly!" });
 	} catch (error) {
 		console.error(err);
@@ -330,9 +334,8 @@ router.post("/signup", async (req, res) => {
 
 //Logout Route - this destroys session and redirects to login
 router.get("/logout", (req, res) => {
-	req.session.destroy(() => {
-		res.redirect("/companies/login");
-	});
+	req.session = null;
+	res.redirect("/companies/login");
 });
 
 export default router;
