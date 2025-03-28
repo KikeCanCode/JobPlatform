@@ -178,7 +178,6 @@ router.get("/profile", ensureLoggedIn, async (req, res) => {
 // Companies Update details
 router.post("/updateProfile", ensureLoggedIn, async (req, res) => {
 	const {
-		companyId,
 		companyName,
 		email,
 		contactNumber,
@@ -194,9 +193,9 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => {
 				email,
 				contact_number: contactNumber,
 				company_address: companyAddress,
-				company_profiles: companyProfile,
+				company_profile: companyProfile,
 			})
-			.where("id", companyId)
+			.where("id", req.company.id)
 			.execute();
 
 		if (results.affectedRows === 0) {
