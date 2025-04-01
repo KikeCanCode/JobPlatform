@@ -7,10 +7,11 @@ import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 
 const router = express.Router();
-// Middleware to check if a company is logged in. Usage:
-//
-//  router.method("/path", ensureLoggedIn, (req, res) => { ...
-//
+
+/*Middleware to check if a company is logged in. Usage:
+router.method("/path", ensureLoggedIn, (req, res) => { ...
+*/
+
 // This puts the company object in req.company if they are logged in.
 async function ensureLoggedIn(req, res, next) {
 	if (!req.session?.companyId) {
@@ -109,24 +110,10 @@ router.post("/signup", async (req, res) => {
 	}
 }); 
 
-// Display Companies Registration Page  - Ensure to render login page when clicked or back 
-// router.get("/registrationForm", async (req, res) => {
-// 	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
-// 	if (!graduate) {
-// 		return res.redirect("/companies/login"); // redirecct to login page 
-// 	}
-//     res.render("companies/registrationForm"); // redirect to registeration page after login 
-	 
-// });
-
 // Display Graduates Registration Page
 router.get("/registrationForm", ensureLoggedIn, async (req, res) => {
 	const company = req.company;
-
-	return res.render("companies/registrationForm", { company });
-	//}res.redirect("/companies/dashboard");
-	// return res.redirect("/companies/dashboard");
-
+	return res.render("companies/registrationForm", { company });	
 });
 
 // Route - Companies Registration
@@ -161,7 +148,6 @@ router.get("/dashboard", ensureLoggedIn, async (req, res) => {
 	res.render("companies/dashboard", { graduate: req.company });
 });
 
-
 // View Companies profile
 router.get("/profile", ensureLoggedIn, async (req, res) => {
 	try {
@@ -173,6 +159,23 @@ router.get("/profile", ensureLoggedIn, async (req, res) => {
 		console.log(err)
 		res.status(500).body("Internal Server Error");
 	}
+});
+/*
+Instead of trying to fetch the company again, I simply passed req.company because ensureLoggedIn already retrieved the company from the database.
+*/
+
+// Display Company UpdateProfile  
+router.get("/updateProfile", ensureLoggedIn, async (req, res) => {
+    try {
+        console.log(req.company); //Check if company data exists
+        const company = req.company;
+        if (!company) {
+            return res.status(404).json({ error: "Company not found" });
+        }
+        res.render("companies/updateProfile", { company });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Companies Update details
@@ -195,7 +198,8 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => {
 				company_address: companyAddress,
 				company_profile: companyProfile,
 			})
-			.where("id", req.company.id)
+			// .where("id", req.company.id)
+			.where(eq(companiesTable.id, req.company.id))
 			.execute();
 
 		if (results.affectedRows === 0) {

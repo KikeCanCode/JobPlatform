@@ -10,10 +10,10 @@ import { eq } from "drizzle-orm";
 
 const router = express.Router();
 
-// Middleware to check if a graduate is logged in. Usage:
-//
-//  router.method("/path", ensureLoggedIn, (req, res) => { ...
-//
+/*Middleware to check if a graduate is logged in. Usage:
+router.method("/path", ensureLoggedIn, (req, res) => { ...
+*/
+
 // This puts the graduate object in req.graduate if they are logged in.
 async function ensureLoggedIn(req, res, next) {
 	if (!req.session?.graduateId) {
@@ -110,26 +110,10 @@ router.post("/signup", async (req, res) => {
 	}
 });
 
-// Display Graduates Registration Page  - Ensure to render login page when clicked or back
-// router.get("/registrationForm", async (req, res) => {
-// 	const graduate = await getCurrentUser(req, res); // Could extract this to use as Middleware - put in Middle folder for reusability for bigger project.
-// 	if (!graduate) {
-// 		return res.redirect("/graduates/login"); // redirecct to login page
-// 	}
-//     res.render("graduates/registrationForm"); // redirect to registeration page after login
-
-// });
-
 // Display Graduates Registration Page
 router.get("/registrationForm", ensureLoggedIn, async (req, res) => {
 	const graduate = req.graduate;
-
-	// if (!graduate) {
-	return res.render("graduates/registrationForm");
-
-	//} res.redirect("/graduates/dashboard");
-	// return res.redirect("/graduates/dashboard");
-
+	return res.render("graduates/registrationForm", { graduate });
 });
 
 //Route - Graduates Registration
@@ -151,7 +135,7 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 				skills,
 			})
 			.where(eq(graduatesTable.id, id)); // In Drizzle, updates are usually done like this (eq)?
-		// req.session.mode = "graduate"
+		
 		// Redirect to the dashboard
 		res.redirect("/graduates/dashboard");
 	} catch (error) {
@@ -167,6 +151,75 @@ router.get("/dashboard", ensureLoggedIn, async (req, res) => {
 	res.render("graduates/dashboard", { graduate: req.graduate });
 });
 
+// View Graduate profile
+router.get("/profile", ensureLoggedIn, async (req, res) => {
+	try {
+		// Query to fetch specific fields from the graduatesTable
+		const graduate = req.graduate;
+
+		res.render("graduates/profile", { graduate: graduate });
+	} catch (err) {
+		console.log(err)
+		res.status(500).body("Internal Server Error");
+	}
+});
+
+//Display Graduates Dashboard
+router.get("/updateProfile", ensureLoggedIn, async (req, res) => {
+    try {
+        console.log(req.graduate); //Check if graduate data exists
+        const graduate = req.graduate;
+        if (!graduate) {
+            return res.status(404).json({ error: "graduate not found" });
+        }
+		res.render("graduates/updateProfile", { graduate });
+	    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+// Graduates Update details
+router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PUT method to POST - (So No need script.js)
+	const { 
+		firstName, 
+		lastName, 
+		email, 
+		contactNumber, 
+		qualification, 
+		bootcampInstitute, 
+		graduationYear, 
+		skills, } = req.body;
+
+	try {
+		const results = await db
+			.update(graduatesTable)
+			.set({
+				first_name: firstName,
+				last_name: lastName,
+				email,
+				contact_number: contactNumber,
+				qualification,
+				bootcamp_institute: bootcampInstitute,
+				graduation_year: graduationYear,
+				skills,
+			})
+			// .where("id", graduateId)
+			.where(eq(graduatesTable.id, req.graduate.id))			.execute();
+
+		if (results.affectedRows === 0) {
+			//If affectedRows is 0, it means that no rows in the database were updated,
+			return res.status(404).json({ error: "Graduate not found" });
+		}
+		// res.json({ message: "Graduate profile updated successfully!" });
+		
+		res.redirect("/graduates/profile"); // Redirect to the profile page after update	} catch (err) {
+		} catch (err) {
+			console.log(err)
+		res.status(500).json({ error: err.message });
+
+	}
+});
 
 //Apply for jobs
 router.get("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
@@ -204,99 +257,47 @@ router.get("/myApplications", ensureLoggedIn, async (req, res) => {
 	}
 });
 
-// View Graduate profile
-router.get("/profile", ensureLoggedIn, async (req, res) => {
-	try {
-		// Query to fetch specific fields from the graduatesTable
-		const graduate = req.graduate;
-
-		res.render("graduates/profile", { graduate: graduate });
-	} catch (err) {
-		console.log(err)
-		res.status(500).body("Internal Server Error");
-	}
-});
-
-// Graduates Update details
-router.post("/updateProfile", async (req, res) => { // Chnage PUT method to POST - (So No need script.js)
-	const {
-		graduateId, 
-		firstName, 
-		lastName, 
-		email, 
-		contactNumber, 
-		qualification, 
-		bootcampInstitute, 
-		graduationYear, 
-		skills, } = req.body;
-
-	try {
-		const results = await db
-			.update(graduatesTable)
-			.set({
-				first_name: firstName,
-				last_name: lastName,
-				email,
-				contact_number: contactNumber,
-				qualification,
-				bootcamp_institute: bootcampInstitute,
-				graduation_year: graduationYear,
-				skills,
-			})
-			.where("id", graduateId)
-			.execute();
-
-		if (results.affectedRows === 0) {
-			//If affectedRows is 0, it means that no rows in the database were updated,
-			return res.status(404).json({ error: "Graduate not found" });
-		}
-		// res.json({ message: "Graduate profile updated successfully!" });
-		
-		res.redirect("/graduates/profile"); // Redirect to the profile page after update	} catch (err) {
-		} catch (err) {
-			console.log(err)
-		res.status(500).json({ error: err.message });
-
-	}
-});
 
 
 // Bootcamp Certificate Uploading - Configure Multer storage
+
 const storage = multer.diskStorage({
-	destination: (req, file, callBack) => {
-		callBack(null, "uploads/certificates");
-	},
-	filename: (req, file, callBack) => {
-		callBack(null, `${Date.now()}-${file.originalname}`);
-	},
+    destination: (req, file, callBack) => {
+        callBack(null, "uploads/certificates"); // Create this folder exists in the root project
+    },
+    filename: (req, file, callBack) => {
+        callBack(null, `${Date.now()}-${file.originalname}`);
+    },
 });
 
 const upload = multer({ storage });
 
-// upload certificatte Rooute
+// Upload certificate route
+router.post("/upload-certificate", upload.single("certificate"), async (req, res) => { // "/upload-certificate" -  is just an endpoint URL, not a file path. 
+    if (!req.file) { 
+        return res.status(400).json({ error: "No file uploaded." });
+    }
 
-router.post("/upload-certificate", upload.single("certificate"), async (req, res) => {
+    const graduateId = req.body.graduateId;
+    const certificatePath = req.file.path; // Refers to the Path where file is stored
 
-	const graduateId = req.body.graduateId;
-	const certificatePath = req.file.path;
+    try {
+        const results = await db
+            .update(graduatesTable)
+            .set({ certificate: certificatePath })
+            .where(eq(graduatesTable.id, graduateId))
+            .execute();
 
-	try {
-		const results = await db
-			.update(graduatesTable)
-			.set({ certificate: certificatePath })
-			.where(eq(graduatesTable.id, graduateId))
-			.execute();
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: "Graduate not found" });
+        }
 
-		if (results.affectedRows === 0) {
-			return res.status(404).json({ error: "Graduate not found" });
-		}
-
-		res.json({ message: "Certificate uploaded successfully!" });
-	} catch (err) {
-		res.status(500).json({ error: err.message });
-	}
-},
-);
+        res.json({ message: "Certificate uploaded successfully!", path: certificatePath });
+    } catch (err) {
+        console.error("Upload Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 //Delete Graduate Account
 
