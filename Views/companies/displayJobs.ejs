@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	
+    <link rel="stylesheet" href="/stylesheets/styles-homepage.css">
+    <link rel="stylesheet" href="/stylesheets/styles-template.css">
+    <link rel="stylesheet" href="/stylesheets/styles-companies-displayJobs.css">
+
+  
+    <title>Job Listings</title>
+	
+</head>
+<body>
+	<h1>Available Job Listings</h1>
+
+	<% if (jobs.length === 0) { %>
+		<p>No jobs have been posted yet.</p>
+	<% } else { %>
+		<% jobs.forEach(job => { %>
+			<div class="job-card">
+				<h2><%= job.title %></h2>
+				<p><strong>Description:</strong> <%= job.description %></p>
+				<p><strong>Salary:</strong> <%= job.salary %></p>
+				<p><strong>Location:</strong> <%= job.location %></p>
+				<p><strong>Posted:</strong> <%= new Date(job.created_at).toLocaleDateString() %></p>
+			</div>
+		<% }) %>
+	<% } %>
+</body>
+</html>

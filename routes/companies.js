@@ -215,37 +215,7 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => {
 	}
 });
 
-//Review applications
-router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
-	const { jobId } = req.params;
-	try {
-		const applications = await db
-			.select()
-			.from(applicationsTable)
-			.innerJoin(
-				graduatesTable,
-				graduatesTable.id,
-				"=",
-				applicationsTable.company_id,
-			)
-			.where(applicationsTable.job_id, "=", jobId);
-
-		// Check if no applications found
-		if (applications.length === 0) {
-			return res
-				.status(404)
-				.json({ message: "No applications found for this job." });
-		}
-
-		res.status(200).json(applications);
-	} catch (error) {
-		console.error(err);
-		res.status(500).send({ error: "Error retrieving applications" });
-	}
-});
-
-
-// Delete Account
+  // Delete Account
 router.delete("/delete", ensureLoggedIn, async (req, res) => {
 	try {
 		const companyID = req.company.id;
@@ -261,6 +231,20 @@ router.delete("/delete", ensureLoggedIn, async (req, res) => {
 	}
 });
 
+// Display Posted Jobs
+router.get("/jobs", async (req, res) => {
+	try {
+		const jobs = await db
+			.select()
+			.from(jobsTable)
+			.orderBy(desc(jobsTable.created_at)); // Sort newest first
+
+		res.render("jobs", { jobs }); 
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send({ error: "Failed to fetch jobs" });
+	}
+});
 // Pay Fee for posting a job
 
 //const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key
@@ -319,6 +303,60 @@ router.post("/confirm-job-post", ensureLoggedIn, async (req, res) => {
 		return res.status(500).send({ error: "Error confirming job post after payment" });
 	}
 });
+
+// Save the payment into the Database after payment confirmation
+router.post("/save-job", ensureLoggedIn, async (req, res) => {
+	const { title, description, salary, location } = req.body;
+	const companyId = req.user.id;
+
+	try {
+		await db.insert(jobsTable).values({
+			title,
+			description,
+			salary,
+			location,
+			company_id: companyId,
+			created_at: new Date(),
+		});
+
+		res.status(201).json({ message: "Job posted successfully!" });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: "Failed to save job" });
+	}
+});
+//Review applications
+router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
+	const { jobId } = req.params;
+	try {
+		const applications = await db
+			.select()
+			.from(applicationsTable)
+			.innerJoin(
+				graduatesTable,
+				graduatesTable.id,
+				"=",
+				applicationsTable.company_id,
+			)
+			.where(applicationsTable.job_id, "=", jobId);
+
+		// Check if no applications found
+		if (applications.length === 0) {
+			return res
+				.status(404)
+				.json({ message: "No applications found for this job." });
+		}
+
+		res.status(200).json(applications);
+	} catch (error) {
+		console.error(err);
+		res.status(500).send({ error: "Error retrieving applications" });
+	}
+});
+
+
+
+
 // Integrating CAPTCHA verification
 router.post("/signup", async (req, res) => {
 	const { password, recaptchaToken } = req.body;

@@ -1,0 +1,49 @@
+
+/*  form styling */
+form {
+	background: #fff;
+	padding: 2rem;
+	border-radius: 10px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+h1 {
+	text-align: center;
+	color: #333;
+}
+
+label {
+	display: block;
+	margin-top: 1rem;
+	font-weight: bold;
+}
+
+input,
+textarea,
+select {
+	width: 80%;
+	padding: 0.75rem;
+	margin-top: 0.25rem;
+	border-radius: 5px;
+	border: 1px solid #ccc;
+}
+
+/* Button Styling */
+.btn {
+	display: inline-block;
+	background-color: #fd8e18;
+	color: rgb(11, 11, 11);
+	padding: 10px 15px;
+	margin-top: 20px;
+	text-decoration: none;
+	font-size: 16px;
+	border-radius: 5px;
+	border: none;
+	cursor: pointer;
+}
+
+.btn:hover {
+	background-color: #c46704;
+}

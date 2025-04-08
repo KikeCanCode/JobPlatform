@@ -20,7 +20,6 @@
 		"body-parser": "^1.20.3",
 		"cookie-session": "^2.1.0",
 		"dotenv": "^16.4.7",
-		"drizzle-kit": "^0.30.1",
 		"drizzle-orm": "^0.38.2",
 		"ejs": "^3.1.10",
 		"express": "^4.21.2",
@@ -31,6 +30,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@flydotio/dockerfile": "^0.5.9"
+		"@flydotio/dockerfile": "^0.5.9",
+		"drizzle-kit": "^0.30.6"
 	}
 }
