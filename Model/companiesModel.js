@@ -2,6 +2,7 @@ import db from "../db/index.js";
 import bcrypt from "bcryptjs";
 import { processStripePayment } from "../Service/paymentService.js";
 import { companiesTable, jobsTable, applicationsTable, graduatesTable } from "../db/schema.js";
+
 class Company {
 	constructor(
 		name,

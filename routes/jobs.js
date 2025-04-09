@@ -1,50 +1,37 @@
 import express from "express";
-import verifyToken from "../Middlewares/authMiddleware.js";
 import Job from "../Model/jobsModel.js";
 import { jobsTable } from "../db/schema.js";
+import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
 
 const router = express.Router();
 
-//Display job list on a webpage - (Webpage route) Fetches jobs from the database/Renders an HTML page (jobs/jobList.ejs) to display
-
-router.post("/jobsList", (req, res) => {  
-    res.redirect("/jobs/jobList"); 
+// //Display job list on a webpage - (Webpage route) Fetches jobs from the database/Renders an HTML page (jobs/jobList.ejs) to display
+router.get("/jobsList", async (req, res) => { // url endpont no need to add folder name
+    try {
+        const jobs = await Job.findAll(); // ORM approach for fetching all jobs
+        res.render("jobs/jobList", { jobs });
+    } catch (err) {
+        console.error("Error fetching job list:", err);
+        res.status(500).send({ error: "Error fetching job list" });
+    }
 });
 
-router.get("/jobList", async (req, res) => {
-	try {
-		const jobs = await db
-		.select()
-		.from(jobsTable)
-		.execute();
-		res.render("jobs/jobList", { jobs });
-		
-	} catch (err) {
-		console.error("Error fetching job list:", err);
-		res.status(500).send({ error: "Error fetching job list" });
-	}
-});
-
-// Get a single job by ID 
+// Get a single job by ID
 router.get("/jobs/:id", async (req, res) => {
-	const jobId = req.params.id;
+    const jobId = req.params.id;
 
-	try {
-		const job = await db
-			.select()
-			.from(jobsTable)
-			.where({ id: jobId })
-			.execute();
+    try {
+        const job = await Job.findById(jobId); // ORM approach to get job by ID
 
-		if (job.length === 0) {
-			return res.status(404).send({ error: "Job not found" });
-		}
+        if (!job) {
+            return res.status(404).send({ error: "Job not found" });
+        }
 
-		res.json(job[0]);
-	} catch (err) {
-		console.error("Error fetching job:", err);
-		res.status(500).send({ error: "Error fetching job details" });
-	}
+        res.json(job);
+    } catch (err) {
+        console.error("Error fetching job:", err);
+        res.status(500).send({ error: "Error fetching job details" });
+    }
 });
 
 // Get all jobs Routes 
@@ -63,7 +50,7 @@ router.get("/jobsList", async (req, res) => {
 });
 
 // Post a Job
-router.post("/post-job", verifyToken, async (req, res) => {
+router.post("/post-job", ensureLoggedIn, async (req, res) => {
 	const {
 		title,
 		description,
@@ -73,7 +60,7 @@ router.post("/post-job", verifyToken, async (req, res) => {
 		expirationDate,
 		location,
 	} = req.body;
-	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
+	const companyId = req.user.id; // Extracted from the token by ensureLoggedIn middleware
 
 	try {
 		await Job.create({
@@ -94,9 +81,9 @@ router.post("/post-job", verifyToken, async (req, res) => {
 	}
 });
 
-// Get All Jobs by a Company
-router.get("/postedJobs", verifyToken, async (req, res) => {
-	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
+// Get All Jobs by a Company - Ensure logged-in
+router.get("/postedJobs", ensureLoggedIn, async (req, res) => {
+	const companyId = req.user.id; // Extracted from the token by ensureLoggedIn middleware
 
 	try {
 		const jobs = await Job.findByCompanyId(companyId);
@@ -108,7 +95,7 @@ router.get("/postedJobs", verifyToken, async (req, res) => {
 });
 
 // Update Job Status (e.g., Open, Close, Expired)
-router.patch("/:jobId/status", verifyToken, async (req, res) => {
+router.patch("/:jobId/status", ensureLoggedIn, async (req, res) => {
 	const { jobI} = req.params;
 	const { status } = req.body;
 
@@ -121,8 +108,10 @@ router.patch("/:jobId/status", verifyToken, async (req, res) => {
 	}
 });
 
-// Search for jobs
-/*router.get("/jobs", (req, res) => {
+/*
+
+Search for jobs
+router.get("/jobs", (req, res) => {
 	const { lcation, skills, education, datePosted } = req.query;
 	let query = " SELECT * FROM jobs WHERE 1=1";
 	const queryParams = [];
@@ -150,12 +139,12 @@ router.patch("/:jobId/status", verifyToken, async (req, res) => {
 	});
 });
 */
-
 //Search for jobs
 router.get("/jobsList", async (req, res) => {
 	const { title, location, skills, education, datePosted } = req.query;
 	// Start with the base query
-	let query = db.select("*").from("jobs"); // Select all fields from jobs table
+	
+	let query = Job.query(); // Replace with your ORM's method for starting a query
 
 	// Dynamically build query based on filters provided in query params
 	if (title) {
@@ -173,20 +162,13 @@ router.get("/jobsList", async (req, res) => {
 	if (datePosted) {
 		query = query.where("date_posted", ">=", datePosted); // Apply datePosted filter
 	}
-
-	/*try {
-		const results = await query.execute();
-		res.json({ data: results });
-	} catch (err) {
-		res.status(500).json({ error: err.message });
-	}*/
 	try {
-        const results = await query.execute();
-        res.render("jobs/jobsList", { jobs: jobsList }); // Render results in a view
+        // const results = await query.execute();
+		const jobs = await query.execute();
+        res.render("jobs/jobsList", { jobs }); // Render results in a view
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
-
 
 export default router;

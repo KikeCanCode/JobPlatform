@@ -3,15 +3,15 @@ export default () => undefined;
 import express from "express";
 import db from "../db/index.js"; // Database connection
 import { paymentTable, jobsTable, companiesTable } from "../db/schema.js";
-import verifyToken from "../Middlewares/authMiddleware.js"; // Middleware for authentication
 //import { processStripePayment, processPayPalPayment } from "../Services/paymentService.js"; // Payment service
 import { processStripePayment } from "../Service/paymentService.js"; // Payment service
 import Payment from "../Model/paymentModel.js";
+import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
 
 const router = express.Router();
 
 // Create a Payment
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", ensureLoggedIn, async (req, res) => {
     const { jobId, amount, paymentMethod } = req.body;
     const companyId = req.user.id; // Extracted from token
 
@@ -57,7 +57,7 @@ const [payment] = await db
 });
 
 // Get Payment History for a Company 
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", ensureLoggedIn, async (req, res) => {
     const companyId = req.user.id;
 
     try {
@@ -72,7 +72,7 @@ router.get("/", verifyToken, async (req, res) => {
  
 /* This is in Payment model 
 // Get Payment History for a Company 
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", ensureLoggedIn, async (req, res) => {
     const companyId = req.user.id;
 
     try {

@@ -20,9 +20,9 @@ export const graduatesTable = mysqlTable("graduates", {
 	bootcamp_institute: varchar({ length: 255 }),
 	graduation_year: int(),
 	skills: varchar({ length: 4_000 }),
-	created_at: timestamp().defaultNow(),
-  	updated_at: timestamp().defaultNow().onUpdateNow(),
-  	deleted_at: timestamp().default(null) // Soft delete column
+	// created_at: timestamp().defaultNow(),
+  	// updated_at: timestamp().defaultNow().onUpdateNow(),
+  	// deleted_at: timestamp().default(null) // Soft delete column
 
 });
 
@@ -36,9 +36,9 @@ export const companiesTable = mysqlTable("companies", {
 	contact_number: varchar({ length: 255 }),
 	company_address: varchar({ length: 500 }),
 	company_profile: varchar({ length: 500 }),
-  	created_at: timestamp().defaultNow(), // Automatically set to the current timestamp,
-  	updated_at: timestamp().defaultNow().onUpdateNow(),
-  	deleted_at: timestamp().default(null) // Soft delete column
+  	// created_at: timestamp().defaultNow(), // Automatically set to the current timestamp,
+  	// updated_at: timestamp().defaultNow().onUpdateNow(),
+  	// deleted_at: timestamp().default(null) // Soft delete column
 
 });
 

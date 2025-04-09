@@ -7,33 +7,11 @@ import fetch from "node-fetch";
 import db from "../db/index.js"; // Drizzle Orm Connection
 import { applicationsTable, graduatesTable, jobsTable } from "../db/schema.js";
 import { eq } from "drizzle-orm";
+import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
 
 const router = express.Router();
 
-/*Middleware to check if a graduate is logged in. Usage:
-router.method("/path", ensureLoggedIn, (req, res) => { ...
-*/
-
-// This puts the graduate object in req.graduate if they are logged in.
-async function ensureLoggedIn(req, res, next) {
-	if (!req.session?.graduateId) {
-		return res.redirect("/graduates/login");
-	}
-
-	const results = await db
-		.select()
-		.from(graduatesTable)
-		.where({ id: req.session.graduateId });
-
-	if (results.length !== 1) {
-		req.session = null; // Delete any session state and logout for safety
-		return res.redirect("/"); //redirect to homepage
-	}
-
-	req.graduate = results[0];
-
-	return next();
-}
+// Moved Graduates Middleware to the Middlewares Folder - import it
 
 // Display Graduates Login Page
 router.get("/login", (req, res) => {

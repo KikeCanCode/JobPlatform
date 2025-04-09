@@ -5,34 +5,11 @@ import db from "../db/index.js"; // database connection
 import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 //import Stripe from "stripe"; // Import Stripe for payment processing 
 import { eq } from "drizzle-orm";
+import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
 
 const router = express.Router();
 
-/*Middleware to check if a company is logged in. Usage:
-router.method("/path", ensureLoggedIn, (req, res) => { ...
-*/
-
-// This puts the company object in req.company if they are logged in.
-async function ensureLoggedIn(req, res, next) {
-	if (!req.session?.companyId) {
-		return res.redirect("/companies/login");
-	}
-
-	const results = await db
-		.select()
-		.from(companiesTable)
-		.where({ id: req.session.companyId });
-
-	if (results.length !== 1) {
-		req.session = null; // Delete any session state and logout for safety
-		return res.redirect("/"); //redirect to homepage
-	}
-
-	req.company = results[0];
-
-	return next();
-}
-
+// Moved Companies Middleware to Middleware Folder - Import it above.  
 // Display companies Login Page  
 router.get("/login", (req, res) => {
     res.render("companies/login");
@@ -110,7 +87,7 @@ router.post("/signup", async (req, res) => {
 	}
 }); 
 
-// Display Graduates Registration Page
+// Display Comoanies Registration Page
 router.get("/registrationForm", ensureLoggedIn, async (req, res) => {
 	const company = req.company;
 	return res.render("companies/registrationForm", { company });	
@@ -141,11 +118,15 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 	}
 });
 
+router.get("/dashboard", ensureLoggedIn, (req, res) => {
+	res.render("companies/dashboard", { company: req.company });
+});
+
 //Display companies Dashboard
 router.get("/dashboard", ensureLoggedIn, async (req, res) => {
 	console.log(req.company);
 
-	res.render("companies/dashboard", { graduate: req.company });
+	res.render("companies/dashboard", { company: req.company });
 });
 
 // View Companies profile
@@ -245,12 +226,18 @@ router.get("/jobs", async (req, res) => {
 		res.status(500).send({ error: "Failed to fetch jobs" });
 	}
 });
+
+// Display Jobs Posting Form
+router.get("/post-job", ensureLoggedIn, async (req, res) => {
+	const company = req.company;
+	res.render("jobs/post-job", { company }); // looks for views/jobs/post-job.ejs
+});
 // Pay Fee for posting a job
 
 //const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key
 
 // Post a Job with Payment
-router.post("/jobs-with-payment", ensureLoggedIn, async (req, res) => {
+router.post("/post-job-with-payment", ensureLoggedIn, async (req, res) => {
 	const { title, description, salary, location, amount, currency } = req.body;
 	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
 
@@ -325,6 +312,7 @@ router.post("/save-job", ensureLoggedIn, async (req, res) => {
 		res.status(500).json({ error: "Failed to save job" });
 	}
 });
+
 //Review applications
 router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 	const { jobId } = req.params;
@@ -353,8 +341,6 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 		res.status(500).send({ error: "Error retrieving applications" });
 	}
 });
-
-
 
 
 // Integrating CAPTCHA verification

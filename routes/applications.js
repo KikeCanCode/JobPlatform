@@ -1,12 +1,12 @@
 import express from "express";
-import verifyToken from "../Middlewares/authMiddleware.js";
+import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
 // import ApplicationService from "../services/ApplicationService.js";
 
 const router = express.Router();
 
 //Graduate apply to a Job
 
-router.post("/", verifyToken, async (requestAnimationFrame, res) => {
+router.post("/", ensureLoggedIn, async (req, res) => {
 	const { jobId, graduateId } = request.body;
 
 	try {
@@ -25,7 +25,7 @@ router.post("/", verifyToken, async (requestAnimationFrame, res) => {
 
 //Get applications by Graduates
 
-router.get("/graduates/:graduateI", verifyToken, async (req, res) => {
+router.get("/graduates/:graduateI", ensureLoggedIn, async (req, res) => {
 	const { graduateId } = req.params;
 
 	try {
@@ -41,7 +41,7 @@ router.get("/graduates/:graduateI", verifyToken, async (req, res) => {
 });
 
 // Delete an Application
-router.delete("/:applicationId", verifyToken, async (req, res) => {
+router.delete("/:applicationId", ensureLoggedIn, async (req, res) => {
 	const { applicationId } = req.params;
 
 	try {
