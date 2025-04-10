@@ -5,7 +5,11 @@ import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
 
 const router = express.Router();
 
-// //Display job list on a webpage - (Webpage route) Fetches jobs from the database/Renders an HTML page (jobs/jobList.ejs) to display
+//Display job Posting Form
+router.get("/post-jobs", ensureLoggedIn, (req, res) => {
+	res.render("jobs/post-jobs"); 
+});
+//Display job list on a webpage - 
 router.get("/jobsList", async (req, res) => { // url endpont no need to add folder name
     try {
         const jobs = await Job.findAll(); // ORM approach for fetching all jobs
