@@ -232,64 +232,103 @@ router.get("/post-job", ensureLoggedIn, async (req, res) => {
 	const company = req.company;
 	res.render("jobs/post-job", { company }); // looks for views/jobs/post-job.ejs
 });
+
+// POST a Job without payment
+router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
+	const {
+		title,
+		job_description,
+		salary,
+		location,
+		// qualification_required: qualificationRequired,
+		// application_limit: applicationLimit,
+		// expiration_date: expirationDate,
+	} = req.body;
+
+	// const companyId = req.user.id; // from the ensureLoggedIn middleware
+	const companyId = req.company.id;
+
+	try {
+		// await Job.create({
+			await db
+			.insert(jobsTable)
+			.values({
+			company_id: companyId,//  foreign key field 
+			title,
+			job_description,
+			salary,
+			location,
+			//qualification_required: qualificationRequired,
+			// application_limit: applicationLimit,
+			// expiration_date: expirationDate,
+			 
+		});
+
+		res.status(201).send({ message: "Job posted successfully!" });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send({ error: "Error posting job" });
+	}
+});
+
 // Pay Fee for posting a job
 
 //const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key
 
 // Post a Job with Payment
-router.post("/post-job-with-payment", ensureLoggedIn, async (req, res) => {
-	const { title, description, salary, location, amount, currency } = req.body;
-	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
+// router.post("/post-job-with-payment", ensureLoggedIn, async (req, res) => {
+// 	const { title, description, salary, location, amount, currency } = req.body;
+// 	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
 
-	try {
-		// Step 1: Create a Payment Intent
-		const paymentIntent = await stripe.paymentIntents.create({
-			amount, // Amount in the smallest currency unit (e.g., 500 for £5.00)
-			currency, // Currency code, e.g., 'gbp'
-			description: `Job Post Payment for ${title}`, // Payment description
-			metadata: { companyId, title }, // Add metadata for tracking
-		});
+// 	try {
+// 		// Step 1: Create a Payment Intent
+// 		const paymentIntent = await stripe.paymentIntents.create({
+// 			amount, // Amount in the smallest currency unit (e.g., 500 for £5.00)
+// 			currency, // Currency code, e.g., 'gbp'
+// 			description: `Job Post Payment for ${title}`, // Payment description
+// 			metadata: { companyId, title }, // Add metadata for tracking
+// 		});
 
-		// Step 2: Confirm the payment (frontend should send client_secret for this)
-		// For now, return the client secret to the frontend
-		return res.status(201).send({
-			clientSecret: paymentIntent.client_secret,
-			message: "Payment intent created successfully. Confirm payment to post the job!",
-		});
-	} catch (err) {
-		console.error(err.message);
-		return res.status(500).send({ error: "Error processing payment" });
-	}
-});
+// 		// Step 2: Confirm the payment (frontend should send client_secret for this)
+// 		// For now, return the client secret to the frontend
+// 		return res.status(201).send({
+// 			clientSecret: paymentIntent.client_secret,
+// 			message: "Payment intent created successfully. Confirm payment to post the job!",
+// 		});
+// 	} catch (err) {
+// 		console.error(err.message);
+// 		return res.status(500).send({ error: "Error processing payment" });
+// 	}
+// });
 
 // Confirm Job Posting after Payment
-router.post("/confirm-job-post", ensureLoggedIn, async (req, res) => {
-	const { title, description, salary, location, paymentIntentId } = req.body;
-	const companyId = req.user.id;
+// router.post("/confirm-job-post", ensureLoggedIn, async (req, res) => {
+// 	const { title, description, salary, location, paymentIntentId } = req.body;
+// 	const companyId = req.user.id;
 
-	try {
-		// Step 1: Retrieve the payment intent to confirm successful payment
-		const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+// 	try {
+// 		// Step 1: Retrieve the payment intent to confirm successful payment
+// 		const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
-		if (paymentIntent.status !== "succeeded") {
-			return res.status(400).send({ error: "Payment not completed. Cannot post the job." });
-		}
+// 		if (paymentIntent.status !== "succeeded") {
+// 			return res.status(400).send({ error: "Payment not completed. Cannot post the job." });
+// 		}
 
-		// Step 2: Insert the job into the database after successful payment
-		await db.insert(jobsTable).values({
-			title,
-			description,
-			salary,
-			location,
-			company_id: companyId,
-		});
+// 		// Step 2: Insert the job into the database after successful payment
+// 		await db.insert(jobsTable).values({
+// 			title,
+// 			description,
+// 			salary,
+// 			location,
+// 			company_id: companyId,
+// 		});
 
-		res.status(201).send({ message: "Job posted successfully after payment!" });
-	} catch (err) {
-		console.error(err.message);
-		return res.status(500).send({ error: "Error confirming job post after payment" });
-	}
-});
+// 		res.status(201).send({ message: "Job posted successfully after payment!" });
+// 	} catch (err) {
+// 		console.error(err.message);
+// 		return res.status(500).send({ error: "Error confirming job post after payment" });
+// 	}
+// });
 
 // Save the payment into the Database after payment confirmation
 router.post("/save-job", ensureLoggedIn, async (req, res) => {

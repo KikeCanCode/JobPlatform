@@ -2,6 +2,7 @@ import express from "express";
 import Job from "../Model/jobsModel.js";
 import { jobsTable } from "../db/schema.js";
 import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
+import db from "../db/index.js"; // database connection
 
 const router = express.Router();
 
@@ -9,6 +10,47 @@ const router = express.Router();
 router.get("/post-jobs", ensureLoggedIn, (req, res) => {
 	res.render("jobs/post-jobs"); 
 });
+
+// Post a Job
+router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
+	const {
+		
+		title,
+		job_description: description,
+		salary,
+		location,
+		// qualification_required:qualificationRequired,
+		application_limit: applicationLimit,
+		expiration_date: expirationDate,
+		
+	} = req.body;
+	
+	// const companyId = req.user.id; // Extracted from the token by ensureLoggedIn middleware
+	const companyId = req.company.id;
+
+	try {
+		// await Job.create({
+			await db
+			.insert(jobsTable)
+			.values({
+			// Used to add data
+			company_id: companyId,
+			title,
+			job_description: description,
+			salary,
+			location,
+			//qualification_required, qualificationRequired,
+			// application_limit: applicationLimit,
+			// expiration_date: expirationDate,
+			
+		});
+		res.status(201).send({ message: "Job posted successfuly!" });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send({ error: "Error posting job" });
+	}
+});
+
 //Display job list on a webpage - 
 router.get("/jobsList", async (req, res) => { // url endpont no need to add folder name
     try {
@@ -53,37 +95,6 @@ router.get("/jobsList", async (req, res) => {
 	}
 });
 
-// Post a Job
-router.post("/post-job", ensureLoggedIn, async (req, res) => {
-	const {
-		title,
-		description,
-		salary,
-		qualificationRequired,
-		applicationLimit,
-		expirationDate,
-		location,
-	} = req.body;
-	const companyId = req.user.id; // Extracted from the token by ensureLoggedIn middleware
-
-	try {
-		await Job.create({
-			// Used to add data
-			companyId,
-			title,
-			description,
-			salary,
-			qualificationRequired,
-			applicationLimit,
-			expirationDate,
-			location,
-		});
-		res.status(201).send({ message: "Job posted successfuly!" });
-	} catch (err) {
-		console.error(err);
-		res.status(500).send({ error: "Error posting job" });
-	}
-});
 
 // Get All Jobs by a Company - Ensure logged-in
 router.get("/postedJobs", ensureLoggedIn, async (req, res) => {
