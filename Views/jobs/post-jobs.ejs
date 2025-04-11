@@ -19,7 +19,7 @@
 		<input type="text" id="title" name="title" required>
 
 		<label for="description">Job Description</label>
-		<textarea id="description" name="description" rows="5" required></textarea>
+		<textarea id="description" name="job_description" rows="5" required></textarea>
 
 		<label for="salary">Salary (£)</label>
 		<input type="number" id="salary" name="salary" required>
@@ -27,7 +27,13 @@
 		<label for="location">Location</label>
 		<input type="text" id="location" name="location" required>
 
-		<label for="amount">Payment Amount (£)</label>
+		<label for="applicationLimit">Application Limit</label>
+		<input type="number" id="applicationLimit" name="application_limit">
+
+		<label for="expirationDate">Expiration Date</label>
+		<input type="date" id="expirationDate" name="expiration_date"> 
+
+		<!-- <label for="amount">Payment Amount (£)</label>
 		<input type="number" id="amount" name="amount" value="5" required>
 
 		<label for="currency">Currency</label>
@@ -35,7 +41,7 @@
 			<option value="gbp" selected>GBP (£)</option>
 			<option value="usd">USD ($)</option>
 			<option value="eur">EUR (€)</option>
-		</select>
+		</select> -->
 
 		<button type="submit" class="btn">Create Job & Proceed to Payment</button>
 	</form>

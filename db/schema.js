@@ -51,6 +51,9 @@ export const jobsTable = mysqlTable("jobs", {
 	location: varchar({ length: 255 }),
 	salary: varchar({ length: 100 }),
 	created_at: timestamp().defaultNow(), // Automatically set to the current timestamp
+	// qualification_required: varchar({ length: 500 }), // Added field
+	// application_ limit: int(), // Added field (assuming it's a number, adjust type if needed)
+	// expiration_date: timestamp(), // Added field
 });
 
 // Applications Table
