@@ -51,15 +51,28 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 	}
 });
 
+
+
 //Display job list on a webpage - 
 router.get("/jobsList", async (req, res) => { // url endpont no need to add folder name
     try {
         const jobs = await Job.findAll(); // ORM approach for fetching all jobs
-        res.render("jobs/jobList", { jobs });
+        res.render("jobs/jobsList", { jobs });
     } catch (err) {
         console.error("Error fetching job list:", err);
         res.status(500).send({ error: "Error fetching job list" });
     }
+});
+
+// Get all jobs Routes (General Job Listing)
+router.get("/jobsList", async (req, res) => {
+	try {
+		const jobs = await Job.findAll();
+		res.json(jobs);
+	} catch (err) {
+		console.error("Error fetching jobs:", err);
+		res.status(500).send({ error: "Error fetching job list" });
+	}
 });
 
 // Get a single job by ID
@@ -80,20 +93,6 @@ router.get("/jobs/:id", async (req, res) => {
     }
 });
 
-// Get all jobs Routes 
-router.get("/jobsList", async (req, res) => {
-	try {
-		const jobs = await db
-		.select()
-		.from(jobsTable)
-		.execute();
-
-		res.json(jobs);
-	} catch (err) {
-		console.error("Error fetching jobs:", err);
-		res.status(500).send({ error: "Error fetching job list" });
-	}
-});
 
 
 // Get All Jobs by a Company - Ensure logged-in

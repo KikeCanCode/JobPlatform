@@ -3,7 +3,7 @@ It provides static methods for interacting with the database, such as creating o
 Useful when the focus is on performing CRUD operations on the database.
 Differ from gragaute& companies because they are creating an instance */
 
-export default {};
+
 
 import db from "../db/index.js";
 import { jobsTable } from "../db/schema.js"; // Import the table schema
@@ -17,10 +17,11 @@ class Job {
 		title,
 		description,
 		salary,
-		qualificationRequired,
-		applicationLimit,
-		expirationDate,
 		location,
+		// qualificationRequired,
+		// applicationLimit,
+		// expirationDate,
+		
 	}) {
 		try {
 			const result = await db
@@ -30,10 +31,11 @@ class Job {
 					title,
 					description,
 					salary,
-					qualification_required: qualificationRequired,
-					application_limit: applicationLimit,
-					expiration_date: expirationDate,
 					location,
+					// qualification_required: qualificationRequired,
+					// application_limit: applicationLimit,
+					// expiration_date: expirationDate,
+					
 				})
 				.execute();
 			return result;
@@ -42,6 +44,18 @@ class Job {
 		}
 	}
 
+// Find All Jobs - (Genaeal Job Listing)
+static async findAll() {
+	try {
+		const jobs = await db
+		.select()
+		.from(jobsTable)
+		.execute();
+		return jobs;
+	} catch (err) {
+		throw new Error(`Error retrieving all jobs: ${err.message}`);
+	}
+}
 	// Find jobs by company ID
 	static async findByCompanyId(companyId) {
 		try {
@@ -70,3 +84,4 @@ class Job {
 		}
 	}
 }
+export default Job;

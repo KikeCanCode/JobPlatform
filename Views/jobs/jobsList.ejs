@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="stylesheets/styles-homepage.css">
-  <link rel="stylesheet" href="stylesheets/styles-template.css">
-  <link rel="stylesheet" href="stylesheets/styles-jobs.css">
-
-    <title> Job List Page </title>
+  <link rel="stylesheet" href="/stylesheets/styles-homepage.css">
+  <link rel="stylesheet" href="/stylesheets/styles-template.css">
+  <link rel="stylesheet" href="/stylesheets/styles-jobs-jobsList.css">
+    
+  <title> Job List Page </title>
 </head>
 <body>
     <header>
@@ -18,7 +18,7 @@
     <nav class="menu">
        <ul>
          <li><a href="/">Home</a></li>
-         <li><a href="/jobs/jobsList"> Find a jobs</a></li>
+         <li><a href="/jobs/jobsList"> Find a job </a></li>
          <li><a href="aboutUs">About Us </a></li>
          <li><a href="/pages/contactUs"> Contact Us </a></li>
        </ul>
@@ -33,32 +33,59 @@
   
   <!--Login | Post a Job Section -->
     <div class="login-divider">
-      <a href="/login" class="login-link">Login</a>
+      <a href="/graduates/login" class="login-link">Graduates Login</a>
+
       <span class="divider">|</span>
       <a href="/companies/post-job" class="login-link">Post a Job</a> 
     </div>
   </div>
   <hr>
   <br>
+
   <div class="jobs-list-container">
-    <h1>Jobs</h1>
+    
+    <h1>Jobs for you </h1>
+     <% if (jobs.length === 0) { %>
+      <p>No jobs have been posted yet.</p>
+    <% } else { %>
+
     <ul class="job-list">
+
         <% jobs.forEach(job => { %>
+
             <li class="job-card">
+
                 <div class="job-title"><%= job.title %></div>
+                
                 <div class="job-details">
-                    <strong>Company:</strong> <%= job.company %> - <strong>Location:</strong> <%= job.location %>
+                    <strong>Company:</strong> <%= job.company %>
+                    <br> 
+                    <strong>Salary:</strong> £<%= job.salary %>
+                    <br>
+                    <strong>Location:</strong> <%= job.location %> <br>
+                    
+                    <% if (job.application_limit) { %>
+                      <strong>Application Limit:</strong> <%= job.application_limit %><br>
+                  <% } %>
+                  <% if (job.expiration_date) { %>
+                    <strong>Expires on:</strong> <%= new Date(job.expiration_date).toLocaleDateString() %><br>
+                <% } %>
+
                 </div>
+
                 <p class="job-description">
-                    <%= job.description.length > 150 ? job.description.substring(0, 150) + "..." : job.description %>
-                </p>
-                <div class="job-actions">
-                    <a href="/apply/<%= job.id %>" class="apply-btn">Apply Now</a>
-                    <a href="/saveJob/<%= job.id %>" class="save-btn">Save Job</a>
+                  <%= job.description && job.description.length > 150 ? job.description.substring(0, 150) + "..." : job.description %>                </p>
+
+                  
+                  <div class="job-actions">
+                    <a href="/apply/<%= job.id %>" class="job-action-btn apply-btn">Apply Now</a> <span class="divider">|</span>  
+                    <a href="/saveJob/<%= job.id %>" class="job-action-btn save-btn">Save Job</a>
                 </div>
+
             </li>
         <% }); %>
     </ul>
+    <% } %>
 </div>
 
     <br>
