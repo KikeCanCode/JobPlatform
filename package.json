@@ -26,11 +26,11 @@
 		"jsonwebtoken": "^9.0.2",
 		"multer": "^1.4.5-lts.1",
 		"mysql2": "^3.11.5",
-		"node-fetch": "^3.3.2"
+		"node-fetch": "^3.3.2",
+		"drizzle-kit": "^0.30.6"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@flydotio/dockerfile": "^0.5.9",
-		"drizzle-kit": "^0.30.6"
+		"@flydotio/dockerfile": "^0.5.9"
 	}
 }
