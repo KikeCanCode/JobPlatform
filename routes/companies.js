@@ -6,6 +6,7 @@ import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 //import Stripe from "stripe"; // Import Stripe for payment processing 
 import { eq } from "drizzle-orm";
 import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
+import { desc } from "drizzle-orm";
 
 const router = express.Router();
 
@@ -118,15 +119,24 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 	}
 });
 
-router.get("/dashboard", ensureLoggedIn, (req, res) => {
-	res.render("companies/dashboard", { company: req.company });
-});
-
-//Display companies Dashboard
+//Display companies Dashboard - Updated to dispay posted jobs to the dashboard
 router.get("/dashboard", ensureLoggedIn, async (req, res) => {
-	console.log(req.company);
-
-	res.render("companies/dashboard", { company: req.company });
+	// console.log(req.company);
+	try {
+		const companyId = req.company.id;
+		
+		// Fetch only jobs posted by this company
+		const jobs = await db
+			.select()
+			.from(jobsTable)
+			.where(eq(jobsTable.company_id, companyId))
+			.orderBy(jobsTable.created_at, 'desc'); // Use 'desc' directly for descending order	res.render("companies/dashboard", { company: req.company });
+			
+			res.render("companies/dashboard", {company: req.company, jobs });
+		} catch (err) {
+	console.error(err);
+	res.status(500).send("Something went wrong while loading the dashboard.");
+}
 });
 
 // View Companies profile
@@ -189,28 +199,13 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => {
 		}
 //		res.json({ message: "Company details updated successfully!" });
 		
-		res.redirect("/companies/profile"); // Redirect to the profile page after update	} catch (err) {
+		res.redirect("/companies/profile"); // Redirect to the profile page after update
 
 } catch (err) {
 		res.status(500).json({ error: err.message });
 	}
 });
 
-  // Delete Account
-router.delete("/delete", ensureLoggedIn, async (req, res) => {
-	try {
-		const companyID = req.company.id;
-		await db.delete().from(companiesTable).where({ id: companyID });
-
-		req.session = null; // Delete the session after deleting the account
-
-		// TODO: Redirect to homepage?
-		res.send({ message: "company account deleted successfuly!" });
-	} catch (error) {
-		console.error(err);
-		res.status(500).send({ error: "error deleting account" });
-	}
-});
 
 // Display Posted Jobs
 router.get("/jobs", async (req, res) => {
@@ -228,9 +223,9 @@ router.get("/jobs", async (req, res) => {
 });
 
 // Display Jobs Posting Form
-router.get("/post-job", ensureLoggedIn, async (req, res) => {
+router.get("/post-jobs", ensureLoggedIn, async (req, res) => {
 	const company = req.company;
-	res.render("jobs/post-job", { company }); // looks for views/jobs/post-job.ejs
+	res.render("jobs/post-jobs", { company }); 
 });
 
 // POST a Job without payment
@@ -253,7 +248,7 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 			await db
 			.insert(jobsTable)
 			.values({
-			company_id: companyId,//  foreign key field 
+			company_id: companyId,
 			title,
 			job_description,
 			salary,
@@ -264,12 +259,45 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 			 
 		});
 
-		res.status(201).send({ message: "Job posted successfully!" });
+		// res.status(201).send({ message: "Job posted successfully!" });
+	// Redirect to dashboard or send response
+	res.redirect("/companies/dashboard"); 
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({ error: "Error posting job" });
 	}
 });
+
+
+//Review applications
+router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
+	const { jobId } = req.params;
+	try {
+		const applications = await db
+			.select()
+			.from(applicationsTable)
+			.innerJoin(
+				graduatesTable,
+				graduatesTable.id,
+				"=",
+				applicationsTable.company_id,
+			)
+			.where(applicationsTable.job_id, "=", jobId);
+
+		// Check if no applications found
+		if (applications.length === 0) {
+			return res
+				.status(404)
+				.json({ message: "No applications found for this job." });
+		}
+
+		res.status(200).json(applications);
+	} catch (error) {
+		console.error(err);
+		res.status(500).send({ error: "Error retrieving applications" });
+	}
+});
+
 
 // Pay Fee for posting a job
 
@@ -330,7 +358,8 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 // 	}
 // });
 
-// Save the payment into the Database after payment confirmation
+
+//Save the payment into the Database after payment confirmation
 router.post("/save-job", ensureLoggedIn, async (req, res) => {
 	const { title, description, salary, location } = req.body;
 	const companyId = req.user.id;
@@ -352,35 +381,22 @@ router.post("/save-job", ensureLoggedIn, async (req, res) => {
 	}
 });
 
-//Review applications
-router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
-	const { jobId } = req.params;
+
+  // Delete Account
+  router.delete("/delete", ensureLoggedIn, async (req, res) => {
 	try {
-		const applications = await db
-			.select()
-			.from(applicationsTable)
-			.innerJoin(
-				graduatesTable,
-				graduatesTable.id,
-				"=",
-				applicationsTable.company_id,
-			)
-			.where(applicationsTable.job_id, "=", jobId);
+		const companyID = req.company.id;
+		await db.delete().from(companiesTable).where({ id: companyID });
 
-		// Check if no applications found
-		if (applications.length === 0) {
-			return res
-				.status(404)
-				.json({ message: "No applications found for this job." });
-		}
+		req.session = null; // Delete the session after deleting the account
 
-		res.status(200).json(applications);
+		// TODO: Redirect to homepage?
+		res.send({ message: "company account deleted successfuly!" });
 	} catch (error) {
 		console.error(err);
-		res.status(500).send({ error: "Error retrieving applications" });
+		res.status(500).send({ error: "error deleting account" });
 	}
 });
-
 
 // Integrating CAPTCHA verification
 router.post("/signup", async (req, res) => {
@@ -403,5 +419,4 @@ router.get("/logout", (req, res) => {
 	req.session = null;
 	res.redirect("/companies/login");
 });
-
 export default router;

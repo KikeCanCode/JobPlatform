@@ -3,6 +3,9 @@ import Job from "../Model/jobsModel.js";
 import { jobsTable } from "../db/schema.js";
 import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
 import db from "../db/index.js"; // database connection
+import { eq } from "drizzle-orm";
+import { and } from "drizzle-orm";
+
 
 const router = express.Router();
 
@@ -20,8 +23,8 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 		salary,
 		location,
 		// qualification_required:qualificationRequired,
-		application_limit: applicationLimit,
-		expiration_date: expirationDate,
+		// application_limit: applicationLimit,
+		// expiration_date: expirationDate,
 		
 	} = req.body;
 	
@@ -44,7 +47,9 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 			// expiration_date: expirationDate,
 			
 		});
-		res.status(201).send({ message: "Job posted successfuly!" });
+		// res.status(201).send({ message: "Job posted successfuly!" });
+		// Redirect to dashboard or send response
+	res.redirect("/companies/dashboard"); 
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({ error: "Error posting job" });
@@ -52,8 +57,7 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 });
 
 
-
-//Display job list on a webpage - 
+//Display all jobs Routes (General Job Listing)
 router.get("/jobsList", async (req, res) => { // url endpont no need to add folder name
     try {
         const jobs = await Job.findAll(); // ORM approach for fetching all jobs
@@ -64,14 +68,73 @@ router.get("/jobsList", async (req, res) => { // url endpont no need to add fold
     }
 });
 
-// Get all jobs Routes (General Job Listing)
-router.get("/jobsList", async (req, res) => {
+// Display form with Pre-filled details for editing.
+router.get("/updateJobs/:id", ensureLoggedIn, async (req, res) => { 
+	const jobId = req.params.id; 
+
 	try {
-		const jobs = await Job.findAll();
-		res.json(jobs);
+		const job = await db
+			.select()
+			.from(jobsTable)
+			.where(
+				and(
+					eq(jobsTable.id, jobId),
+					eq(jobsTable.company_id, req.company.id)
+				)
+			)
+			.execute();
+
+		if (job.length === 0) {
+			return res.status(404).send("Job not found or not authorised");
+		}
+
+		res.render("jobs/updateJobs", { job: job[0] }); 
 	} catch (err) {
-		console.error("Error fetching jobs:", err);
-		res.status(500).send({ error: "Error fetching job list" });
+		console.error(err);
+		res.status(500).send("Error fetching job for update");
+	}
+});
+
+// Update Posted Jobs  
+router.post("/updateJobs/:id", ensureLoggedIn, async (req, res) => { // Not working with PUT for some reason...
+	 const jobId = req.params.id;
+	const {
+		title,
+		job_description: description,
+		salary,
+		location,
+		// application_limit: applicationLimit,
+		// expiration_date: expirationDate
+	} = req.body;
+
+	try {
+		const results = await db
+			.update(jobsTable)
+			.set({
+				title,
+				job_description: description,
+				salary,
+				location,
+				// application_limit: applicationLimit,
+				// expiration_date: expirationDate
+			})
+			.where(
+				and( //and() combines the two conditions below, so both must be true for the update to proceed.
+					eq(jobsTable.id, jobId), //ensures targeting the correct job.
+					eq(jobsTable.company_id, req.company.id)// ensures the job belongs to the requesting company.
+				)
+			)
+			.execute();
+
+		if (results.affectedRows === 0 || results.count === 0) {
+			return res.status(404).json({ error: "Job not found or not authorised" });
+		}
+
+		// Redirect to the company's Dashboard after successful update
+		res.redirect("/companies/dashboard");
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: err.message });
 	}
 });
 
@@ -114,7 +177,7 @@ router.patch("/:jobId/status", ensureLoggedIn, async (req, res) => {
 	const { status } = req.body;
 
 	try {
-		await Job.updatesStatus(jobI, status);
+		await Job.updateStatus(jobI, status);
 		res.send({ message: "Job status updated successfully!" });
 	} catch (err) {
 		console.error(err);
@@ -122,37 +185,6 @@ router.patch("/:jobId/status", ensureLoggedIn, async (req, res) => {
 	}
 });
 
-/*
-
-Search for jobs
-router.get("/jobs", (req, res) => {
-	const { lcation, skills, education, datePosted } = req.query;
-	let query = " SELECT * FROM jobs WHERE 1=1";
-	const queryParams = [];
-
-	if (location) {
-		query += "AND location = ?";
-		queryParams.push(location);
-	}
-	if (skills) {
-		query += "AND skills LIKE ?";
-		queryParams.push(`%${skills}%`);
-	}
-	if (education) {
-		query += "AND education =?";
-		queryParams.push(education);
-	}
-	if (datePosted) {
-		query += "AND date_posted >= ?";
-		queryParams.push(datePosted);
-	}
-
-	db.query(query, queryParams, (err, results) => {
-		if (err) return res.status(500).json({ error: err.message });
-		res.json({ data: results });
-	});
-});
-*/
 //Search for jobs
 router.get("/jobsList", async (req, res) => {
 	const { title, location, skills, education, datePosted } = req.query;
