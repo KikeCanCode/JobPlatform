@@ -1,4 +1,20 @@
 
+.colored-block h1 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+.colored-block {
+    background-color: #fd8e18; 
+    color: #040000; /* White text color for contrast */
+    padding: 20px; /* Adds padding inside the block */
+    border-radius: 8px; /* Optional: Rounded corners */
+    text-align: center; /* Centers the text within the block */
+    margin: 20px auto; /*Centers the block and adds margin */
+    width: 100%; /* Adjusts width as needed */
+    
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds a shadow for depth */
+}
+
 /* Container for Job List */
 .job-list-container {
     width: 80%;
