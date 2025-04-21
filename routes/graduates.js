@@ -123,10 +123,29 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 });
 
 //Display Graduates Dashboard
-router.get("/dashboard", ensureLoggedIn, async (req, res) => {
-	console.log(req.graduate);
+// router.get("/dashboard", ensureLoggedIn, async (req, res) => {
+// 	console.log(req.graduate);
 
-	res.render("graduates/dashboard", { graduate: req.graduate });
+// 	res.render("graduates/dashboard", { graduate: req.graduate });
+// });
+router.get("/dashboard", ensureLoggedIn, async (req, res) => {
+	try {
+		const graduateId = req.graduate.id;
+
+		const applications = await db
+			.select()
+			.from(applicationsTable)
+			.innerJoin(jobsTable, 
+				eq(applicationsTable.job_id, jobsTable.id))
+			.where(eq(applicationsTable.graduate_id, graduateId))
+			.orderBy(applicationsTable.date_applied, 'desc'); 
+
+		res.render("graduates/dashboard", { graduate: req.graduate, applications });
+	} catch (err) {
+		console.error(err);
+		res.status(500).send("Error loading dashboard.");
+	}
+
 });
 
 // View Graduate profile
@@ -200,7 +219,7 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 	}
 });
 
-// Redirect to Login/Job Application page based on Login/or not
+// 1 - Redirect to Login/Job Application page based on Login/or not
 router.get("/jobs/:jobId/apply", async (req, res) => {
 	const { jobId } = req.params;
 
@@ -213,7 +232,7 @@ router.get("/jobs/:jobId/apply", async (req, res) => {
 	res.redirect(`/jobs/${jobId}/application`);
 });
 
-// Apply for job 
+// 2 - Apply for job 
 router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
 	const { jobId } = req.params;
 	const graduateId = req.graduateId;
@@ -234,6 +253,12 @@ router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
 		}
 	});
 
+// Display application form 
+router.get("/apply/:jobId", ensureLoggedIn, async (req, res) => {
+	const { jobId } = req.params;
+	res.render("graduates/apply", { jobId }); 
+});
+
 // View my applications 
 router.get("/myApplications", ensureLoggedIn, async (req, res) => {
 	const graduateId = req.graduateId;
@@ -243,7 +268,7 @@ router.get("/myApplications", ensureLoggedIn, async (req, res) => {
 			.select()
 			.from(applicationsTable)		
 			.join(jobsTable, eq(applicationsTable.job_id, jobsTable.jobId)) //jobsTable.job_id: Refers to the column job_id in the jobsTable (database).
-			.where(eq(applicationsTable.graduateId, graduateId));
+			.where(eq(applicationsTable.graduate_id, graduateId));
 			// .execute();
 			const applications = results;
 

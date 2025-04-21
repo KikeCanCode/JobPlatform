@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/stylesheets/styles-graduates-apply.css">
+
+    <title>Apply Page</title>
+</head>
+<body>
+    <div class="apply-form">
+    <h2>Apply for Job <%= jobId %></h2>
+
+    <form action="/graduates/apply/<%= jobId %>" method="POST" enctype="multipart/form-data">
+        <label for="full_name">Full Name</label>
+        <input type="text" id="full_name" name="full_name" required />
+      
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
+      
+        <label for="cover_letter">Cover Letter</label>
+        <textarea id="cover_letter" name="cover_letter" rows="5" required></textarea>
+      
+        <label for="cv">Upload CV</label>
+        <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required />
+      
+        <button type="submit">Submit Application</button>
+      </form>
+    </div>
+</body>
+</html>

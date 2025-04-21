@@ -1,0 +1,58 @@
+/* Form styling */
+.apply-form { 
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 80%;
+}
+
+.apply-form h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #000000;
+}
+
+.apply-form label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: bold;
+  color: #000000;
+}
+
+.apply-form input[type="text"],
+.apply-form input[type="file"],
+.apply-form input[type="email"],
+.apply-form textarea,
+.apply-form select {
+  width: 90%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.apply-form button {
+  margin-top: 1.5rem;
+  background-color: #fd8e18;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 20%;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+
+  }
+
+.form-container {
+	text-align: center;
+}
+
+.apply-form button:hover {
+  background-color: #c46704;
+}

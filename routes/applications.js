@@ -16,7 +16,7 @@ const router = express.Router();
 // 			job_id: jobId,
 // 			graduate_id: graduateId,
 // 		});
-// 		resres.redirect("/graduates/myApplications");
+// 		res.redirect("/graduates/myApplications");
 			
 // 	} catch (err) {
 // 		console.error(err);
@@ -60,7 +60,7 @@ router.delete("/:applicationId", ensureLoggedIn, async (req, res) => {
 	const { applicationId } = req.params;
 
 	try {
-		await ApplicationService.deleteApplication(applicationId);
+		await deleteApplication(applicationId);
 		res.status(200).send({ message: "Application deleted successfully!" });
 	} catch (err) {
 		console.error(err);

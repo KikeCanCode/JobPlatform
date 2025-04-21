@@ -61,7 +61,12 @@ export const applicationsTable = mysqlTable("applications", {
 	id: serial().primaryKey(),
 	job_id: int().notNull(), // Foreign key referencing jobs.id
 	graduate_id: int().notNull(), // Foreign key referencing graduates.id
+	// full_name: varchar("full_name", { length: 255 }), 
+	// email: varchar("email", { length: 255 }), 
+	// cover_letter: text("cover_letter"), 
+	// cv_path: varchar("cv_path", { length: 500 }), // path to uploaded CV
 	date_applied: timestamp().defaultNow(), // Automatically set to the current timestamp
+
 });
 
 // Admin Table -
