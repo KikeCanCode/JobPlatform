@@ -142,7 +142,7 @@ router.get("/profile", ensureLoggedIn, async (req, res) => {
 	}
 });
 
-//Display Graduates Dashboard
+//Display Graduates Profile Update page 
 router.get("/updateProfile", ensureLoggedIn, async (req, res) => {
     try {
         console.log(req.graduate); //Check if graduate data exists
@@ -183,7 +183,8 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 				skills,
 			})
 			// .where("id", graduateId)
-			.where(eq(graduatesTable.id, req.graduate.id))			.execute();
+			.where(eq(graduatesTable.id, req.graduate.id))			
+			.execute();
 
 		if (results.affectedRows === 0) {
 			//If affectedRows is 0, it means that no rows in the database were updated,
@@ -199,37 +200,54 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 	}
 });
 
-//Apply for jobs
-router.get("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
+// Redirect to Login/Job Application page based on Login/or not
+router.get("/jobs/:jobId/apply", async (req, res) => {
 	const { jobId } = req.params;
-	const graduateId = req.graduateId;
 
-	try {
-		await db
-			.insert()
-			.into(applicationsTable)
-			.values({ graduate_id: graduateId, job_id: jobId }) //map to the respective database column names
-			.execute();
-
-		res.json({ message: "Job application submitted successfully!" });
-	} catch (err) {
-		res.status(500).json({ error: err.message });
+	// Check if user is logged in
+	if (!req.session.user) {
+		return res.redirect("/login");
 	}
+
+	// If logged in, redirect to the application submission page
+	res.redirect(`/jobs/${jobId}/application`);
 });
 
-// View Job applications
+// Apply for job 
+router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
+	const { jobId } = req.params;
+	const graduateId = req.graduateId;
+	
+		try {
+			await db
+			.insert(applications)
+			.values({
+				graduateId,
+				jobId,
+			});
+	
+			// res.json({ message: "Job application submitted successfully!" });
+			res.redirect("/graduates/myApplications"); 
+		} catch (err) {
+			console.error(err);
+			res.status(500).json({ error: "Error submitting job application" });
+		}
+	});
+
+// View my applications 
 router.get("/myApplications", ensureLoggedIn, async (req, res) => {
 	const graduateId = req.graduateId;
 
 	try {
 		const results = await db
 			.select()
-			.from(applicationsTable)
-			.join(jobsTable, 'applications.job_id', '=', 'jobsTable.job_id') //jobsTable.job_id: Refers to the column job_id in the jobsTable (database).
-			.where('applications.graduate_id', graduateId)
-			.execute();
+			.from(applicationsTable)		
+			.join(jobsTable, eq(applicationsTable.job_id, jobsTable.jobId)) //jobsTable.job_id: Refers to the column job_id in the jobsTable (database).
+			.where(eq(applicationsTable.graduateId, graduateId));
+			// .execute();
+			const applications = results;
 
-		res.render("graduates/myApplications", { applications: results }); // aplication is aproperty - result is any
+		res.render("graduates/myApplications", { applications }); // aplication is aproperty - result is any
 	} catch (err) {
 		res.status(500).json({ error: err.message });
 	}

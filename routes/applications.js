@@ -1,25 +1,39 @@
 import express from "express";
 import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
-// import ApplicationService from "../services/ApplicationService.js";
 
 const router = express.Router();
 
 //Graduate apply to a Job
 
-router.post("/", ensureLoggedIn, async (req, res) => {
-	const { jobId, graduateId } = request.body;
+// router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
+// 	const { jobId } = request.body;
+// 	const graduateId = req.graduateId;
+
+// 	try {
+// 		await db
+// 		.insert(applicationsTable)
+// 		.values({
+// 			job_id: jobId,
+// 			graduate_id: graduateId,
+// 		});
+// 		resres.redirect("/graduates/myApplications");
+			
+// 	} catch (err) {
+// 		console.error(err);
+// 		res.status(500).json({ error: "Error submitting job application"  });
+// 	}
+// });
+
+router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
+	const { jobId } = req.params;
+	const graduateId = req.graduateId;
 
 	try {
-		const application = await ApplicationService.applyToJob({
-			job_id: jobId,
-			graduate_id: graduateId,
-		});
-		res
-			.status(201)
-			.send({ message: "Application submitted successfully!", application });
+		await applyToJob(graduateId, jobId);
+		res.redirect("/graduates/myApplications");
 	} catch (err) {
 		console.error(err);
-		res.status(400).send({ error: err });
+		res.status(500).json({ error: "Error applying for job" });
 	}
 });
 
@@ -30,8 +44,9 @@ router.get("/graduates/:graduateI", ensureLoggedIn, async (req, res) => {
 
 	try {
 		const applications =
-			await ApplicationService.getApplicationByGraduates(graduateId);
-		res.status(200).json(applications);
+			await getApplicationByGraduates(graduateId);
+		// res.status(200).json(applications);
+		res.render("graduates/myApplications", { applications });
 	} catch (err) {
 		console.error(err);
 		res

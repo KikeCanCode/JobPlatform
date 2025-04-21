@@ -74,30 +74,6 @@ class Graduate {
 	}
 
 // Update graduate profile
-
-	/*static async updateProfile(graduateId, firstName, lastName, email, contactNumber, qualification, bootcampInstitute, graduationYear, skills) {
-    
-    try {
-      const results = await db.update('graduates')
-        .set({
-          first_name: firstName,
-          last_name: lastName,
-          email,
-          contact_number: contactNumber,
-          qualification,
-          bootcamp_institute: bootcampInstitute,
-          graduation_year: graduationYear,
-          skills
-        })
-        .where('id', graduateId)
-        .execute();
-
-      return results;
-    } catch (err) {
-      throw new Error(`Error updating profile: ${err.message}`);
-    }
-  }*/
-
 	static async updateProfile(opts = {}) {
 		const {
 			graduateId,
