@@ -128,7 +128,7 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 
 // 	res.render("graduates/dashboard", { graduate: req.graduate });
 // });
-router.get("/dashboard", ensureLoggedIn, async (req, res) => {
+router.get("/dashboard", ensureLoggedIn, async (req, res) => { // Working - printing job applications 
 	try {
 		const graduateId = req.graduate.id;
 
@@ -219,24 +219,28 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 	}
 });
 
-// 1 - Redirect to Login/Job Application page based on Login/or not
+// 1 Click on Apply Now -  Redirect to Login/Job Application page based on Login/or not
 router.get("/jobs/:jobId/apply", async (req, res) => {
 	const { jobId } = req.params;
 
 	// Check if user is logged in
-	if (!req.session.user) {
+	if (!req.session.graduateId) {
 		return res.redirect("/login");
 	}
 
 	// If logged in, redirect to the application submission page
-	res.redirect(`/jobs/${jobId}/application`);
+	// res.redirect(`/jobs/${jobId}/application`);
+	res.redirect(`/apply/${jobId}`);
 });
 
-// 2 - Apply for job 
+// 2 - Apply for job - form submission
 router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
 	const { jobId } = req.params;
 	const graduateId = req.graduateId;
-	
+
+	if (!graduateId) {
+		return res.redirect("/login");
+	}
 		try {
 			await db
 			.insert(applications)
@@ -253,10 +257,65 @@ router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
 		}
 	});
 
-// Display application form 
+// 3 - Display application form 
 router.get("/apply/:jobId", ensureLoggedIn, async (req, res) => {
 	const { jobId } = req.params;
-	res.render("graduates/apply", { jobId }); 
+	const graduateId = req.session.graduateId;
+	if (!graduateId) {
+		return res.redirect("/login");
+	}
+	res.render("graduates/apply", { jobId,  graduateId }); 
+});
+
+//Multer setup for CV  Uploading - 
+const cvStorage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+        callBack(null, "uploads/cvs");
+    },
+    filename: (req, file, callBack) => {
+        callBack(null, `${Date.now()}-${file.originalname}`);
+    },
+});
+
+const uploadCV = multer({ storage: cvStorage });
+
+
+ // 4 - Handle application form submission
+   router.post("/apply/:jobId", uploadCV.single("cv"), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: "No CV uploaded." });
+    }
+
+    const jobId = req.params.jobId;
+    const { 
+		firstName, 
+		lastName, 
+		email,
+		coverLetter, 
+		graduateId 
+	} = req.body;
+    const cvPath = req.file.path;
+
+    try {
+        const result = await db
+            .insert(applicationsTable)
+            .values({
+				job_id: jobId,
+                graduate_id: graduateId,
+                first_name: firstName,
+				last_name: lastName,
+                email,
+                cover_letter: coverLetter,
+                cv: cvPath,
+                date_applied: new Date(),
+            })
+            .execute();
+
+			res.redirect("/graduates/dashboard");   
+		} catch (err) {
+        console.error("Application Error:", err);
+        res.status(500).send("An error occurred while applying.");
+    }
 });
 
 // View my applications 
@@ -290,7 +349,6 @@ const storage = multer.diskStorage({
         callBack(null, `${Date.now()}-${file.originalname}`);
     },
 });
-
 const upload = multer({ storage });
 
 // Upload certificate route

@@ -23,7 +23,7 @@ const router = express.Router();
 // 		res.status(500).json({ error: "Error submitting job application"  });
 // 	}
 // });
-
+ 
 router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
 	const { jobId } = req.params;
 	const graduateId = req.graduateId;
@@ -39,12 +39,11 @@ router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
 
 //Get applications by Graduates
 
-router.get("/graduates/:graduateI", ensureLoggedIn, async (req, res) => {
+router.get("/graduates/:graduateId", ensureLoggedIn, async (req, res) => {
 	const { graduateId } = req.params;
 
 	try {
-		const applications =
-			await getApplicationByGraduates(graduateId);
+		const applications = await getApplicationByGraduates(graduateId);
 		// res.status(200).json(applications);
 		res.render("graduates/myApplications", { applications });
 	} catch (err) {
