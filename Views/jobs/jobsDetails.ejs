@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/stylesheet/styles-jobs-details.css">
+
+   
+    <title>Jobs Details Page </title>
+</head>
+<body>
+<div class="job-container">
+  <h1><%= job.title %></h1>
+  <p><%= job.description %></p>
+  <p><strong>Location:</strong> <%= job.location %></p>
+  <p><strong>Salary:</strong> £<%= job.salary %></p>
+
+  <% if (ensureLoggedIn) { %>
+    <a href="/graduates/apply/<%= job.id %>">Apply Now</a>
+  <% } else { %>
+    <a href="/graduates/login?redirect=/apply/<%= job.id %>">Login to Apply</a>
+  <% } %>
+</div>
+</body>
+</html>
