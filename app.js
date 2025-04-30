@@ -55,6 +55,11 @@ app.get("/", (req, res) => {
 	res.render("homepage/index");
 });
 
+// Contact Us Routes -to diplay contact us Page 
+app.get("/pages/contactUs", (req, res) => {
+	res.render("pages/contactUs"); 
+});
+
 // Dispaly Graduates Login page 
 // app.get("/graduates/login", (req, res) => {
 // 	res.render("graduates/login");
