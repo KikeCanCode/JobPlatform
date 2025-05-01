@@ -60,6 +60,10 @@ app.get("/pages/contactUs", (req, res) => {
 	res.render("pages/contactUs"); 
 });
 
+// About Us Routes -to diplay About Us Page 
+app.get("/pages/aboutUs", (req, res) => {
+	res.render("pages/aboutUs"); 
+});
 // Dispaly Graduates Login page 
 // app.get("/graduates/login", (req, res) => {
 // 	res.render("graduates/login");
