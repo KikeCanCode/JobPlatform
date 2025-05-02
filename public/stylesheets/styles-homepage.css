@@ -1,22 +1,60 @@
 
-
-
-/* Banner container styling */
-.banner {
+.hero-block {
+  background-color: #fd8e18; 
+  color: white;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   position: relative;
-  width: 100%;
-  height: 400px; /* Set max height for the banner */
-  overflow: hidden;
 }
 
+.hero-text h1 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.hero-text p {
+  font-size: 1.2rem;
+  margin-top: 10px;
+}
+
+/* Banner container styling */
+/* .banner {
+  position: relative;
+  width: 100%;
+  height: 400px; // Set max height for the banner 
+  overflow: hidden;
+} */
+
 /* Banner image styling */
-.banner img {
+/* .banner img {
   width: 100%;
   height: auto;
   display: block;
+} */
+.welcome-container {
+  width: 70%;
+  margin: auto;
+  text-align: center;
+  justify-items: center;
+}
+.welcome-container h1 {
+  text-align: center;
+  font-size: 16pt;
 }
 
-
+.welcome-container h3 {
+  text-align: center;
+  font-size: 14pt;
+}
+.welcome-container p {
+  text-spacing-trim: 10pt;
+  font-size: 12pt;
+  /* text-align: justify; */
+  text-align: center;
+}
 main {
   text-align: center;
   padding: 2rem;

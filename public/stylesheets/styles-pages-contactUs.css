@@ -1,9 +1,19 @@
+.heading-container {
+    background: #ffffff;
+    width: 70%;
+    max-width: 800px;
+    margin: auto;
+    text-align: justify;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+   
+}
 
 /* Container for the Form */
 .contact-container {
     background: #ffffff;
     width: 70%;
-    max-width: 600px;
     margin: 60px auto;
     margin: auto;
     max-width: 600px;
