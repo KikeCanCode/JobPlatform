@@ -50,20 +50,31 @@ app.use("/applications", applicationsRoutes);
 app.use("/admin", adminRoutes);
 app.use("/payments", paymentsRoutes);
 
-//Homepage Route - to diplay the homepage
+//Diplay the homepage
 app.get("/", (req, res) => {
 	res.render("homepage/index");
 });
 
-// Contact Us Routes -to diplay contact us Page 
+// Diplay contact us Page 
 app.get("/pages/contactUs", (req, res) => {
 	res.render("pages/contactUs"); 
 });
 
-// About Us Routes -to diplay About Us Page 
+// Diplay About Us Page 
 app.get("/pages/aboutUs", (req, res) => {
 	res.render("pages/aboutUs"); 
 });
+
+// Diplay termsAndConditions
+app.get("/pages/termsAndConditions", (req, res) => {
+	res.render("pages/termsAndConditions"); 
+});
+
+// Start the server
+app.listen(port, () => {
+	console.log(`Server is running on port ${port}`);
+});
+
 // Dispaly Graduates Login page 
 // app.get("/graduates/login", (req, res) => {
 // 	res.render("graduates/login");
@@ -73,9 +84,6 @@ app.get("/pages/aboutUs", (req, res) => {
 //     res.render("graduates/signup"); 
 // });
 
-// Start the server
-app.listen(port, () => {
-	console.log(`Server is running on port ${port}`);
-});
+
 
 
