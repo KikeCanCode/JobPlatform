@@ -11,10 +11,10 @@
     <div class="apply-form">
     <h2>Apply for Job <%= jobId %></h2>
 
-    <form action="/graduates/apply/<%= jobId %>" method="POST" enctype="multipart/form-data">
+    <!-- <form action="/graduates/apply/<%= jobId %>" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="graduate.Id" value="<%= graduateId %>" />
-      
-        <!-- <form action="/jobs/<%= jobId %>/apply" method="POST"> -->
+       -->
+    <form action="/graduates/apply/<%= jobId %>" method="POST" enctype="multipart/form-data">
         <label for="first_name">First Name</label>
         <input type="text" id="first_name" name="first_name" required />
 
