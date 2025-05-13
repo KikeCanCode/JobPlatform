@@ -30,7 +30,8 @@ router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
 
 	try {
 		await applyToJob(graduateId, jobId);
-		res.redirect("/graduates/myApplications");
+		res.redirect(`/jobs/${jobId}`);
+		
 	} catch (err) {
 		console.error(err);
 		res.status(500).json({ error: "Error applying for job" });
