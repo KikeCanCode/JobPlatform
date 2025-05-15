@@ -13,112 +13,139 @@ const router = express.Router();
 
 // Moved Graduates Middleware to the Middlewares Folder - import it
 
-
-// Display Graduates Login Page
-
+// Display Graduates Login Page - this implementing redirectTo
 router.get("/login", (req, res) => {
 	res.render("graduates/login" , { error: null, redirect: req.query.redirect || "" });
 });
 
 //  Route - Graduate Login
-/*
-
-router.post("/login", (req, res) => {
-	const { email, password } = req.body;
-	db.select()
-		.from(graduatesTable)
-		.where({ email })
-		.execute()
-		.then(async (results) => {
-			if (results.length === 0) {
-				return res.status(401).send("Invalid password or username");
-			}
-
-			const graduate = results[0];
-
-			try {
-				const isMatch = await bcrypt.compare(password, graduate.password_hash);
-
-				if (isMatch) {
-					req.session.mode = "graduate";
-					req.session.graduateId = graduate.id;
-
-					return res.redirect("/graduates/dashboard");
-				
-				// biome-ignore lint/style/noUselessElse: <explanation>
-								} else {
-					req.session = null;
-				
-					return res.status(401).json({
-						error:
-							"Incorrect username or password. Please check your credentials.",
-					});
-				}
-			} catch (err) {
-				console.log(err) // Just notification
-				res.status(500).send("Error logging in");
-			}
-		});
-});
-
-*/
-
 router.post("/login", (req, res) => {
 	const { email, password, redirect } = req.body;
 
-	db.select()
-		.from(graduates)
-		.where({ email })
-		.execute()
-		.then(async (results) => {
-			if (results.length === 0) {
+	db.select({
+		id: graduatesTable.id,
+		email: graduatesTable.email,
+		password_hash: graduatesTable.password_hash,
+	})
+	.from(graduatesTable)
+	.where(eq(graduatesTable.email, email))
+	.then(async (results) => {
+		if (results.length === 0) {
+			return res.render("graduates/login", {
+				error: "Invalid email or password",
+				redirect,
+			});
+		}
+
+		const graduate = results[0];
+
+		try {
+			const isMatch = await bcrypt.compare(password, graduate.password_hash);
+
+			if (isMatch) {
+				req.session.mode = "graduate";
+				req.session.graduateId = graduate.id;
+
+				return res.redirect(redirect || "/graduates/dashboard");
+			// biome-ignore lint/style/noUselessElse: <explanation>
+			} else {
+				req.session = null;
 				return res.render("graduates/login", {
 					error: "Invalid email or password",
 					redirect,
 				});
 			}
-
-			const graduate = results[0];
-
-			try {
-				const isMatch = await bcrypt.compare(password, graduate.password);
-
-				if (isMatch) {
-					req.session.mode = "graduate";
-					req.session.graduateId = graduate.id;
-
-					let redirectTo = "/graduates/dashboard";
-					if (redirect) {
-						redirectTo = redirect;
-					}
-
-					return res.redirect(redirectTo);
-
-				// biome-ignore lint/style/noUselessElse: <explanation>
-				} else {
-					req.session = null;
-
-					return res.render("graduates/login", {
-						error: "Invalid email or password",
-						redirect,
-					});
-				}
-			} catch (error) {
-				console.error("Login error:", error);
-				return res.render("graduates/login", {
-					error: "An error occurred. Please try again.",
-					redirect,
-				});
-			}
-		})
-		.catch((error) => {
-			console.error("Database error:", error);
+		} catch (error) {
+			console.error("Login error:", error);
 			return res.render("graduates/login", {
 				error: "An error occurred. Please try again.",
 				redirect,
 			});
+		}
+	})
+	.catch((error) => {
+		console.error(error);
+		return res.render("graduates/login", {
+			error: "An error occurred. Please try again.",
+			redirect,
 		});
+	});
 });
+
+// 1 Click Job Detail - Display Jobs Details - Moved this bit to jobs.js 
+
+// 2 - Display application form 
+router.get("/apply/:jobId", ensureLoggedIn, async (req, res) => {
+  const { jobId } = req.params;
+  const graduateId = req.session.graduateId;
+
+  if (!graduateId) {
+    return res.redirect("/graduates/login");
+  }
+
+  try {
+    const job = await db
+      .select()
+      .from(jobsTable)
+      .where(eq(jobsTable.id, Number(jobId)))
+      .then(rows => rows[0]);
+
+    if (!job) {
+      return res.status(404).send("Job not found");
+    }
+
+    res.render("graduates/apply", { jobId, graduateId, job });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error loading application form.");
+  }
+});
+
+
+// //Multer setup for CV  Uploading - 
+const cvStorage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+        callBack(null, "uploads/cvs");
+    },
+    filename: (req, file, callBack) => {
+        callBack(null, `${Date.now()}-${file.originalname}`);
+    },
+});
+
+const uploadCV = multer({ storage: cvStorage });
+
+
+ // 3 - Handle application form submission
+router.post("/:jobId/apply", ensureLoggedIn, uploadCV.single("cv"), async (req, res) => {
+    const { jobId } = req.params;
+    const graduateId = req.session.graduateId;
+
+    if (!graduateId) {
+      return res.redirect("/graduates/login");
+    }
+
+    // const { coverLetter } = req.body;
+	const coverLetter = req.body.coverLetter || null;
+    const cvPath = req.file?.path;
+
+    try {
+      await db
+	  .insert(applicationsTable)
+	  .values({
+        graduate_id: graduateId,
+        job_id: Number(jobId),
+        cover_letter: coverLetter,
+        cv_path: cvPath,
+        date_applied: new Date(),
+      });
+
+      res.redirect("/graduates/dashboard");
+    } catch (err) {
+      console.error("Application Error:", err);
+      res.status(500).send("An error occurred while applying.");
+    }
+  }
+);
 
 // Display Graduates Sign-Up Page
 router.get("/signup", (req, res) => {
@@ -186,11 +213,6 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 });
 
 //Display Graduates Dashboard
-// router.get("/dashboard", ensureLoggedIn, async (req, res) => {
-// 	console.log(req.graduate);
-
-// 	res.render("graduates/dashboard", { graduate: req.graduate });
-// });
 router.get("/dashboard", ensureLoggedIn, async (req, res) => { // Working - printing job applications 
 	try {
 		const graduateId = req.graduate.id;
@@ -282,143 +304,6 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 	}
 });
 
-// 1 Click on Apply Now -  Redirect to Login/Job Application page based on Login/or not
-
-router.get("/jobs/:jobId/apply", async (req, res) => {
-	const { jobId } = req.params;
-
-	// Check if user is logged in
-	if (!req.session.graduateId) {
-		return res.redirect("/login");
-	}
-
-	// If logged in, redirect to the application submission page
-	res.redirect(`/apply/${jobId}`);
-});
-
-// 2 - Apply for job - form submission
-
-router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
-	const { jobId } = req.params;
-	const graduateId = req.graduateId;
-
-	if (!graduateId) {
-		return res.redirect("/login");
-	}
-		try {
-			await db
-			.insert(applicationsTable)
-			.values({
-				graduateId,
-				jobId,
-			});
-	
-			res.redirect("/graduates/dashboard"); 
-		} catch (err) {
-			console.error(err);
-			res.status(500).json({ error: "Error submitting job application" });
-		}
-	});
-
-
-  //Job Detail Display 
-router.get("/jobs/:jobId", async (req, res) => {
-	const { jobId } = req.params;
-	try {
-	  const job = await db
-	  .select()
-	  .from(jobsTable)
-	  .where(eq("jobs.id", jobId))
-	  .then(rows => rows[0]);
-
-	  if (!job) {
-		return res.status(404).send("Job not found");
-	}
-	  res.render("graduates/jobsDetails", { job });
-	} catch (error) {
-	  console.error(error);
-	  res.status(500).send("Error loading job details.");
-	}
-  });
-  
-// 3 - Display application form 
-router.get("/apply/:jobId", ensureLoggedIn, async (req, res) => {
-
-	const { jobId } = req.params;
-	const graduateId = req.session.graduateId;
-	if (!graduateId) {
-		return res.redirect("/login");
-	}
-	try {
-		// Fetch job details for the application form
-		const job = await db
-		.select()
-		.from(jobsTable)
-		.where(eq("jobs.id", jobId))
-		.then(rows => rows[0]);
-		if (!job) {
-			return res.status(404).send("Job not found");
-		}
-		res.render("graduates/apply", { jobId, graduateId, job });
-	} catch (error) {
-		console.error("Error fetching job details:", error);
-		res.status(500).send("Error loading application form.");
-	}
-
-	res.render("graduates/apply", { jobId,  graduateId }); 
-});
-
-
-//Multer setup for CV  Uploading - 
-const cvStorage = multer.diskStorage({
-    destination: (req, file, callBack) => {
-        callBack(null, "uploads/cvs");
-    },
-    filename: (req, file, callBack) => {
-        callBack(null, `${Date.now()}-${file.originalname}`);
-    },
-});
-
-const uploadCV = multer({ storage: cvStorage });
-
-
- // 4 - Handle application form submission
-   router.post("/apply/:jobId", uploadCV.single("cv"), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: "No CV uploaded." });
-    }
-
-    const jobId = req.params.jobId;
-    const { 
-		firstName, 
-		lastName, 
-		email,
-		coverLetter, 
-		graduateId 
-	} = req.body;
-    const cvPath = req.file.path;
-
-    try {
-        const result = await db
-            .insert(applicationsTable)
-            .values({
-				job_id: jobId,
-                graduate_id: graduateId,
-                first_name: firstName,
-				last_name: lastName,
-                email,
-                cover_letter: coverLetter,
-                cv: cvPath,
-                date_applied: new Date(),
-            })
-            .execute();
-
-			res.redirect("/graduates/dashboard");   
-		} catch (err) {
-        console.error("Application Error:", err);
-        res.status(500).send("An error occurred while applying.");
-    }
-});
 
 // View my applications 
 router.get("/myApplications", ensureLoggedIn, async (req, res) => {

@@ -23,11 +23,15 @@
 
   		<label for="location">Location</label>
   		<input type="text" id="location" name="location" value="<%= job.location %>" required>
-		<!-- <label for="applicationLimit">Application Limit</label>
+
+		<label for="location">Qualification Required </label>
+		<input type="text" id="qualificationRequired" name="qualification_required" value="<%= job.qualification_required" required>
+
+		<label for="applicationLimit">Application Limit</label>
 		<input type="number" id="applicationLimit" name="application_limit" value="<%= job.application_limit %>">
 
 		<label for="expirationDate">Expiration Date</label>
-		<input type="date" id="expirationDate" name="expiration_date" value="<%= job.expiration_date %>">  -->
+		<input type="date" id="expirationDate" name="expiration_date" value="<%= job.expiration_date %>"> 
 
 		<button type="submit" class="btn">Update Job</button>
 </form>

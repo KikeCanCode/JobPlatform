@@ -1,0 +1,94 @@
+.heading-container {
+    background: #ffffff;
+    width: 70%;
+    max-width: 800px;
+    margin: auto;
+    text-align: justify;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+   
+}
+
+/* Container for the Form */
+.contact-container {
+    background: #ffffff;
+    width: 70%;
+    margin: 60px auto;
+    margin: auto;
+    max-width: 600px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings */
+.contact-container h2 {
+    margin-bottom: 25px;
+    color: #333333;
+    font-size: 26px;
+}
+
+/* Form Labels */
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+    text-align: left;
+    color: #444444;
+}
+
+/* Inputs and Textareas */
+input,
+textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    /* box-sizing: border-box; */
+}
+
+/* Textarea  */
+textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+/* Buttons */
+button,
+input[type="reset"] {
+    background-color: #fd8e18;
+    color: #fff;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    margin: 10px 5px 0 0;
+    cursor: pointer;
+    width: 30%;
+    transition: background 0.3s ease;
+}
+
+button:hover,
+input[type="reset"]:hover {
+    background-color: #e07a1c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    button,
+    input[type="reset"] {
+        width: 40%;
+        margin: 10px 0;
+    }
+}

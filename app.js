@@ -24,6 +24,7 @@ if (!sessionSecret) {
 	console.error("SESSION_SECRET environment variable not set");
 	process.exit(1);
 }
+// Cookies 
 app.use( // Middleware - provided by the library 
 	cookieSession({
 		name: "session",
@@ -50,9 +51,29 @@ app.use("/applications", applicationsRoutes);
 app.use("/admin", adminRoutes);
 app.use("/payments", paymentsRoutes);
 
-//Homepage Route - to diplay the homepage
+//Diplay the homepage
 app.get("/", (req, res) => {
 	res.render("homepage/index");
+});
+
+// Diplay contact us Page 
+app.get("/pages/contactUs", (req, res) => {
+	res.render("pages/contactUs"); 
+});
+
+// Diplay About Us Page 
+app.get("/pages/aboutUs", (req, res) => {
+	res.render("pages/aboutUs"); 
+});
+
+// Diplay termsAndConditions
+app.get("/pages/termsAndConditions", (req, res) => {
+	res.render("pages/termsAndConditions"); 
+});
+
+// Start the server
+app.listen(port, () => {
+	console.log(`Server is running on port ${port}`);
 });
 
 // Dispaly Graduates Login page 
@@ -64,9 +85,6 @@ app.get("/", (req, res) => {
 //     res.render("graduates/signup"); 
 // });
 
-// Start the server
-app.listen(port, () => {
-	console.log(`Server is running on port ${port}`);
-});
+
 
 

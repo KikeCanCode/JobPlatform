@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <!-- Remember to add the first / at the begin when using these two on other page-->
   <link rel="stylesheet" href="stylesheets/styles-homepage.css">
   <link rel="stylesheet" href="stylesheets/styles-template.css">
-  
+ 
   <title> Job Platform Homepage</title>
 </head>
 <body>
@@ -19,7 +20,7 @@
   <ul>
     <li><a href="/">Home</a></li>
     <li><a href="/jobs/jobsList"> Find a job </a></li>
-    <li><a href="aboutUs">About Us </a></li>
+    <li><a href="/pages/aboutUs">About Us </a></li>
     <li><a href="/pages/contactUs"> Contact Us </a></li>
   </ul>
 </nav>
@@ -41,32 +42,43 @@
     <a href="/companies/login" class="login-link">Post a Job</a> 
   </div>
 </div>
-<hr>
-
-<div class="banner">
+<!-- Barner Section -->
+<!-- <div class="banner">
     <img src="Images/Find (8).png" alt="Banner Image">    
-</div>
+</div> -->
+<section class="hero-block overlay-section">
+  <div class="overlay"></div>
+  <div class="hero-text">
+    <!-- <h1> Connecting Bootcamp Talent with Forward-Thinking Employers</h1> -->
+    <!-- <h1>Connecting Bootcamp Talent with Tech Employers</h1> -->
+    <!-- <p>Where bootcamp graduates meet forward-thinking employers </p>-->
+    <h1> Hire a Teck Talent From Reputable Bootcamps With Confidence!</h1>
+    <!-- <p>Your journey starts here.</p> -->
 
-  <br>
-  <hr>
-  <br>
+  </div>
+</section>
   <main>
-    <section>
+    <section class="welcome-container">
       
       <h1> Welcome to the Job Platform </h1>
-      <p>Whether you're looking to hire top talent or searching for your dream job, we've got you covered.</p>
-     
-  
+      <h3> Connecting Bootcamp Talent with Forward-Thinking Employers</h3>
+      <!-- <p>Whether you're looking to hire top talent or searching for your dream job, we've got you covered.</p> -->
+      <p> 
+        Whether you're looking to hire top talent or a graduate ready to launch your career in tech, we've got you covered!
+        <br>
+        We connect motivated, job-ready developers from coding bootcamps with employers who value fresh ideas and practical skills.
+        <br>
+
+        Create your profile, apply for junior roles, or discover top candidates ready to make an impact from day one.
+      </p>
     </section>
   </main>
-
 <div class="heading"> 
   <h2>Find the Right Talent or Opportunity</h2>
 </div>
-
-   
-   <div class="register-container">
-   <div class="getstarted" >
+  
+<div class="register-container">
+  <div class="getstarted" >
     <h3>Graduates</h3>
     <p>
       Launch your tech career!<br>
@@ -94,7 +106,6 @@
   </div>  
 </div>
 <br> 
-
 <!--
   <div class="buttons">
     <a href="/companies" class="button">Recruiters</a>
@@ -110,12 +121,20 @@
   <div class="footer-band">
   <footer>
     <ul>
-      <a href="homepage/index.ejs"> Home </a>
-      <a href="pages/aboutUs.html"> About Us</a>
-      <a href="pages/pricing.html"> Pricing </a>
-      <a href="pages/contactMe.html"> Contact Us </a>
-  </ul>
-        
+      <li><a href="/"> Home </a></li>
+      <li><a href="pages/aboutUs"> About Us</a></li>
+      <li><a href="pages/pricing"> Pricing </a></li>
+      <li><a href="pages/contactUs"> Contact Us </a></li>
+    </ul>
+
+    <div class="policy-container">
+      <ul>
+        <li><a href="pages/privacyPolicy">Privacy Policy</a></li>
+        <li><a href="pages/termsAndConditions">Terms &Conditions</a></li>
+        <li><a href="pages/diversityAndEquality">Diversity, Equity & Inclusion</a></li>
+      </ul>
+    </div>
+   
   <div class="copyright">
             
     <p>&copy; 2025 Job Platform. All Rights Reserved.</p>

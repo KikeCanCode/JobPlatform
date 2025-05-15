@@ -1,0 +1,48 @@
+.container {
+    width: 80%;
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    /* line-height: 1.7; */
+    background-color: #fdfdfd;
+    border: 1px solid #ddd;/* This is giving the line under each session.*/
+    border-radius: 8px;
+  }
+  
+  .container h1 {
+    font-size: 18pt;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+  }
+  
+  .container h2 {
+    font-size: 15pt;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    color: #444;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+  }
+  
+  .container h3 {
+    font-size: 12pt;
+    margin-top: 20px;
+    color: #555;
+  }
+  
+  .container p {
+    font-size: 12pt;
+    margin-bottom: 15px;
+    color: #555;
+  }
+  
+  .container a {
+    color: #ffffff;
+    text-decoration: none;
+  }
+  
+  .container a:hover {
+    text-decoration: underline;
+  }
+  

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/stylesheets/styles-template.css">
+    <link rel="stylesheet" href="/stylesheets/styles-pages-contactUs.css">
+    <title> Contact Us Page </title>
+</head>
+<body>
+    <header>
+        <!-- <img src="" alt=" " class="logo">-->
+        <h1> LOGO </h1> 
+        
+     </header>
+     
+     <nav class="menu">
+       <ul>
+         <li><a href="/">Home</a></li>
+         <li><a href="/jobs/jobsList"> Find a job </a></li>
+         <li><a href="aboutUs">About Us </a></li>
+         <li><a href="/pages/contactUs"> Contact Us </a></li>
+       </ul>
+     </nav>
+
+     <div class="heading-container">
+        <p>
+            We are here to help! <br>
+            If you have any questions, feedback, or partnership enquiries, please don't hesitate to get in touch.<br>
+            Simply fill out the contact form, and a member of our team will respond promptly. <br>
+            We look forward to connecting with you.<br>
+        </p>
+     </div>
+
+    <div class="contact-container">
+        <h2>Contact Us</h2>
+        <form id="contact-us" action="https://formsubmit.co/business0525@gmail.com" method="POST">
+            <label for="full-name">Full Name</label>
+            <input type="text" id="full-name" name="full-name" placeholder="Your full name" required> 
+            <br>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Your email" required>
+            <br>
+
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" placeholder="Your phone number" required>
+            <br> 
+
+            <label for="job-title">Job Title</label>
+            <input type="text" id="job-title" name="job-title" placeholder="e.g: Software Developer">
+            <br>
+
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Describe your project or needs" required></textarea>
+            <br>
+
+            <button type="submit">Submit</button>
+            <input type="reset" value="Reset">
+            <br>
+            
+        </form>
+    </div>
+
+</body>
+</html>
