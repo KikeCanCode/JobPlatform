@@ -13,56 +13,12 @@ const router = express.Router();
 
 // Moved Graduates Middleware to the Middlewares Folder - import it
 
-
-// Display Graduates Login Page
-
+// Display Graduates Login Page - this implementing redirectTo
 router.get("/login", (req, res) => {
 	res.render("graduates/login" , { error: null, redirect: req.query.redirect || "" });
 });
 
 //  Route - Graduate Login
-/*
-
-router.post("/login", (req, res) => {
-	const { email, password } = req.body;
-	db.select()
-		.from(graduatesTable)
-		.where({ email })
-		.execute()
-		.then(async (results) => {
-			if (results.length === 0) {
-				return res.status(401).send("Invalid password or username");
-			}
-
-			const graduate = results[0];
-
-			try {
-				const isMatch = await bcrypt.compare(password, graduate.password_hash);
-
-				if (isMatch) {
-					req.session.mode = "graduate";
-					req.session.graduateId = graduate.id;
-
-					return res.redirect("/graduates/dashboard");
-				
-				// biome-ignore lint/style/noUselessElse: <explanation>
-								} else {
-					req.session = null;
-				
-					return res.status(401).json({
-						error:
-							"Incorrect username or password. Please check your credentials.",
-					});
-				}
-			} catch (err) {
-				console.log(err) // Just notification
-				res.status(500).send("Error logging in");
-			}
-		});
-});
-
-*/
-
 router.post("/login", (req, res) => {
 	const { email, password, redirect } = req.body;
 
@@ -145,27 +101,108 @@ router.get("/apply/:jobId", ensureLoggedIn, async (req, res) => {
   }
 });
 
-router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
-  const { jobId } = req.params;
-  const graduateId = req.session.graduateId; // ✅ This must match your login session
+// Handling Application submition 
+// router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
+//   const { jobId } = req.params;
+//   const graduateId = req.session.graduateId; 
 
-  if (!graduateId) {
-    return res.redirect("/graduates/login");
-  }
+//   if (!graduateId) {
+//     return res.redirect("/graduates/login");
+//   }
 
-  try {
-    await db.insert(applicationsTable).values({
-      graduate_id: graduateId,
-      job_id: Number(jobId),
-      date_applied: new Date(),
-    });
+//   try {
+//     await db.insert(applicationsTable).values({
+//       graduate_id: graduateId,
+//       job_id: Number(jobId),
+//       date_applied: new Date(),
+//     });
 
-    res.redirect("/graduates/dashboard");
-  } catch (err) {
-    console.error("Application Error:", err);
-    res.status(500).send("An error occurred while applying.");
-  }
+//     res.redirect("/graduates/dashboard");
+//   } catch (err) {
+//     console.error("Application Error:", err);
+//     res.status(500).send("An error occurred while applying.");
+//   }
+// });
+
+// //Multer setup for CV  Uploading - 
+const cvStorage = multer.diskStorage({
+    destination: (req, file, callBack) => {
+        callBack(null, "uploads/cvs");
+    },
+    filename: (req, file, callBack) => {
+        callBack(null, `${Date.now()}-${file.originalname}`);
+    },
 });
+
+const uploadCV = multer({ storage: cvStorage });
+
+
+ // 3 - Handle application form submission
+//    router.post("/apply/:jobId", uploadCV.single("cv"), async (req, res) => {
+//     if (!req.file) {
+//         return res.status(400).json({ error: "No CV uploaded." });
+//     }
+
+//     const jobId = req.params.jobId;
+//     const { 
+// 		firstName, 
+// 		lastName, 
+// 		email,
+// 		coverLetter, 
+// 		graduateId 
+// 	} = req.body;
+//     const cvPath = req.file.path;
+
+//     try {
+//         const result = await db
+//             .insert(applicationsTable)
+//             .values({
+// 				job_id: jobId,
+//                 graduate_id: graduateId,
+//                 first_name: firstName,
+// 				last_name: lastName,
+//                 email,
+//                 cover_letter: coverLetter,
+//                 cv: cvPath,
+//                 date_applied: new Date(),
+//             })
+//             .execute();
+
+// 			res.redirect("/graduates/dashboard");   
+// 		} catch (err) {
+//         console.error("Application Error:", err);
+//         res.status(500).send("An error occurred while applying.");
+//     }
+// });
+router.post("/:jobId/apply", ensureLoggedIn, uploadCV.single("cv"), async (req, res) => {
+    const { jobId } = req.params;
+    const graduateId = req.session.graduateId;
+
+    if (!graduateId) {
+      return res.redirect("/graduates/login");
+    }
+
+    const { coverLetter } = req.body;
+    const cvPath = req.file?.path;
+
+    try {
+      await db
+	  .insert(applicationsTable)
+	  .values({
+        graduate_id: graduateId,
+        job_id: Number(jobId),
+        cover_letter: coverLetter,
+        cv_path: cvPath,
+        date_applied: new Date(),
+      });
+
+      res.redirect("/graduates/dashboard");
+    } catch (err) {
+      console.error("Application Error:", err);
+      res.status(500).send("An error occurred while applying.");
+    }
+  }
+);
 
 // Display Graduates Sign-Up Page
 router.get("/signup", (req, res) => {
@@ -329,58 +366,6 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 	}
 });
 
-
-
-//Multer setup for CV  Uploading - 
-const cvStorage = multer.diskStorage({
-    destination: (req, file, callBack) => {
-        callBack(null, "uploads/cvs");
-    },
-    filename: (req, file, callBack) => {
-        callBack(null, `${Date.now()}-${file.originalname}`);
-    },
-});
-
-const uploadCV = multer({ storage: cvStorage });
-
-
- // 4 - Handle application form submission
-   router.post("/apply/:jobId", uploadCV.single("cv"), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: "No CV uploaded." });
-    }
-
-    const jobId = req.params.jobId;
-    const { 
-		firstName, 
-		lastName, 
-		email,
-		coverLetter, 
-		graduateId 
-	} = req.body;
-    const cvPath = req.file.path;
-
-    try {
-        const result = await db
-            .insert(applicationsTable)
-            .values({
-				job_id: jobId,
-                graduate_id: graduateId,
-                first_name: firstName,
-				last_name: lastName,
-                email,
-                cover_letter: coverLetter,
-                cv: cvPath,
-                date_applied: new Date(),
-            })
-            .execute();
-
-			res.redirect("/graduates/dashboard");   
-		} catch (err) {
-        console.error("Application Error:", err);
-        res.status(500).send("An error occurred while applying.");
-    }
-});
 
 // View my applications 
 router.get("/myApplications", ensureLoggedIn, async (req, res) => {
