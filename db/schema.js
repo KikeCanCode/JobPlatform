@@ -51,9 +51,9 @@ export const jobsTable = mysqlTable("jobs", {
 	location: varchar({ length: 255 }),
 	salary: varchar({ length: 100 }),
 	created_at: timestamp().defaultNow(), // Automatically set to the current timestamp
-	// qualification_required: varchar({ length: 500 }), // Added field
-	// application_ limit: int(), // Added field (assuming it's a number, adjust type if needed)
-	// expiration_date: timestamp(), // Added field
+	qualification_required: varchar({ length: 500 }), // Added field
+	application_limit: int(), // Added field (assuming it's a number, adjust type if needed)
+	expiration_date: timestamp(), // Added field
 });
 
 // Applications Table
@@ -61,11 +61,11 @@ export const applicationsTable = mysqlTable("applications", {
 	id: serial().primaryKey(),
 	job_id: int().notNull(), // Foreign key referencing jobs.id
 	graduate_id: int().notNull(), // Foreign key referencing graduates.id
-	// first_name: varchar{ length: 255 }), 
-	// last_name: varchar { length: 255 }), 
-	// email: varchar { length: 255 }, 
+	// first_name: varchar ({ length: 255 }), 
+	// last_name: varchar ({ length: 255 }), 
+	// email: varchar ({ length: 255 }), 
 	// cover_letter: varchar({ length: 1000 }).notNull(), 
-	// cv_path: varchar("cv_path", { length: 500 }), // path to uploaded CV
+	// cv_path: varchar ({ length: 500 }), // path to uploaded CV
 	date_applied: timestamp().defaultNow(), // Automatically set to the current timestamp
 
 });

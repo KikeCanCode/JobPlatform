@@ -14,11 +14,11 @@
   <p><%= job.description %></p>
   <p><strong>Location:</strong> <%= job.location %></p>
   <p><strong>Salary:</strong> £<%= job.salary %></p>
-
-  <% if (ensureLoggedIn) { %>
+<!-- This session check if the graduates is logged in and render apply form, if not render login page and redirect to apply form-->
+  <% if (isLoggedIn) { %>
     <a href="/graduates/apply/<%= job.id %>">Apply Now</a>
   <% } else { %>
-    <a href="/graduates/login?redirect=/apply/<%= job.id %>">Login to Apply</a>
+    <a href="/graduates/login?redirect=/graduates/apply/<%= job.id %>">Login to Apply</a>
   <% } %>
 </div>
 </body>

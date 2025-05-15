@@ -66,58 +66,105 @@ router.post("/login", (req, res) => {
 router.post("/login", (req, res) => {
 	const { email, password, redirect } = req.body;
 
-	db.select()
-		.from(graduates)
-		.where({ email })
-		.execute()
-		.then(async (results) => {
-			if (results.length === 0) {
+	db.select({
+		id: graduatesTable.id,
+		email: graduatesTable.email,
+		password_hash: graduatesTable.password_hash,
+	})
+	.from(graduatesTable)
+	.where(eq(graduatesTable.email, email))
+	.then(async (results) => {
+		if (results.length === 0) {
+			return res.render("graduates/login", {
+				error: "Invalid email or password",
+				redirect,
+			});
+		}
+
+		const graduate = results[0];
+
+		try {
+			const isMatch = await bcrypt.compare(password, graduate.password_hash);
+
+			if (isMatch) {
+				req.session.mode = "graduate";
+				req.session.graduateId = graduate.id;
+
+				return res.redirect(redirect || "/graduates/dashboard");
+			// biome-ignore lint/style/noUselessElse: <explanation>
+			} else {
+				req.session = null;
 				return res.render("graduates/login", {
 					error: "Invalid email or password",
 					redirect,
 				});
 			}
-
-			const graduate = results[0];
-
-			try {
-				const isMatch = await bcrypt.compare(password, graduate.password);
-
-				if (isMatch) {
-					req.session.mode = "graduate";
-					req.session.graduateId = graduate.id;
-
-					let redirectTo = "/graduates/dashboard";
-					if (redirect) {
-						redirectTo = redirect;
-					}
-
-					return res.redirect(redirectTo);
-
-				// biome-ignore lint/style/noUselessElse: <explanation>
-				} else {
-					req.session = null;
-
-					return res.render("graduates/login", {
-						error: "Invalid email or password",
-						redirect,
-					});
-				}
-			} catch (error) {
-				console.error("Login error:", error);
-				return res.render("graduates/login", {
-					error: "An error occurred. Please try again.",
-					redirect,
-				});
-			}
-		})
-		.catch((error) => {
-			console.error("Database error:", error);
+		} catch (error) {
+			console.error("Login error:", error);
 			return res.render("graduates/login", {
 				error: "An error occurred. Please try again.",
 				redirect,
 			});
+		}
+	})
+	.catch((error) => {
+		console.error(error);
+		return res.render("graduates/login", {
+			error: "An error occurred. Please try again.",
+			redirect,
 		});
+	});
+});
+
+// 1 Click Job Detail - Display Jobs Details - Moved this bit to jobs.js 
+
+// 2 - Display application form 
+router.get("/apply/:jobId", ensureLoggedIn, async (req, res) => {
+  const { jobId } = req.params;
+  const graduateId = req.session.graduateId;
+
+  if (!graduateId) {
+    return res.redirect("/graduates/login");
+  }
+
+  try {
+    const job = await db
+      .select()
+      .from(jobsTable)
+      .where(eq(jobsTable.id, Number(jobId)))
+      .then(rows => rows[0]);
+
+    if (!job) {
+      return res.status(404).send("Job not found");
+    }
+
+    res.render("graduates/apply", { jobId, graduateId, job });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error loading application form.");
+  }
+});
+
+router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
+  const { jobId } = req.params;
+  const graduateId = req.session.graduateId; // ✅ This must match your login session
+
+  if (!graduateId) {
+    return res.redirect("/graduates/login");
+  }
+
+  try {
+    await db.insert(applicationsTable).values({
+      graduate_id: graduateId,
+      job_id: Number(jobId),
+      date_applied: new Date(),
+    });
+
+    res.redirect("/graduates/dashboard");
+  } catch (err) {
+    console.error("Application Error:", err);
+    res.status(500).send("An error occurred while applying.");
+  }
 });
 
 // Display Graduates Sign-Up Page
@@ -282,91 +329,6 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 	}
 });
 
-// 1 Click on Apply Now -  Redirect to Login/Job Application page based on Login/or not
-
-router.get("/jobs/:jobId/apply", async (req, res) => {
-	const { jobId } = req.params;
-
-	// Check if user is logged in
-	if (!req.session.graduateId) {
-		return res.redirect("/login");
-	}
-
-	// If logged in, redirect to the application submission page
-	res.redirect(`/apply/${jobId}`);
-});
-
-// 2 - Apply for job - form submission
-
-router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
-	const { jobId } = req.params;
-	const graduateId = req.graduateId;
-
-	if (!graduateId) {
-		return res.redirect("/login");
-	}
-		try {
-			await db
-			.insert(applicationsTable)
-			.values({
-				graduateId,
-				jobId,
-			});
-	
-			res.redirect("/graduates/dashboard"); 
-		} catch (err) {
-			console.error(err);
-			res.status(500).json({ error: "Error submitting job application" });
-		}
-	});
-
-
-  //Job Detail Display 
-router.get("/jobs/:jobId", async (req, res) => {
-	const { jobId } = req.params;
-	try {
-	  const job = await db
-	  .select()
-	  .from(jobsTable)
-	  .where(eq("jobs.id", jobId))
-	  .then(rows => rows[0]);
-
-	  if (!job) {
-		return res.status(404).send("Job not found");
-	}
-	  res.render("graduates/jobsDetails", { job });
-	} catch (error) {
-	  console.error(error);
-	  res.status(500).send("Error loading job details.");
-	}
-  });
-  
-// 3 - Display application form 
-router.get("/apply/:jobId", ensureLoggedIn, async (req, res) => {
-
-	const { jobId } = req.params;
-	const graduateId = req.session.graduateId;
-	if (!graduateId) {
-		return res.redirect("/login");
-	}
-	try {
-		// Fetch job details for the application form
-		const job = await db
-		.select()
-		.from(jobsTable)
-		.where(eq("jobs.id", jobId))
-		.then(rows => rows[0]);
-		if (!job) {
-			return res.status(404).send("Job not found");
-		}
-		res.render("graduates/apply", { jobId, graduateId, job });
-	} catch (error) {
-		console.error("Error fetching job details:", error);
-		res.status(500).send("Error loading application form.");
-	}
-
-	res.render("graduates/apply", { jobId,  graduateId }); 
-});
 
 
 //Multer setup for CV  Uploading - 

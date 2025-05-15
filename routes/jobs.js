@@ -56,7 +56,6 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 	}
 });
 
-
 //Display all jobs Routes (General Job Listing)
 router.get("/jobsList", async (req, res) => { // url endpont no need to add folder name
     try {
@@ -66,6 +65,30 @@ router.get("/jobsList", async (req, res) => { // url endpont no need to add fold
         console.error("Error fetching job list:", err);
         res.status(500).send({ error: "Error fetching job list" });
     }
+});
+
+router.get("/jobsDetails/:jobId", async (req, res) => {
+  const { jobId } = req.params;
+
+  try {
+    const jobResult = await db
+      .select()
+      .from(jobsTable)
+      .where(eq(jobsTable.id, jobId));
+
+    const job = jobResult[0];
+
+    if (!job) {
+      return res.status(404).send("Job not found");
+    }
+	const isLoggedIn = !!req.session.gradauteId; // track login
+
+
+    res.render("jobs/jobsDetails", { job, ensureLoggedIn, isLoggedIn });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error loading job details.");
+  }
 });
 
 // Display form with Pre-filled details for editing.
@@ -97,7 +120,7 @@ router.get("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
 
 // Update Posted Jobs  
 router.post("/updateJobs/:id", ensureLoggedIn, async (req, res) => { // Not working with PUT for some reason...
-	 const jobId = req.params.id;
+	const jobId = req.params.id;
 	const {
 		title,
 		job_description: description,
@@ -149,9 +172,9 @@ router.get("/jobs/:id", async (req, res) => {
             return res.status(404).send({ error: "Job not found" });
         }
 
-        res.json(job);
+        res.render("jobs/jobsDetails", {job});
     } catch (err) {
-        console.error("Error fetching job:", err);
+        console.error(err);
         res.status(500).send({ error: "Error fetching job details" });
     }
 });
@@ -160,7 +183,7 @@ router.get("/jobs/:id", async (req, res) => {
 
 // Get All Jobs by a Company - Ensure logged-in
 router.get("/postedJobs", ensureLoggedIn, async (req, res) => {
-	const companyId = req.user.id; // Extracted from the token by ensureLoggedIn middleware
+	const companyId = req.company.id; // Extracted from the token by ensureLoggedIn middleware
 
 	try {
 		const jobs = await Job.findByCompanyId(companyId);
@@ -173,15 +196,50 @@ router.get("/postedJobs", ensureLoggedIn, async (req, res) => {
 
 // Update Job Status (e.g., Open, Close, Expired)
 router.patch("/:jobId/status", ensureLoggedIn, async (req, res) => {
-	const { jobI} = req.params;
+	const { jobId} = req.params;
 	const { status } = req.body;
+// Define allowed statuses
+	const allowedStatuses = ["Open", "Closed", "Expired"];
+
+	// Validate status input
+	if (!allowedStatuses.includes(status)) {
+		return res.status(400).json({
+			error: `Invalid status. Allowed values are: ${allowedStatuses.join(", ")}`
+		});
+	}
 
 	try {
-		await Job.updateStatus(jobI, status);
-		res.send({ message: "Job status updated successfully!" });
+		// Check if job exists and belongs to the logged-in company
+		const job = await db
+			.select()
+			.from(jobsTable)
+			.where(
+				and(
+					eq(jobsTable.id, jobId),
+					eq(jobsTable.company_id, req.company.id)
+				)
+			)
+			.execute();
+
+		if (job.length === 0) {
+			return res.status(404).json({ error: "Job not found or not authorised" });
+		}
+
+		// Update job status
+		const result = await db
+			.update(jobsTable)
+			.set({ status })
+			.where(eq(jobsTable.id, jobId))
+			.execute();
+
+		if (result.affectedRows === 0 || result.count === 0) {
+			return res.status(400).json({ error: "Failed to update job status" });
+		}
+
+		res.json({ message: "Job status updated successfully!" });
 	} catch (err) {
 		console.error(err);
-		res.status(500).send({ error: "Error updatin jobs status" });
+		res.status(500).json({ error: "Error updating job status" });
 	}
 });
 
@@ -215,6 +273,25 @@ router.get("/jobsList", async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+// Delete Job 
+router.post("/deleteJob/:id", ensureLoggedIn, async (req, res) => {
+	try {
+		await db
+			.delete(jobsTable)
+			.where(
+				and(
+					eq(jobsTable.id, req.params.id),
+					eq(jobsTable.company_id, req.company.id)
+				)
+			)
+			.execute();
+		res.redirect("/companies/dashboard");
+	} catch (err) {
+		console.error(err);
+		res.status(500).send("Error deleting job");
+	}
 });
 
 export default router;
