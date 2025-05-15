@@ -20,9 +20,9 @@ export const graduatesTable = mysqlTable("graduates", {
 	bootcamp_institute: varchar({ length: 255 }),
 	graduation_year: int(),
 	skills: varchar({ length: 4_000 }),
-	// created_at: timestamp().defaultNow(),
-  	// updated_at: timestamp().defaultNow().onUpdateNow(),
-  	// deleted_at: timestamp().default(null) // Soft delete column
+	created_at: timestamp().defaultNow(),
+  	updated_at: timestamp().defaultNow().onUpdateNow(),
+  	deleted_at: timestamp().default(null) // Soft delete column
 
 });
 
@@ -36,9 +36,9 @@ export const companiesTable = mysqlTable("companies", {
 	contact_number: varchar({ length: 255 }),
 	company_address: varchar({ length: 500 }),
 	company_profile: varchar({ length: 500 }),
-  	// created_at: timestamp().defaultNow(), // Automatically set to the current timestamp,
-  	// updated_at: timestamp().defaultNow().onUpdateNow(),
-  	// deleted_at: timestamp().default(null) // Soft delete column
+  	created_at: timestamp().defaultNow(), // Automatically set to the current timestamp,
+  	updated_at: timestamp().defaultNow().onUpdateNow(),
+  	deleted_at: timestamp().default(null) // Soft delete column
 
 });
 
@@ -51,9 +51,9 @@ export const jobsTable = mysqlTable("jobs", {
 	location: varchar({ length: 255 }),
 	salary: varchar({ length: 100 }),
 	created_at: timestamp().defaultNow(), // Automatically set to the current timestamp
-	// qualification_required: varchar({ length: 500 }), // Added field
-	// application_limit: int(), // Added field (assuming it's a number, adjust type if needed)
-	// expiration_date: timestamp(), // Added field
+	qualification_required: varchar({ length: 500 }), // Added field
+	application_limit: int(), // Added field (assuming it's a number, adjust type if needed)
+	expiration_date: timestamp(), // Added field
 });
 
 // Applications Table
@@ -61,11 +61,11 @@ export const applicationsTable = mysqlTable("applications", {
 	id: serial().primaryKey(),
 	job_id: int().notNull(), // Foreign key referencing jobs.id
 	graduate_id: int().notNull(), // Foreign key referencing graduates.id
-	// first_name: varchar ({ length: 255 }), 
-	// last_name: varchar ({ length: 255 }), 
-	// email: varchar ({ length: 255 }), 
-	// cover_letter: varchar({ length: 1000 }).notNull(), 
-	// cv_path: varchar ({ length: 500 }), // path to uploaded CV
+	first_name: varchar ({ length: 255 }), 
+	last_name: varchar ({ length: 255 }), 
+	email: varchar ({ length: 255 }), 
+	cover_letter: varchar({ length: 1000 }).notNull().default(''), //
+	cv_path: varchar ({ length: 500 }), // path to uploaded CV
 	date_applied: timestamp().defaultNow(), // Automatically set to the current timestamp
 
 });

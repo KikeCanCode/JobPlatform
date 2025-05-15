@@ -101,28 +101,6 @@ router.get("/apply/:jobId", ensureLoggedIn, async (req, res) => {
   }
 });
 
-// Handling Application submition 
-// router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
-//   const { jobId } = req.params;
-//   const graduateId = req.session.graduateId; 
-
-//   if (!graduateId) {
-//     return res.redirect("/graduates/login");
-//   }
-
-//   try {
-//     await db.insert(applicationsTable).values({
-//       graduate_id: graduateId,
-//       job_id: Number(jobId),
-//       date_applied: new Date(),
-//     });
-
-//     res.redirect("/graduates/dashboard");
-//   } catch (err) {
-//     console.error("Application Error:", err);
-//     res.status(500).send("An error occurred while applying.");
-//   }
-// });
 
 // //Multer setup for CV  Uploading - 
 const cvStorage = multer.diskStorage({
@@ -138,42 +116,6 @@ const uploadCV = multer({ storage: cvStorage });
 
 
  // 3 - Handle application form submission
-//    router.post("/apply/:jobId", uploadCV.single("cv"), async (req, res) => {
-//     if (!req.file) {
-//         return res.status(400).json({ error: "No CV uploaded." });
-//     }
-
-//     const jobId = req.params.jobId;
-//     const { 
-// 		firstName, 
-// 		lastName, 
-// 		email,
-// 		coverLetter, 
-// 		graduateId 
-// 	} = req.body;
-//     const cvPath = req.file.path;
-
-//     try {
-//         const result = await db
-//             .insert(applicationsTable)
-//             .values({
-// 				job_id: jobId,
-//                 graduate_id: graduateId,
-//                 first_name: firstName,
-// 				last_name: lastName,
-//                 email,
-//                 cover_letter: coverLetter,
-//                 cv: cvPath,
-//                 date_applied: new Date(),
-//             })
-//             .execute();
-
-// 			res.redirect("/graduates/dashboard");   
-// 		} catch (err) {
-//         console.error("Application Error:", err);
-//         res.status(500).send("An error occurred while applying.");
-//     }
-// });
 router.post("/:jobId/apply", ensureLoggedIn, uploadCV.single("cv"), async (req, res) => {
     const { jobId } = req.params;
     const graduateId = req.session.graduateId;
@@ -182,7 +124,8 @@ router.post("/:jobId/apply", ensureLoggedIn, uploadCV.single("cv"), async (req, 
       return res.redirect("/graduates/login");
     }
 
-    const { coverLetter } = req.body;
+    // const { coverLetter } = req.body;
+	const coverLetter = req.body.coverLetter || null;
     const cvPath = req.file?.path;
 
     try {
@@ -270,11 +213,6 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 });
 
 //Display Graduates Dashboard
-// router.get("/dashboard", ensureLoggedIn, async (req, res) => {
-// 	console.log(req.graduate);
-
-// 	res.render("graduates/dashboard", { graduate: req.graduate });
-// });
 router.get("/dashboard", ensureLoggedIn, async (req, res) => { // Working - printing job applications 
 	try {
 		const graduateId = req.graduate.id;

@@ -235,9 +235,9 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 		job_description,
 		salary,
 		location,
-		// qualification_required: qualificationRequired,
-		// application_limit: applicationLimit,
-		// expiration_date: expirationDate,
+		qualification_required: qualificationRequired,
+		application_limit: applicationLimit,
+		expiration_date: expirationDate,
 	} = req.body;
 
 	// const companyId = req.user.id; // from the ensureLoggedIn middleware
@@ -253,9 +253,9 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 			job_description,
 			salary,
 			location,
-			//qualification_required: qualificationRequired,
-			// application_limit: applicationLimit,
-			// expiration_date: expirationDate,
+			qualification_required: qualificationRequired,
+			application_limit: applicationLimit,
+			expiration_date: expirationDate,
 			 
 		});
 

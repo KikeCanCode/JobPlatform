@@ -22,9 +22,9 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 		job_description: description,
 		salary,
 		location,
-		// qualification_required:qualificationRequired,
-		// application_limit: applicationLimit,
-		// expiration_date: expirationDate,
+		qualification_required:qualificationRequired,
+		application_limit: applicationLimit,
+		expiration_date: expirationDate,
 		
 	} = req.body;
 	
@@ -42,12 +42,11 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 			job_description: description,
 			salary,
 			location,
-			//qualification_required, qualificationRequired,
-			// application_limit: applicationLimit,
-			// expiration_date: expirationDate,
+			qualification_required: qualificationRequired,
+			application_limit: applicationLimit,
+			expiration_date: expirationDate,
 			
 		});
-		// res.status(201).send({ message: "Job posted successfuly!" });
 		// Redirect to dashboard or send response
 	res.redirect("/companies/dashboard"); 
 	} catch (err) {
@@ -126,8 +125,9 @@ router.post("/updateJobs/:id", ensureLoggedIn, async (req, res) => { // Not work
 		job_description: description,
 		salary,
 		location,
-		// application_limit: applicationLimit,
-		// expiration_date: expirationDate
+		qualification_required: qualificationRequired,
+		application_limit: applicationLimit,
+		expiration_date: expirationDate
 	} = req.body;
 
 	try {
@@ -138,8 +138,9 @@ router.post("/updateJobs/:id", ensureLoggedIn, async (req, res) => { // Not work
 				job_description: description,
 				salary,
 				location,
-				// application_limit: applicationLimit,
-				// expiration_date: expirationDate
+				qualification_required: qualificationRequired,
+				application_limit: applicationLimit,
+				expiration_date: expirationDate
 			})
 			.where(
 				and( //and() combines the two conditions below, so both must be true for the update to proceed.
