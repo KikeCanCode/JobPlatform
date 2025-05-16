@@ -3,23 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/stylesheet/styles-jobs-details.css">
+    <link rel="stylesheet" href="/stylesheets/styles-homepage.css">
+    <link rel="stylesheet" href="/stylesheets/styles-template.css">
+    <link rel="stylesheet" href="/stylesheets/styles-jobs-details.css">
 
-   
     <title>Jobs Details Page </title>
+
 </head>
 <body>
+  <header>
+   <h1> LOGO </h1> 
+   
+</header>
+
+<nav class="menu">
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/jobs/jobsList"> Find a jobs</a></li>
+    <li><a href="aboutUs">About Us </a></li>
+    <li><a href="/pages/contactUs"> Contact Us </a></li>
+  </ul>
+</nav>
+<br>
+
+ <div class="header-container">
+  
+  <form action="/jobs/JobSearch" method="GET" class="search-container">
+    <input type="text" name="query" class="search-input" placeholder="Search for jobs...">
+    <button type="submit" class="search-btn">Search</button>
+  </form>
+ </div>
+
 <div class="job-container">
+
   <h1><%= job.title %></h1>
-  <p><%= job.description %></p>
-  <p><strong>Location:</strong> <%= job.location %></p>
+   
   <p><strong>Salary:</strong> £<%= job.salary %></p>
+  
+  <p><strong>Location:</strong> <%= job.location %></p>
+
+  <p><strong>Qualification Required:</strong> <%= job.qualification_required %></p>
+  
+  <p><strong>Application Limit:</strong> <%= job.application_limit %></p>
+
+  <p><strong>Expiration Date:</strong> <%= job.expiration_date %></p>
+
+  <p><%= job.job_description %></p>
+
+
 <!-- This session check if the graduates is logged in and render apply form, if not render login page and redirect to apply form-->
   <% if (isLoggedIn) { %>
-    <a href="/graduates/apply/<%= job.id %>">Apply Now</a>
+    <a href="/graduates/apply/<%= job.id %>" class="btn"> Apply Now </a>
+
   <% } else { %>
-    <a href="/graduates/login?redirect=/graduates/apply/<%= job.id %>">Login to Apply</a>
+    
+    <a href="/graduates/login?redirect=/graduates/apply/<%= job.id %>" class="btn"> Login to Apply</a>
   <% } %>
+ 
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div class="footer-band">
+    <footer>
+      <ul>
+        <a href="homepage/index.ejs"> Home </a>
+        <a href="pages/aboutUs.html"> About Us</a>
+        <a href="pages/pricing.html"> Pricing </a>
+        <a href="pages/contactMe.html"> Contact Us </a>
+    </ul>
+          
+    <div class="copyright">
+              
+      <p>&copy; 2025 Job Platform. All Rights Reserved.</p>
+    </div>
+  
+    </footer>
 </div>
 </body>
 </html>

@@ -3,41 +3,6 @@ import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
 
 const router = express.Router();
 
-//Graduate apply to a Job
-
-// router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
-// 	const { jobId } = request.body;
-// 	const graduateId = req.graduateId;
-
-// 	try {
-// 		await db
-// 		.insert(applicationsTable)
-// 		.values({
-// 			job_id: jobId,
-// 			graduate_id: graduateId,
-// 		});
-// 		res.redirect("/graduates/myApplications");
-			
-// 	} catch (err) {
-// 		console.error(err);
-// 		res.status(500).json({ error: "Error submitting job application"  });
-// 	}
-// });
- 
-router.post("/jobs/:jobId/apply", ensureLoggedIn, async (req, res) => {
-	const { jobId } = req.params;
-	const graduateId = req.graduateId;
-
-	try {
-		await applyToJob(graduateId, jobId);
-		res.redirect(`/jobs/${jobId}`);
-		
-	} catch (err) {
-		console.error(err);
-		res.status(500).json({ error: "Error applying for job" });
-	}
-});
-
 //Get applications by Graduates
 
 router.get("/graduates/:graduateId", ensureLoggedIn, async (req, res) => {

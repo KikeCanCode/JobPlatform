@@ -19,7 +19,7 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 	const {
 		
 		title,
-		job_description: description,
+		job_description,
 		salary,
 		location,
 		qualification_required:qualificationRequired,
@@ -39,12 +39,12 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 			// Used to add data
 			company_id: companyId,
 			title,
-			job_description: description,
+			job_description,
 			salary,
 			location,
 			qualification_required: qualificationRequired,
-			application_limit: applicationLimit,
-			expiration_date: expirationDate,
+			application_limit: applicationLimit ? Number.parseInt(applicationLimit) : null,
+			expiration_date: expirationDate ? new Date(expirationDate) : null,
 			
 		});
 		// Redirect to dashboard or send response
@@ -139,8 +139,8 @@ router.post("/updateJobs/:id", ensureLoggedIn, async (req, res) => { // Not work
 				salary,
 				location,
 				qualification_required: qualificationRequired,
-				application_limit: applicationLimit,
-				expiration_date: expirationDate
+				application_limit: applicationLimit ? Number.parseInt(applicationLimit) : null,
+				expiration_date: expirationDate ? new Date(expirationDate) : null
 			})
 			.where(
 				and( //and() combines the two conditions below, so both must be true for the update to proceed.

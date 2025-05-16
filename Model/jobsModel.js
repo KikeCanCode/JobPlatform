@@ -18,9 +18,9 @@ class Job {
 		description,
 		salary,
 		location,
-		// qualificationRequired,
-		// applicationLimit,
-		// expirationDate,
+		qualificationRequired,
+		applicationLimit,
+		expirationDate,
 		
 	}) {
 		try {
@@ -29,12 +29,12 @@ class Job {
 				.values({
 					company_id: companyId,
 					title,
-					description,
+					job_description: description,
 					salary,
 					location,
-					// qualification_required: qualificationRequired,
-					// application_limit: applicationLimit,
-					// expiration_date: expirationDate,
+					qualification_required: qualificationRequired,
+					application_limit: applicationLimit ? Number.parseInt(applicationLimit) : null,
+					expiration_date: expirationDate ? new Date(expirationDate) : null,
 					
 				})
 				.execute();

@@ -11,10 +11,10 @@
     <div class="apply-form">
     <h2>Apply for Job <%= jobId %></h2>
 
-    <form action="/graduates/apply/<%= jobId %>" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="graduate.Id" value="<%= graduateId %>" />
-      
-        <!-- <form action="/jobs/<%= jobId %>/apply" method="POST"> -->
+        <form action="/graduates/<%= job.id %> /myApplications" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="graduateId" value="<%= graduateId %>" />
+       <input type="hidden" name="jobId" value="<%= jobId %>" />
+
         <label for="first_name">First Name</label>
         <input type="text" id="first_name" name="first_name" required />
 
@@ -31,7 +31,7 @@
         <label for="cv">Upload CV</label>
         <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required />
       
-        <button type="submit">Submit Application</button>
+        <button type="submit"> Submit Application</button>
       </form>
     </div>
 </body>

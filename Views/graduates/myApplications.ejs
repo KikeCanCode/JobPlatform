@@ -58,7 +58,7 @@
 <div class="heading">
 <h1> My Applications </h1>
 </div>
-<div class="applications-container">
+<!-- <div class="applications-container">
     <h2>My Applications</h2>
     <% if (applications.length > 0) { %>
         <% applications.forEach(application => { %>
@@ -75,8 +75,36 @@
         <% }) %>
     <% } else { %>
         <p>No applications found</p>
-    <% } %>
-</div>
+    <% } %> -->
+<!-- </div> -->
+ <h2>My Applications</h2>
+
+<% if (applications.length > 0) { %>
+  <table>
+    <thead>
+      <tr>
+        <th>Job ID</th>
+        <th>Cover Letter</th>
+        <th>CV</th>
+        <th>Date Applied</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% applications.forEach(app => { %>
+        <tr>
+          <td><%= app.job_id %></td>
+          <td><%= app.cover_letter %></td>
+          <td>
+            <a href="/<%= app.cv_path %>" target="_blank">View CV</a>
+          </td>
+          <td><%= new Date(app.date_applied).toLocaleDateString() %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+<% } else { %>
+  <p>You have not applied for any jobs yet.</p>
+<% } %>
 <br>
 <br>
 <br>

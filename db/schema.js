@@ -64,7 +64,7 @@ export const applicationsTable = mysqlTable("applications", {
 	first_name: varchar ({ length: 255 }), 
 	last_name: varchar ({ length: 255 }), 
 	email: varchar ({ length: 255 }), 
-	cover_letter: varchar({ length: 1000 }).notNull().default(''), //
+	cover_letter: varchar({ length: 1000 }).default(null), //
 	cv_path: varchar ({ length: 500 }), // path to uploaded CV
 	date_applied: timestamp().defaultNow(), // Automatically set to the current timestamp
 

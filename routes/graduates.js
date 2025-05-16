@@ -115,9 +115,10 @@ const cvStorage = multer.diskStorage({
 const uploadCV = multer({ storage: cvStorage });
 
 
- // 3 - Handle application form submission
-router.post("/:jobId/apply", ensureLoggedIn, uploadCV.single("cv"), async (req, res) => {
-    const { jobId } = req.params;
+ // 3 - Handle application form submission - Saves the applications into myApplications.js
+router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), async (req, res) => {
+    // const { jobId } = req.params;
+	const jobId = Number(req.params.jobId);
     const graduateId = req.session.graduateId;
 
     if (!graduateId) {
@@ -129,23 +130,26 @@ router.post("/:jobId/apply", ensureLoggedIn, uploadCV.single("cv"), async (req, 
     const cvPath = req.file?.path;
 
     try {
-      await db
-	  .insert(applicationsTable)
-	  .values({
-        graduate_id: graduateId,
-        job_id: Number(jobId),
-        cover_letter: coverLetter,
-        cv_path: cvPath,
-        date_applied: new Date(),
+      	await db
+	  	.insert(applicationsTable)
+	  	.values({
+       	 	graduate_id: graduateId,
+        	job_id: Number(jobId),
+        	cover_letter: coverLetter,
+        	cv_path: cvPath,
+        	date_applied: new Date(),
       });
 
-      res.redirect("/graduates/dashboard");
+      res.redirect("/graduates/myApplications");
     } catch (err) {
       console.error("Application Error:", err);
+	  console.log("Job ID received:", req.body.jobId);
+	  console.log("Converted to number:", Number(req.body.jobId));
       res.status(500).send("An error occurred while applying.");
     }
   }
 );
+
 
 // Display Graduates Sign-Up Page
 router.get("/signup", (req, res) => {
@@ -307,16 +311,16 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 
 // View my applications 
 router.get("/myApplications", ensureLoggedIn, async (req, res) => {
-	const graduateId = req.graduateId;
+	const graduateId = req.graduate.id;
 
 	try {
-		const results = await db
+		const applications = await db
 			.select()
 			.from(applicationsTable)		
-			.join(jobsTable, eq(applicationsTable.job_id, jobsTable.jobId)) //jobsTable.job_id: Refers to the column job_id in the jobsTable (database).
+			.innerJoin(jobsTable, eq(applicationsTable.job_id, jobsTable.id)) //jobsTable.job_id: Refers to the column job_id in the jobsTable (database).
 			.where(eq(applicationsTable.graduate_id, graduateId));
 			// .execute();
-			const applications = results;
+			// const applications = results;
 
 		res.render("graduates/myApplications", { applications }); // aplication is aproperty - result is any
 	} catch (err) {
