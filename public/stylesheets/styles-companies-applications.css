@@ -1,0 +1,87 @@
+.applications-list {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #fdfdfd;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.applications-list h2 {
+  text-align: center;
+  color: #000000;
+  margin-bottom: 20px;
+}
+
+.applications-list table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+.applications-list th,
+.applications-list td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.applications-list th {
+  background-color: #fccd8a;
+  color: rgb(0, 0, 0);
+  font-weight: 600;
+}
+
+.applications-list tr:hover {
+  background-color: #ffe9d7f1;
+}
+
+.applications-list a {
+  color: #000000;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.applications-list a:hover {
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 768px) {
+  .applications-list table,
+  .applications-list thead,
+  .applications-list tbody,
+  .applications-list th,
+  .applications-list td,
+  .applications-list tr {
+    display: block;
+  }
+
+  .applications-list thead {
+    display: none;
+  }
+
+  .applications-list tr {
+    margin-bottom: 15px;
+    background-color: #fff;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+
+  .applications-list td {
+    padding: 10px;
+    text-align: right;
+    position: relative;
+  }
+
+  .applications-list td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    font-weight: bold;
+    color: #333;
+    text-align: left;
+  }
+}

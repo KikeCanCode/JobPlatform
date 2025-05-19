@@ -267,6 +267,19 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 	}
 });
 
+// Display Applications Received 
+router.get("/applications", async (req, res) => {
+  try {
+    const applications = await db
+      .select()
+      .from(applicationsTable); 
+    console.log(applications);
+    res.render("companies/applications", { applications });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error retrieving applications.");
+  }
+});
 
 //Review applications
 router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {

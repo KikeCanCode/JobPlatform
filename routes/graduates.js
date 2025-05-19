@@ -125,8 +125,8 @@ router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), asy
       return res.redirect("/graduates/login");
     }
 
-    // const { coverLetter } = req.body;
-	const coverLetter = req.body.coverLetter || null;
+    // const { coverLetter } = req.body; 
+	const coverLetter = req.body.cover_letter || null;
     const cvPath = req.file?.path;
 
     try {
@@ -135,6 +135,9 @@ router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), asy
 	  	.values({
        	 	graduate_id: graduateId,
         	job_id: Number(jobId),
+			first_name: firstName,
+			last_name: lastName,
+			email: email,
         	cover_letter: coverLetter,
         	cv_path: cvPath,
         	date_applied: new Date(),

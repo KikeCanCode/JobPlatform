@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/stylesheets/styles-homepage.css">
+    <link rel="stylesheet" href="/stylesheets/styles-template.css">
+    <link rel="stylesheet" href="/stylesheets/styles-companies-dashboard.css">
+    <link rel="stylesheet" href="/stylesheets/styles-companies-applications.css">
+
+
+    <title>List of Applications Received </title>
+</head>
+<body>
+    <!--Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+ <header>
+   <h1> LOGO </h1> 
+   
+</header>
+<nav class="menu">
+  <ul>
+    <li><a href="/">Home</a></li>
+    <!-- <li><a href="/jobs/jobsList"> Find a jobs</a></li> -->
+    <li><a href="aboutUs">About Us </a></li>
+    <li><a href="/pages/contactUs"> Contact Us </a></li>
+  </ul>
+</nav>
+<br> 
+
+<div class="header-container">
+  <!-- | -->
+  <div class="login-divider">
+    <a href="/jobs/post-jobs" class="login-link"> Posted Jobs</a>     <span class="divider">|</span>
+    <a href="/companies/applications" class="login-link"> Applications </a> 
+    <!-- Profile icon -->
+    <a href="/companies/profile">
+    <i class="fas fa-user-circle" style="font-size: 50px; color: #d89837;"></i></a>
+  </div>
+</div>
+
+   <div class="applications-list">
+  <h2>Applications Received</h2>
+
+  <% if (applications.length === 0) { %>
+    <p>No applications received yet.</p>
+  <% } else { %>
+    <!-- applications will be displayed as a table -->
+    <table> 
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Cover Letter</th>
+          <th>CV</th>
+          <th>Job ID</th>
+          <th>Graduate ID</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% applications.forEach(function(application) { %>
+          <tr>
+            <td><%= application.first_name %></td>
+            <td><%= application.last_name %></td>
+            <td><%= application.email %></td>
+            <td><%= application.cover_letter %></td>
+            <td>
+              <a href="/uploads/<%= application.cv %>" target="_blank">View CV</a>
+            </td>
+            <td><%= application.jobId %></td>
+            <td><%= application.graduateId %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div class="footer-band">
+    <footer>
+      <ul>
+        <a href="homepage/index.ejs"> Home </a>
+        <a href="pages/aboutUs.html"> About Us</a>
+        <a href="pages/pricing.html"> Pricing </a>
+        <a href="pages/contactMe.html"> Contact Us </a>
+    </ul>
+          
+    <div class="copyright">
+              
+      <p>&copy; 2025 Job Platform. All Rights Reserved.</p>
+    </div>
+  
+    </footer>
+</div>
+</body>
+</html>
