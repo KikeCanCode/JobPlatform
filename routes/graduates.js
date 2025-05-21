@@ -8,6 +8,7 @@ import db from "../db/index.js"; // Drizzle Orm Connection
 import { applicationsTable, graduatesTable, jobsTable } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
+import Application from "../Model/applicationsModel.js";
 
 const router = express.Router();
 
@@ -83,7 +84,7 @@ router.get("/apply/:jobId", ensureLoggedIn, async (req, res) => {
     return res.redirect("/graduates/login");
   }
 
-  try {
+  try { // Fetch job details
     const job = await db
       .select()
       .from(jobsTable)
@@ -119,6 +120,8 @@ const uploadCV = multer({ storage: cvStorage });
 router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), async (req, res) => {
     // const { jobId } = req.params;
 	const jobId = Number(req.params.jobId);
+	
+
     const graduateId = req.session.graduateId;
 
     if (!graduateId) {
@@ -130,14 +133,26 @@ router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), asy
     const cvPath = req.file?.path;
 
     try {
+		 // Fetch graduate details using graduateId
+    const graduate = await db
+      .select()
+      .from(graduatesTable)
+      .where(eq(graduatesTable.id, graduateId))
+      .then(rows => rows[0]);
+
+    if (!graduate) {
+      return res.status(404).send("Graduate not found");
+    }
+	  // Save the application
       	await db
 	  	.insert(applicationsTable)
 	  	.values({
        	 	graduate_id: graduateId,
         	job_id: Number(jobId),
-			first_name: firstName,
-			last_name: lastName,
-			email: email,
+			// job_id: jobId,
+			first_name: req.body.firstName,
+			last_name: req.body.lastName,
+			email: req.body.email,
         	cover_letter: coverLetter,
         	cv_path: cvPath,
         	date_applied: new Date(),
@@ -145,15 +160,25 @@ router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), asy
 
       res.redirect("/graduates/myApplications");
     } catch (err) {
-      console.error("Application Error:", err);
-	  console.log("Job ID received:", req.body.jobId);
-	  console.log("Converted to number:", Number(req.body.jobId));
+      console.error( err);
       res.status(500).send("An error occurred while applying.");
     }
   }
 );
 
 
+// Display Applications 
+router.get("/myApplications", ensureLoggedIn, async (req, res) => {
+  const graduateId = req.session.graduateId;
+
+  try {
+    const applications = await Application.getApplicationByGraduate(graduateId);
+    res.render("graduates/myApplications", { applications });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
 // Display Graduates Sign-Up Page
 router.get("/signup", (req, res) => {
 	res.render("graduates/signup");
@@ -312,24 +337,6 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 });
 
 
-// View my applications 
-router.get("/myApplications", ensureLoggedIn, async (req, res) => {
-	const graduateId = req.graduate.id;
-
-	try {
-		const applications = await db
-			.select()
-			.from(applicationsTable)		
-			.innerJoin(jobsTable, eq(applicationsTable.job_id, jobsTable.id)) //jobsTable.job_id: Refers to the column job_id in the jobsTable (database).
-			.where(eq(applicationsTable.graduate_id, graduateId));
-			// .execute();
-			// const applications = results;
-
-		res.render("graduates/myApplications", { applications }); // aplication is aproperty - result is any
-	} catch (err) {
-		res.status(500).json({ error: err.message });
-	}
-});
 
 // Bootcamp Certificate Uploading - Configure Multer storage
 
@@ -409,3 +416,96 @@ router.get("/logout", (req, res) => {
 });
 
 export default router;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // View my applications 
+
+// router.get("/myApplications", ensureLoggedIn, async (req, res) => {
+// 	const graduateId = req.session.graduate.id;
+
+// 	try {
+// 		const applications = await db
+// 			.select({
+// 				applicationId: applicationsTable.id,
+// 				jobId: applicationsTable.job_id,
+// 				jobTitle: jobsTable.title,
+// 				firstName: applicationsTable.first_name,
+// 				lastName: applicationsTable.last_name,
+// 				email: applicationsTable.email,
+// 				coverLetter: applicationsTable.cover_letter,
+// 				cvPath: applicationsTable.cv_path,
+// 				dateApplied: applicationsTable.date_applied
+// 			})
+// 			.from(applicationsTable)		
+// 			.innerJoin(jobsTable, eq(applicationsTable.job_id, jobsTable.id)) //jobsTable.job_id: Refers to the column job_id in the jobsTable (database).
+// 			.where(eq(applicationsTable.graduate_id, graduateId));
+// 		res.render("graduates/myApplications", { applications }); // aplication is aproperty - result is any
+// 	} catch (err) {
+// 		res.status(500).json({ error: err.message });
+// 	}
+// });

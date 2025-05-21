@@ -58,47 +58,35 @@
 <div class="heading">
 <h1> My Applications </h1>
 </div>
-<!-- <div class="applications-container">
-    <h2>My Applications</h2>
-    <% if (applications.length > 0) { %>
-        <% applications.forEach(application => { %>
-            <div class="application">
-                <h3><%= application.title %></h3>
-                <p><strong>Company:</strong> <%= application.companyName %></p>
-                <p><strong>Salary:</strong> <%= application.salary %></p>
-                <p><strong>Qualification Required:</strong> <%= application.qualificationRequired %></p>
-                <p><strong>Application Limit:</strong> <%= application.applicationLimit %></p>
-                <p><strong>Expiration Date:</strong> <%= application.expirationDate %></p>
-                <p><strong>Location:</strong> <%= application.location %></p>
-                <p><strong>Status:</strong> <%= application.status %></p>
-            </div>
-        <% }) %>
-    <% } else { %>
-        <p>No applications found</p>
-    <% } %> -->
-<!-- </div> -->
- 
- <h2>My Applications</h2>
+
 
 <% if (applications.length > 0) { %>
   <table>
     <thead>
       <tr>
         <th>Job ID</th>
+        <th>Job Title</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
         <th>Cover Letter</th>
         <th>CV</th>
         <th>Date Applied</th>
       </tr>
     </thead>
     <tbody>
-      <% applications.forEach(app => { %>
+          <% applications.forEach(application => { %>        
         <tr>
-          <td><%= app.job_id %></td>
-          <td><%= app.cover_letter %></td>
+          <td><%= application.applicationId %></td>
+          <td><%= application.jobTitle %></td>
+          <td><%= application.firstName %></td>
+          <td><%= application.lastName %></td>
+          <td><%= application.email %></td>
+          <td><%= application.coverLetter %></td>
           <td>
-            <a href="/<%= app.cv_path %>" target="_blank">View CV</a>
+            <a href="/<%= application.cvPath %>" target="_blank">View CV</a>
           </td>
-          <td><%= new Date(app.date_applied).toLocaleDateString() %></td>
+          <td><%= new Date(application.dateApplied).toLocaleDateString() %></td>
         </tr>
       <% }); %>
     </tbody>
@@ -127,3 +115,26 @@
   </div>
   </body>
   </html>
+
+
+
+
+  <!-- <div class="applications-container">
+    <h2>My Applications</h2>
+    <% if (applications.length > 0) { %>
+        <% applications.forEach(application => { %>
+            <div class="application">
+                <h3><%= application.title %></h3>
+                <p><strong>Company:</strong> <%= application.companyName %></p>
+                <p><strong>Salary:</strong> <%= application.salary %></p>
+                <p><strong>Qualification Required:</strong> <%= application.qualificationRequired %></p>
+                <p><strong>Application Limit:</strong> <%= application.applicationLimit %></p>
+                <p><strong>Expiration Date:</strong> <%= application.expirationDate %></p>
+                <p><strong>Location:</strong> <%= application.location %></p>
+                <p><strong>Status:</strong> <%= application.status %></p>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <p>No applications found</p>
+    <% } %> -->
+<!-- </div> -->

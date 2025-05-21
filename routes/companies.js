@@ -7,6 +7,7 @@ import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
 import { desc } from "drizzle-orm";
+import { graduatesTable } from "../db/schema.js";
 
 const router = express.Router();
 
@@ -271,9 +272,19 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 router.get("/applications", async (req, res) => {
   try {
     const applications = await db
-      .select()
-      .from(applicationsTable); 
-    console.log(applications);
+      .select({
+		applicationId: applicationsTable.id,
+        jobId: applicationsTable.job_id,
+        graduateId: applicationsTable.graduate_id,
+        firstName: applicationsTable.first_name,
+        lastName: applicationsTable.last_name,
+        email: applicationsTable.email,
+        coverLetter: applicationsTable.cover_letter,
+        cv: applicationsTable.cv_path
+	  })
+      .from(applicationsTable)
+	  .innerJoin(graduatesTable, eq(applicationsTable.graduate_id, graduatesTable.id))
+	  
     res.render("companies/applications", { applications });
   } catch (error) {
     console.error(error);
@@ -286,15 +297,20 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 	const { jobId } = req.params;
 	try {
 		const applications = await db
-			.select()
+			.select({
+				applicationId: applicationsTable.id,
+        		jobId: applicationsTable.job_id,
+        		First_name: applicationsTable.first_name,
+       			LastName: applicationsTable.last_name,
+        		Email: applicationsTable.email,
+        		coverLetter: applicationsTable.cover_letter,
+        		cvPath: applicationsTable.cv_path,
+        		dateApplied: applicationsTable.date_applied,
+			})
+			
 			.from(applicationsTable)
-			.innerJoin(
-				graduatesTable,
-				graduatesTable.id,
-				"=",
-				applicationsTable.company_id,
-			)
-			.where(applicationsTable.job_id, "=", jobId);
+			.innerJoin(graduatesTable,eq(applicationsTable.graduate_id, graduatesTable.id))
+			.where(eq(applicationsTable.job_id, jobId));
 
 		// Check if no applications found
 		if (applications.length === 0) {
@@ -302,8 +318,8 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 				.status(404)
 				.json({ message: "No applications found for this job." });
 		}
-
-		res.status(200).json(applications);
+		 res.render("companies/applications", { applications });
+		// res.status(200).json(applications);
 	} catch (error) {
 		console.error(err);
 		res.status(500).send({ error: "Error retrieving applications" });
