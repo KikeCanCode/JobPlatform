@@ -41,7 +41,10 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(express.static("public"));
+app.use(express.static("public")); 
+
+// make sure express serves the Cvs folder inside Uploads folder 
+app.use("/cvs", express.static("Uploads/Cvs")); // displaying 7-8 That is when it has fixed 
 
 //Routes/Endpoints
 app.use("/graduates", graduatesRoutes);
@@ -76,14 +79,6 @@ app.listen(port, () => {
 	console.log(`Server is running on port ${port}`);
 });
 
-// Dispaly Graduates Login page 
-// app.get("/graduates/login", (req, res) => {
-// 	res.render("graduates/login");
-// });
-// Diplay Graduates Sign Up page 
-// router.get("/graduates/signup", (req, res) => {
-//     res.render("graduates/signup"); 
-// });
 
 
 

@@ -3,9 +3,11 @@ import express from "express";
 import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
 import Application from "../Model/applicationsModel.js";
 
+
 const router = express.Router();
 
-router.post("/myapplications", ensureLoggedIn, async (req, res) => {
+
+router.post("/myApplications", ensureLoggedIn,  async (req, res) => {
   const {
     jobId,
     graduateId,
