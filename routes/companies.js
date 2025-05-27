@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
 import { desc } from "drizzle-orm";
 import { graduatesTable } from "../db/schema.js";
+import { date } from "drizzle-orm/mysql-core";
 
 const router = express.Router();
 
@@ -50,8 +51,8 @@ router.post("/login", (req, res) => {
 					});
 				}
 				
-			} catch (err) {
-				console.log(err) // Just notification 
+			} catch (error) {
+				console.log(error) // Just notification 
 				res.status(500).send("Error logging in");
 			}
 		});
@@ -83,8 +84,8 @@ router.post("/signup", async (req, res) => {
 
 		return res
 			.redirect("/companies/registrationForm")
-	} catch (err) { 
-		console.log(err)
+	} catch (error) { 
+		console.log(error)
 		res.status(500).send("Error creating account");
 	}
 }); 
@@ -134,8 +135,8 @@ router.get("/dashboard", ensureLoggedIn, async (req, res) => {
 			.orderBy(jobsTable.created_at, 'desc'); // Use 'desc' directly for descending order	res.render("companies/dashboard", { company: req.company });
 			
 			res.render("companies/dashboard", {company: req.company, jobs });
-		} catch (err) {
-	console.error(err);
+		} catch (error) {
+	console.error(error);
 	res.status(500).send("Something went wrong while loading the dashboard.");
 }
 });
@@ -147,8 +148,8 @@ router.get("/profile", ensureLoggedIn, async (req, res) => {
 		const company = req.company;
 
 		res.render("companies/profile", { company: company });
-	} catch (err) {
-		console.log(err)
+	} catch (error) {
+		console.log(error)
 		res.status(500).body("Internal Server Error");
 	}
 });
@@ -165,7 +166,7 @@ router.get("/updateProfile", ensureLoggedIn, async (req, res) => {
             return res.status(404).json({ error: "Company not found" });
         }
         res.render("companies/updateProfile", { company });
-    } catch (err) {
+    } catch (error) {
         res.status(500).json({ error: err.message });
     }
 });
@@ -202,7 +203,7 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => {
 		
 		res.redirect("/companies/profile"); // Redirect to the profile page after update
 
-} catch (err) {
+} catch (error) {
 		res.status(500).json({ error: err.message });
 	}
 });
@@ -217,7 +218,7 @@ router.get("/jobs", async (req, res) => {
 			.orderBy(desc(jobsTable.created_at)); // Sort newest first
 
 		res.render("jobs", { jobs }); 
-	} catch (err) {
+	} catch (error) {
 		console.error(err.message);
 		res.status(500).send({ error: "Failed to fetch jobs" });
 	}
@@ -262,8 +263,8 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 		// res.status(201).send({ message: "Job posted successfully!" });
 	// Redirect to dashboard or send response
 	res.redirect("/companies/dashboard"); 
-	} catch (err) {
-		console.error(err);
+	} catch (error) {
+		console.error(error);
 		res.status(500).send({ error: "Error posting job" });
 	}
 });
@@ -321,7 +322,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 		 res.render("companies/applications", { applications });
 		// res.status(200).json(applications);
 	} catch (error) {
-		console.error(err);
+		console.error(error);
 		res.status(500).send({ error: "Error retrieving applications" });
 	}
 });
@@ -351,7 +352,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 // 			clientSecret: paymentIntent.client_secret,
 // 			message: "Payment intent created successfully. Confirm payment to post the job!",
 // 		});
-// 	} catch (err) {
+// 	} catch (error) {
 // 		console.error(err.message);
 // 		return res.status(500).send({ error: "Error processing payment" });
 // 	}
@@ -380,7 +381,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 // 		});
 
 // 		res.status(201).send({ message: "Job posted successfully after payment!" });
-// 	} catch (err) {
+// 	} catch (error) {
 // 		console.error(err.message);
 // 		return res.status(500).send({ error: "Error confirming job post after payment" });
 // 	}
@@ -393,7 +394,9 @@ router.post("/save-job", ensureLoggedIn, async (req, res) => {
 	const companyId = req.user.id;
 
 	try {
-		await db.insert(jobsTable).values({
+		await db
+		.insert(jobsTable)
+		.values({
 			title,
 			description,
 			salary,
@@ -411,19 +414,28 @@ router.post("/save-job", ensureLoggedIn, async (req, res) => {
 
 
   // Delete Account
-  router.delete("/delete", ensureLoggedIn, async (req, res) => {
+  router.delete("/deleteAccount", ensureLoggedIn, async (req, res) => {
 	try {
 		const companyID = req.company.id;
-		await db.delete().from(companiesTable).where({ id: companyID });
+		await db
+		.update(companiesTable)
+		.set({deleted_at: new Date() }) // this will set the current date of deletion
+		.where(eq (companiesTable.id, companyID ));
 
 		req.session = null; // Delete the session after deleting the account
 
 		// TODO: Redirect to homepage?
-		res.send({ message: "company account deleted successfuly!" });
+		res.redirect('/');
+		// res.send({ message: "company account deleted successfuly!" });
 	} catch (error) {
-		console.error(err);
+		console.error(error);
 		res.status(500).send({ error: "error deleting account" });
 	}
+});
+
+// Diplay Account Deletion form 
+router.get("/deleteAccount", ensureLoggedIn, (req, res) => {
+  res.render("companies/deleteAccount"); 
 });
 
 // Integrating CAPTCHA verification
@@ -437,7 +449,7 @@ router.post("/signup", async (req, res) => {
 		if (!data.success) {
 			return res.status(400).send("CAPTCHA verification failed.");
 		}
-	} catch (err) {
+	} catch (error) {
 		res.status(500).send("CAPTCHA verification erro.");
 	}
 });

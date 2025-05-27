@@ -4,6 +4,8 @@ import cookieSession from "cookie-session";
 import dotenv from "dotenv";
 import express from "express";
 import path from "node:path"; // Node.js's built-in path module, which provides utilities for working with file and directory paths.
+import methodOverride from "method-override"; // HTML forms only support GET and POST - With method-override, POST request from HTML form. Add a hidden input in the form to "override" the method
+
 
 // import the CRUD from the routes folder for each of the entities.
 
@@ -46,6 +48,8 @@ app.use(express.static("public"));
 // make sure express serves the Cvs folder inside Uploads folder 
 app.use("/cvs", express.static("Uploads/Cvs")); // displaying 7-8 That is when it has fixed 
 
+app.use(methodOverride('_method')) // Keeps your routes RESTful. Allows you to use DELETE and PUT from standard forms (without needing AJAX or JavaScript).
+
 //Routes/Endpoints
 app.use("/graduates", graduatesRoutes);
 app.use("/companies", companiesRoutes);
@@ -53,6 +57,7 @@ app.use("/jobs", jobsRoutes);
 app.use("/applications", applicationsRoutes);
 app.use("/admin", adminRoutes);
 app.use("/payments", paymentsRoutes);
+
 
 //Diplay the homepage
 app.get("/", (req, res) => {

@@ -1,0 +1,42 @@
+/* Form Container  */
+form {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+/* Confirmation message */
+form h2 {
+  margin-bottom: 25px;
+  color: #333;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  background-color: #fd8e18;
+  color: rgb(11, 11, 11);
+  padding: 10px 15px;
+  margin-top: 20px;
+  margin-right: 10px; /* spacing between buttons */
+  text-decoration: none;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #c46704;
+}
+
+/* Make the "No" link look like a button */
+a.btn {
+  line-height: 1.5;
+}
