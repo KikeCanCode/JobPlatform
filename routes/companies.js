@@ -425,7 +425,7 @@ router.post("/save-job", ensureLoggedIn, async (req, res) => {
 		req.session = null; // Delete the session after deleting the account
 
 		// TODO: Redirect to homepage?
-		res.redirect('/');
+		res.redirect("/");
 		// res.send({ message: "company account deleted successfuly!" });
 	} catch (error) {
 		console.error(error);

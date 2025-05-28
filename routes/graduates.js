@@ -159,7 +159,7 @@ router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), asy
       });
 
       res.redirect("/graduates/myApplications");
-    } catch (err) {
+    } catch (error) {
       console.error( err);
       res.status(500).send("An error occurred while applying.");
     }
@@ -174,8 +174,8 @@ router.get("/myApplications", ensureLoggedIn, async (req, res) => {
   try {
     const applications = await Application.getApplicationByGraduate(graduateId);
     res.render("graduates/myApplications", { applications });
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: err.message });
   }
 });
@@ -204,8 +204,8 @@ router.post("/signup", async (req, res) => {
 
 		return res
 			.redirect("/graduates/registrationForm")
-	} catch (err) {
-		console.log(err)
+	} catch (error) {
+		console.log(error)
 		res.status(500).send("Error creating account");
 	}
 });
@@ -258,8 +258,8 @@ router.get("/dashboard", ensureLoggedIn, async (req, res) => { // Working - prin
 			.orderBy(applicationsTable.date_applied, 'desc'); 
 
 		res.render("graduates/dashboard", { graduate: req.graduate, applications });
-	} catch (err) {
-		console.error(err);
+	} catch (error) {
+		console.error(error);
 		res.status(500).send("Error loading dashboard.");
 	}
 
@@ -272,8 +272,8 @@ router.get("/profile", ensureLoggedIn, async (req, res) => {
 		const graduate = req.graduate;
 
 		res.render("graduates/profile", { graduate: graduate });
-	} catch (err) {
-		console.log(err)
+	} catch (error) {
+		console.log(error)
 		res.status(500).body("Internal Server Error");
 	}
 });
@@ -287,7 +287,7 @@ router.get("/updateProfile", ensureLoggedIn, async (req, res) => {
             return res.status(404).json({ error: "graduate not found" });
         }
 		res.render("graduates/updateProfile", { graduate });
-	    } catch (err) {
+	    } catch (error) {
         res.status(500).json({ error: err.message });
     }
 });
@@ -328,9 +328,9 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 		}
 		// res.json({ message: "Graduate profile updated successfully!" });
 		
-		res.redirect("/graduates/profile"); // Redirect to the profile page after update	} catch (err) {
-		} catch (err) {
-			console.log(err)
+		res.redirect("/graduates/profile"); // Redirect to the profile page after update	} catch (error) {
+		} catch (error) {
+			console.log(error)
 		res.status(500).json({ error: err.message });
 
 	}
@@ -379,17 +379,26 @@ router.post("/upload-certificate", upload.single("certificate"), async (req, res
 
 //Delete Graduate Account
 
-router.delete("/delete", ensureLoggedIn, async (req, res) => {
+router.delete("/deleteAccount", ensureLoggedIn, async (req, res) => {
 	try {
+		const graduateID = req.graduate.id;
 		await db
-			.delete()
-			.from(graduatesTable)
-			.where({ id: req.graduateId });
-		res.send({ message: "Graduate account deleted successfuly!" });
+			.update(graduatesTable)
+			.set({deleted_at: new Date() })
+			.where(eq(graduatesTable.id, req.graduateID ));
+			
+			req.session = null; // Delete the session after deleting the account
+
+		res.redirect("/");
 	} catch (error) {
-		console.error(err);
+		console.error(error);
 		res.status(500).send({ error: "error deleting account" });
 	}
+});
+
+// Diplay Account Deletion form 
+router.get("/deleteAccount", ensureLoggedIn, (req, res) => {
+  res.render("graduates/deleteAccount"); 
 });
 
 // Integrating CAPTCHA verification
@@ -403,7 +412,7 @@ router.post("/signup", async (req, res) => {
 		if (!data.success) {
 			return res.status(400).send("CAPTCHA verification failed.");
 		}
-	} catch (err) {
+	} catch (error) {
 		res.status(500).send("CAPTCHA verification erro.");
 	}
 });
@@ -505,7 +514,7 @@ export default router;
 // 			.innerJoin(jobsTable, eq(applicationsTable.job_id, jobsTable.id)) //jobsTable.job_id: Refers to the column job_id in the jobsTable (database).
 // 			.where(eq(applicationsTable.graduate_id, graduateId));
 // 		res.render("graduates/myApplications", { applications }); // aplication is aproperty - result is any
-// 	} catch (err) {
+// 	} catch (error) {
 // 		res.status(500).json({ error: err.message });
 // 	}
 // });
