@@ -244,20 +244,13 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 	}
 });
 
-//Display Graduates Dashboard
-router.get("/dashboard", ensureLoggedIn, async (req, res) => { // Working - printing job applications 
+//Display Graduates Dashboard - Previous Version on DeleteAccount Branch
+router.get("/dashboard", ensureLoggedIn, async (req, res) => { // Working - printing job applications - 
 	try {
 		const graduateId = req.graduate.id;
 
-		const applications = await db
-			.select()
-			.from(applicationsTable)
-			.innerJoin(jobsTable, 
-				eq(applicationsTable.job_id, jobsTable.id))
-			.where(eq(applicationsTable.graduate_id, graduateId))
-			.orderBy(applicationsTable.date_applied, 'desc'); 
+		res.render("graduates/dashboard", { graduate: req.graduate });
 
-		res.render("graduates/dashboard", { graduate: req.graduate, applications });
 	} catch (error) {
 		console.error(error);
 		res.status(500).send("Error loading dashboard.");
@@ -418,10 +411,10 @@ router.post("/signup", async (req, res) => {
 });
 
 //Logout Route - this destroys session and redirects to login
-router.get("/logout", (req, res) => {
-	req.session.destroy(() => {
-		res.redirect("/graduates/login");
-	});
+router.get("/logout", ensureLoggedIn, (req, res) => {
+	req.session = null
+	res.redirect("/graduates/login");
+
 });
 
 export default router;

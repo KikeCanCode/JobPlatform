@@ -36,8 +36,12 @@
     <input type="text" name="query" class="search-input" placeholder="Search for jobs...">
     <button type="submit" class="search-btn">Search</button>
   </form>
+</div>
+<br>
+<br>
+<br>
 
-<!-- | -->
+
   <div class="login-divider">
     <a href="/graduates/savedJobs" class="login-link">Saved Jobs</a>     <span class="divider">|</span>
     <a href="/graduates/myApplications" class="login-link"> My Applications </a> 
@@ -46,36 +50,41 @@
     <a href="/graduates/profile">
     <i class="fas fa-user-circle" style="font-size: 50px; color: #d89837;"></i> 
     </a>
+    <a href="/graduates/logout" style="text-decoration: none; color: #030303;"> 
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
   </div>
-</div>
-<hr>
 <br>
 <br>
 <br>
-
+<div class="colored-block">
 <div class="heading">
 <h1>Welcome To Your Dashboard</h1>
 </div>
+</div>
 <br>
 <br>
 <br>
-<h2>My Job Applications</h2>
+<!-- check deleteAccount branch for displaying job list on the dashboard -->
 
-<% if (applications.length > 0) { %>
-  <ul>
-    <% applications.forEach(app => { %>
-      <li>
-        <strong><%= app.jobTitle %></strong><br>
-        <span><%= app.jobDescription %></span><br>
-        <em>Location:</em> <%= app.location %> |
-        <em>Salary:</em> £<%= app.salary %><br>
-        <small>Applied on: <%= new Date(app.appliedAt).toLocaleDateString() %></small>
-      </li>
-    <% }) %>
-  </ul>
-<% } else { %>
-  <p>You haven't applied for any jobs yet.</p>
-<% } %>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 <br>
 <br>
 <br>

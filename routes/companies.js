@@ -123,18 +123,11 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 
 //Display companies Dashboard - Updated to dispay posted jobs to the dashboard
 router.get("/dashboard", ensureLoggedIn, async (req, res) => {
-	// console.log(req.company);
 	try {
 		const companyId = req.company.id;
-		
-		// Fetch only jobs posted by this company
-		const jobs = await db
-			.select()
-			.from(jobsTable)
-			.where(eq(jobsTable.company_id, companyId))
-			.orderBy(jobsTable.created_at, 'desc'); // Use 'desc' directly for descending order	res.render("companies/dashboard", { company: req.company });
 			
-			res.render("companies/dashboard", {company: req.company, jobs });
+			res.render("companies/dashboard", {company: req.company });
+
 		} catch (error) {
 	console.error(error);
 	res.status(500).send("Something went wrong while loading the dashboard.");
