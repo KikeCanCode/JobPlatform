@@ -3,6 +3,7 @@ import {
 	mysqlTable,
 	serial,
 	varchar,
+	text,
 	timestamp,
 	decimal,
 } from "drizzle-orm/mysql-core";
@@ -47,7 +48,7 @@ export const jobsTable = mysqlTable("jobs", {
 	id: serial().primaryKey(),
 	company_id: int().notNull(), // Foreign key referencing companies.id
 	title: varchar({ length: 255 }).notNull(),
-	job_description: varchar({ length: 1000 }).notNull(),
+	job_description: text().notNull(),
 	location: varchar({ length: 255 }),
 	salary: varchar({ length: 100 }),
 	created_at: timestamp().defaultNow(), // Automatically set to the current timestamp

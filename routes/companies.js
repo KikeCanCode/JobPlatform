@@ -123,11 +123,18 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 
 //Display companies Dashboard - Updated to dispay posted jobs to the dashboard
 router.get("/dashboard", ensureLoggedIn, async (req, res) => {
+	// console.log(req.company);
 	try {
 		const companyId = req.company.id;
+		
+		// Fetch only jobs posted by this company
+		const jobs = await db
+			.select()
+			.from(jobsTable)
+			.where(eq(jobsTable.company_id, companyId))
+			.orderBy(jobsTable.created_at, 'desc'); // Use 'desc' directly for descending order	res.render("companies/dashboard", { company: req.company });
 			
-			res.render("companies/dashboard", {company: req.company });
-
+			res.render("companies/dashboard", {company: req.company, jobs });
 		} catch (error) {
 	console.error(error);
 	res.status(500).send("Something went wrong while loading the dashboard.");
@@ -384,7 +391,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 //Save the payment into the Database after payment confirmation
 router.post("/save-job", ensureLoggedIn, async (req, res) => {
 	const { title, description, salary, location } = req.body;
-	const companyId = req.user.id;
+	const companyId = req.session.companyId;
 
 	try {
 		await db
@@ -401,10 +408,67 @@ router.post("/save-job", ensureLoggedIn, async (req, res) => {
 		res.status(201).json({ message: "Job posted successfully!" });
 	} catch (error) {
 		console.error(error);
-		res.status(500).json({ error: "Failed to save job" });
+		res.status(500).send({ error: "Failed to save job" });
 	}
 });
 
+//Update an existing job
+router.post("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
+	const {
+		title,
+		job_description,
+		salary,
+		location,
+		qualification_required: qualificationRequired,
+		application_limit: applicationLimit,
+		expiration_date: expirationDate,
+	} = req.body;
+
+	const jobId = req.params.id;
+
+	try {
+		await db
+		.update(jobsTable)
+		.set({
+			title,
+			job_description,
+			salary,
+			location,
+			qualification_required: qualificationRequired,
+			application_limit: applicationLimit ? Number.parseInt(applicationLimit) : null,
+			expiration_date: expirationDate ? new Date(expirationDate) : null,
+			})
+
+			.where(eq(jobsTable.id, jobId)); 
+		res.redirect("/companies/dashboard"); 
+
+	} catch (error) {
+		console.error(error);
+		res.status(500).send({ error: "Failed to update job" });
+	}
+});
+
+// Display job update form 
+router.get("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
+	const jobId = req.params.id;
+
+	try {
+		const job = await db
+			.select()
+			.from(jobsTable)
+			.where(eq(jobsTable.id, jobId))
+			.then(rows => rows[0]);
+
+		if (!job) {
+			return res.status(404).send("Job not found");
+		}
+
+		res.render("jobs/updateJobs", { job }); // Assuming your form is in views/editJob.ejs
+	} catch (error) {
+		console.error(error);
+		res.status(500).send("Error loading job");
+	}
+});
 
   // Delete Account
   router.delete("/deleteAccount", ensureLoggedIn, async (req, res) => {
@@ -452,4 +516,5 @@ router.get("/logout", (req, res) => {
 	req.session = null;
 	res.redirect("/companies/login");
 });
+
 export default router;
