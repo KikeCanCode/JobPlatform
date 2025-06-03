@@ -6,11 +6,12 @@ import Application from "../Model/applicationsModel.js";
 
 const router = express.Router();
 
-
+// Graduate Application Submission
 router.post("/myApplications", ensureLoggedIn,  async (req, res) => {
+  const graduateId = req.session.graduateId;
   const {
     jobId,
-    graduateId,
+    // graduateId,
     firstName,
     lastName,
     email,
@@ -19,23 +20,32 @@ router.post("/myApplications", ensureLoggedIn,  async (req, res) => {
   } = req.body;
 
   try {
-    const application = await Application.createApplication({
-      job_id: jobId,
-      graduate_id: graduateId,
-      first_name: firstName,
-      last_name: lastName,
-      email: email,
-      cover_letter: coverLetter,
-      cv_path: cvPath,
+     await Application.createApplication({
+      // job_id: jobId,
+      // graduate_id: graduateId,
+      // first_name: firstName,
+      // last_name: lastName,
+      // email: email,
+      // cover_letter: coverLetter,
+      // cv_path: cvPath,
+      jobId,
+			graduateId,
+			firstName,
+			lastName,
+			email,
+			coverLetter,
+			cvPath,
+      date_applied: new Date(),
     
     });
 
-    res.status(201).json(application);
+    res.redirect("/graduates/myApplications");
   } catch (err) {
     console.error(err);
     res.status(500).send({ error: "Error creating application." });
   }
 });
+
 
 //Get applications by Graduates - Recruiters
 
@@ -43,7 +53,7 @@ router.get("/graduates/:graduateId", ensureLoggedIn, async (req, res) => {
 	const { graduateId } = req.params;
 
 	try {
-		const applications = await Application.getApplicationByGraduate(graduateId);
+		const applications = await Application.getApplicationByGraduate(Number(graduateId));
 		// res.status(200).json(applications);
 		res.render("graduates/myApplications", { applications });
 	} catch (err) {

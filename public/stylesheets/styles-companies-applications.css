@@ -55,7 +55,7 @@
   .applications-list th,
   .applications-list td,
   .applications-list tr {
-    display: block;
+    display: flex;
   }
 
   .applications-list thead {

@@ -269,9 +269,10 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 	}
 });
 
-// Display Applications Received 
+// Display Applications Received - only for the company who posted the job 
 router.get("/applications", async (req, res) => {
   try {
+	const companyId = req.session.companyId;
     const applications = await db
       .select({
 		applicationId: applicationsTable.id,
@@ -284,7 +285,10 @@ router.get("/applications", async (req, res) => {
         cv: applicationsTable.cv_path
 	  })
       .from(applicationsTable)
-	  .innerJoin(graduatesTable, eq(applicationsTable.graduate_id, graduatesTable.id))
+	  .innerJoin(graduatesTable, eq(applicationsTable.graduate_id, graduatesTable.id)) // Retrieving graduates application detail 
+	  .innerJoin(jobsTable, eq(applicationsTable.job_id, jobsTable.id)) // Joining graduates, application and job 
+      .where(eq(jobsTable.company_id, companyId)); // Filter by company’s ID
+
 	  
     res.render("companies/applications", { applications });
   } catch (error) {
@@ -296,6 +300,7 @@ router.get("/applications", async (req, res) => {
 //Review applications
 router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 	const { jobId } = req.params;
+	const companyId = req.session.companyId;
 	try {
 		const applications = await db
 			.select({
@@ -311,8 +316,12 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 			
 			.from(applicationsTable)
 			.innerJoin(graduatesTable,eq(applicationsTable.graduate_id, graduatesTable.id))
-			.where(eq(applicationsTable.job_id, jobId));
-
+			.where(
+				 and(
+					eq(applicationsTable.job_id, jobId),
+						 eq(jobsTable.company_id, companyId)
+        )
+      );
 		// Check if no applications found
 		if (applications.length === 0) {
 			return res

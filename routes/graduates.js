@@ -5,7 +5,7 @@ import express from "express";
 import multer from "multer"; // Multer is a node.js middleware for handling multipart/form-data, which is primarily usedused to uplode file
 import fetch from "node-fetch";
 import db from "../db/index.js"; // Drizzle Orm Connection
-import { applicationsTable, graduatesTable, jobsTable } from "../db/schema.js";
+import { applicationsTable, graduatesTable, jobsTable, companiesTable } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
 import Application from "../Model/applicationsModel.js";
@@ -179,6 +179,7 @@ router.get("/myApplications", ensureLoggedIn, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 // Display Graduates Sign-Up Page
 router.get("/signup", (req, res) => {
 	res.render("graduates/signup");

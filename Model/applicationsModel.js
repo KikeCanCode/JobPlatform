@@ -1,5 +1,5 @@
 import db from "../db/index.js";
-import { applicationsTable, graduatesTable, jobsTable} from "../db/schema.js"; // Import the table schema
+import { applicationsTable, graduatesTable, jobsTable, companiesTable} from "../db/schema.js"; // Import the table schema
 import { eq } from "drizzle-orm";
 
 class Application {
@@ -17,7 +17,7 @@ class Application {
         .insert(applicationsTable)
         .values({
             job_id: Number(jobId),
-            graduate_id: graduateId,
+            graduate_id: Number(graduateId),
             first_name: firstName,
             last_name: lastName,
             email: email,
@@ -41,6 +41,8 @@ class Application {
         applicationId: applicationsTable.id,
         jobId: applicationsTable.job_id,
         jobTitle: jobsTable.title,
+        company_name: companiesTable.company_name,   
+        location: jobsTable.location,                 
         firstName: applicationsTable.first_name,     
         lastName: applicationsTable.last_name,      
         email: applicationsTable.email, 
@@ -50,6 +52,7 @@ class Application {
       })
         .from(applicationsTable)
         .innerJoin(jobsTable, eq(applicationsTable.job_id, jobsTable.id))
+        .innerJoin(companiesTable, eq(companiesTable.id, jobsTable.company_id))
         .where(eq(applicationsTable.graduate_id, graduateId));
 
         return result;
@@ -79,7 +82,7 @@ static async deleteApplication(applicationId) {
             .delete(applicationsTable)
             .where(eq(applicationsTable.id, applicationId));
 
-        return { success: true, message: "Application deleted successfully!" };
+        return { message: "Application deleted successfully!" };
     } catch (err) {
         throw new Error(`Error deleting application: ${err.message}`);
         }

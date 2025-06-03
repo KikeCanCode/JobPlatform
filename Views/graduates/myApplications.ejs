@@ -58,42 +58,40 @@
 <div class="heading">
 <h1> My Applications </h1>
 </div>
-
-
 <% if (applications.length > 0) { %>
-  <table>
-    <thead>
-      <tr>
-        <th>Job ID</th>
-        <th>Job Title</th>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>Email</th>
-        <th>Cover Letter</th>
-        <th>CV</th>
-        <th>Date Applied</th>
-      </tr>
-    </thead>
-    <tbody>
-          <% applications.forEach(application => { %>        
-        <tr>
-          <td><%= application.applicationId %></td>
-          <td><%= application.jobTitle %></td>
-          <td><%= application.firstName %></td>
-          <td><%= application.lastName %></td>
-          <td><%= application.email %></td>
-          <td><%= application.coverLetter %></td>
-          <td>
-            <a href="/<%= application.cvPath %>" target="_blank">View CV</a>
-          </td>
-          <td><%= new Date(application.dateApplied).toLocaleDateString() %></td>
-        </tr>
-      <% }); %>
-    </tbody>
-  </table>
+  <% applications.forEach(application => { %>
+    <div class="application">
+      <h3>Applied</h3>
+      <p><strong>Job Title:</strong> <%= application.jobTitle %></p>
+      <p><strong>Company:</strong> <%= application.company_name %></p>
+      <p><strong>Location:</strong> <%= application.location %></p>
+      <p> Applied on <%= new Date(application.dateApplied).toLocaleDateString('en-GB') %></p>
+    </div>
+  <% }) %>
 <% } else { %>
   <p>You have not applied for any jobs yet.</p>
 <% } %>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 <br>
 <br>
 <br>
