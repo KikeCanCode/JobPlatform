@@ -316,6 +316,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 			
 			.from(applicationsTable)
 			.innerJoin(graduatesTable,eq(applicationsTable.graduate_id, graduatesTable.id))
+			.innerJoin(jobsTable, eq(applicationsTable.job_id, jobsTable.id))
 			.where(
 				 and(
 					eq(applicationsTable.job_id, jobId),
@@ -482,11 +483,11 @@ router.get("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
   // Delete Account
   router.delete("/deleteAccount", ensureLoggedIn, async (req, res) => {
 	try {
-		const companyID = req.company.id;
+		const companyId = req.company.id;
 		await db
 		.update(companiesTable)
 		.set({deleted_at: new Date() }) // this will set the current date of deletion
-		.where(eq (companiesTable.id, companyID ));
+		.where(eq (companiesTable.id, companyId ));
 
 		req.session = null; // Delete the session after deleting the account
 

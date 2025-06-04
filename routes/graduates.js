@@ -375,11 +375,11 @@ router.post("/upload-certificate", upload.single("certificate"), async (req, res
 
 router.delete("/deleteAccount", ensureLoggedIn, async (req, res) => {
 	try {
-		const graduateID = req.graduate.id;
+		const graduateId = req.graduate.id;
 		await db
 			.update(graduatesTable)
 			.set({deleted_at: new Date() })
-			.where(eq(graduatesTable.id, req.graduateID ));
+			.where(eq(graduatesTable.id, req.graduateId ));
 			
 			req.session = null; // Delete the session after deleting the account
 
