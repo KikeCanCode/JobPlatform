@@ -2,25 +2,63 @@
 .hero-block {
   background-color: #fd8e18; 
   color: white;
-  height: 400px;
+  height: 500px;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
+  text-align: left;
   position: relative;
+}
+.overlay {
+  width: 100%;
+  height: 30%;
 }
 
 .hero-text h1 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   margin: 0;
 }
 
 .hero-text p {
-  font-size: 1.2rem;
+  font-size: 14pt;
   margin-top: 10px;
 } 
+.hero-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  width: 90%;
+  margin: 0 auto;
+}
 
+.hero-text {
+  flex: 1;
+}
+.cta-button {
+  display: inline-block;
+  background-color: white;
+  color: #fd8e18;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
 
+.cta-button:hover {
+  background-color: #ffe2c4;
+}
+
+.hero-image {
+  flex: 1;
+  text-align: right;
+}
+
+.hero-image img {
+  max-height: 300px;
+  width: auto;
+}
 /* Banner container styling */
 /* .banner {
   position: relative;
@@ -127,6 +165,22 @@ main {
   background-color: #fca951; /* Darker color on hover */
 }
 
+.message {
+  width: 50%;
+  text-align: center;
+  padding: 10px;
+  margin: auto;
+
+}
+
+.message h1 {
+  font-size: 3rem;
+}
+.message p {
+  font-size: 14pt;
+  text-align: center;
+  color: #323232;
+}
 /* footer section */
 .footer-band {
   width: 100%;
