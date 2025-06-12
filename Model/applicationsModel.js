@@ -33,7 +33,7 @@ class Application {
         }
  }
 
- // Method to retrieve applications by graduateId
+// Method to retrieve applications by graduateId
  static async getApplicationByGraduate(graduateId) {
     try {
         const result = await db
@@ -63,6 +63,7 @@ class Application {
     }
 
  }
+
 //Get Applications by Job (for recruiters)
  static async getApplicationsByJob(jobId) {
   try {

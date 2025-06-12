@@ -45,8 +45,10 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 			qualification_required: qualificationRequired,
 			application_limit: applicationLimit ? Number.parseInt(applicationLimit) : null,
 			expiration_date: expirationDate ? new Date(expirationDate) : null,
+			is_active: true, // this ensures the job is active upon creation
 			
 		});
+
 		// Redirect to dashboard or send response
 	res.redirect("/companies/dashboard"); 
 	} catch (err) {
@@ -58,7 +60,7 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 //Display all jobs Routes (General Job Listing)
 router.get("/jobsList", async (req, res) => { // url endpont no need to add folder name
     try {
-        const jobs = await Job.findAll(); // ORM approach for fetching all jobs
+        const jobs = await Job.findAll({ where: { is_active: true } }); // - fetch active jobs only -  ORM approach for fetching all jobs
         res.render("jobs/jobsList", { jobs });
     } catch (err) {
         console.error("Error fetching job list:", err);
@@ -73,9 +75,12 @@ router.get("/jobsDetails/:jobId", async (req, res) => {
     const jobResult = await db
       .select()
       .from(jobsTable)
-      .where(eq(jobsTable.id, jobId));
-
-    const job = jobResult[0];
+      .where(
+		and(
+		eq(jobsTable.id, jobId),
+		eq(jobsTable.is_active, true)) );
+    
+	const job = jobResult[0];
 
     if (!job) {
       return res.status(404).send("Job not found");
@@ -163,24 +168,49 @@ router.post("/updateJobs/:id", ensureLoggedIn, async (req, res) => { // Not work
 });
 
 // Get a single job by ID
+// router.get("/jobs/:id", async (req, res) => {
+//     const jobId = req.params.id;
+
+//     try {
+//         const job = await Job.findById(jobId); // ORM approach to get job by ID
+
+//         if (!job) {
+//             return res.status(404).send({ error: "Job not found" });
+//         }
+
+//         res.render("jobs/jobsDetails", {job});
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send({ error: "Error fetching job details" });
+//     }
+// });
+
 router.get("/jobs/:id", async (req, res) => {
-    const jobId = req.params.id;
+    const jobId = Number(req.params.id);
 
     try {
-        const job = await Job.findById(jobId); // ORM approach to get job by ID
+        const jobResult = await db
+            .select()
+            .from(jobsTable)
+            .where(
+                and(
+                    eq(jobsTable.id, jobId),
+                    eq(jobsTable.is_active, true)
+                )
+            );
+
+        const job = jobResult[0];
 
         if (!job) {
-            return res.status(404).send({ error: "Job not found" });
+            return res.status(404).send({ error: "Job not found or inactive" });
         }
 
-        res.render("jobs/jobsDetails", {job});
+        res.render("jobs/jobsDetails", { job });
     } catch (err) {
         console.error(err);
         res.status(500).send({ error: "Error fetching job details" });
     }
 });
-
-
 
 // Get All Jobs by a Company - Ensure logged-in
 router.get("/postedJobs", ensureLoggedIn, async (req, res) => {
@@ -229,7 +259,7 @@ router.patch("/:jobId/status", ensureLoggedIn, async (req, res) => {
 		// Update job status
 		const result = await db
 			.update(jobsTable)
-			.set({ status })
+			.set({ status, is_active: status !== "Closed" && status !== "Expired" }) // 
 			.where(eq(jobsTable.id, jobId))
 			.execute();
 
@@ -249,8 +279,8 @@ router.get("/jobsList", async (req, res) => {
 	const { title, location, skills, education, datePosted } = req.query;
 	// Start with the base query
 	
-	let query = Job.query(); // Replace with your ORM's method for starting a query
-
+	// let query = Job.query(); // Replace with your ORM's method for starting a query
+	let query = Job.query().where("is_active", true);
 	// Dynamically build query based on filters provided in query params
 	if (title) {
         query = query.where("title", "LIKE", `${title}%`); 

@@ -42,7 +42,7 @@ router.post("/myApplications", ensureLoggedIn,  async (req, res) => {
 
 //Get applications by Graduates - Recruiters
 
-router.get("/graduates/:graduateId", ensureLoggedIn, async (req, res) => {
+router.get("/graduates/graduateId", ensureLoggedIn, async (req, res) => { // "/graduates/:graduateId" - this was displaying applications by all graduates
 	const { graduateId } = req.params;
 
 	try {

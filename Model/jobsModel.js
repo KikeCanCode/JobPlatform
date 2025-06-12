@@ -35,7 +35,8 @@ class Job {
 					qualification_required: qualificationRequired,
 					application_limit: applicationLimit ? Number.parseInt(applicationLimit) : null,
 					expiration_date: expirationDate ? new Date(expirationDate) : null,
-					
+					is_active: true, // mark job as active
+  					last_activity_at: new Date(), // set initial activity timestamp
 				})
 				.execute();
 			return result;
@@ -44,6 +45,14 @@ class Job {
 		}
 	}
 
+	// Get applications for a specific graduate, sorted by newest first
+async getApplicationByGraduate(graduateId) {
+    return await db
+      .select()
+      .from(applicationsTable)
+      .where(eq(applicationsTable.graduate_id, graduateId))
+      .orderBy(desc(applicationsTable.date_applied));
+  }
 // Find All Jobs - (Genaeal Job Listing)
 static async findAll() {
 	try {

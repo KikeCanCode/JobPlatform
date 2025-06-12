@@ -6,6 +6,9 @@ import {
 	text,
 	timestamp,
 	decimal,
+	boolean,
+
+
 } from "drizzle-orm/mysql-core";
 
 // Graduates Table
@@ -55,6 +58,9 @@ export const jobsTable = mysqlTable("jobs", {
 	qualification_required: varchar({ length: 500 }), // Added field
 	application_limit: int(), // Added field (assuming it's a number, adjust type if needed)
 	expiration_date: timestamp(), // Added field
+	is_active: boolean().default(true).notNull(), // Handle application limit
+	// last_activity_at: timestamp().defaultNow().notNull(),
+
 });
 
 // Applications Table
