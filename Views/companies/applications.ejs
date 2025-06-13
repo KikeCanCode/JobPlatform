@@ -32,6 +32,8 @@
 <div class="header-container">
   <!-- | -->
   <div class="login-divider">
+    <a href="/companies/dashboard" class="login-link"> Go to Dashborad </a> 
+
     <a href="/jobs/post-jobs" class="login-link"> Posted Jobs</a>     <span class="divider">|</span>
     <a href="/companies/applications" class="login-link"> Applications </a> 
     <!-- Profile icon -->
@@ -67,8 +69,8 @@
       <td><%= application.lastName %></td>
       <td><%= application.email %></td>
       <td><%= application.coverLetter %></td>
-      <!-- <td><a href="/uploads/<%= application.cvPath %>" target="_blank">View CV</a></td> -->
-      <td><a href="/uploads/<%= application.cvPath %>" target="_download">View CV</a></td>
+      <td><a href="/cvs/<%= application.cvPath %>" target="_blank">View CV</a></td>
+      <!-- <td><a href="/cvs/<%= application.cvPath %>" target="_download">View CV</a></td> -->
 
       <td><%= application.jobId %></td>
       <td><%= application.graduateId %></td>

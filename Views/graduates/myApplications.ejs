@@ -63,7 +63,9 @@
   <% applications.forEach(application => { %>
     <div class="application">
       <h3>Applied</h3>
-      <p><strong>Job Title:</strong> <%= application.jobTitle %></p>
+      <p><strong>Job Title:</strong> 
+        <a href="/jobs/<%= application.jobId %>"></a> <!-- Display the job details-->
+        <%= application.jobTitle %></p>
       <p><strong>Company:</strong> <%= application.company_name %></p>
       <p><strong>Location:</strong> <%= application.location %></p>
       <p> Applied on <%= new Date(application.dateApplied).toLocaleDateString('en-GB') %></p>
