@@ -191,16 +191,12 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => {
 				company_address: companyAddress,
 				company_profile: companyProfile,
 			})
-			// .where("id", req.company.id)
 			.where(eq(companiesTable.id, req.company.id))
 			.execute();
 
-		if (results.affectedRows === 0) {
-			//If affectedRows is 0, it means that no rows in the database were updated,
+		if (results.affectedRows === 0) { //If affectedRows is 0, it means that no rows in the database were updated,
 			return res.status(404).json({ error: "Company not found" });
-		}
-//		res.json({ message: "Company details updated successfully!" });
-		
+		}		
 		res.redirect("/companies/profile"); // Redirect to the profile page after update
 
 } catch (error) {
@@ -260,8 +256,6 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 			 
 		});
 
-		// res.status(201).send({ message: "Job posted successfully!" });
-	// Redirect to dashboard or send response
 	res.redirect("/companies/dashboard"); 
 	} catch (error) {
 		console.error(error);
@@ -317,6 +311,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 			.from(applicationsTable)
 			.innerJoin(graduatesTable,eq(applicationsTable.graduate_id, graduatesTable.id))
 			.innerJoin(jobsTable, eq(applicationsTable.job_id, jobsTable.id))
+
 			.where(
 				 and(
 					eq(applicationsTable.job_id, jobId),

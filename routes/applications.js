@@ -21,13 +21,6 @@ router.post("/myApplications", ensureLoggedIn,  async (req, res) => {
 
   try {
      await Application.createApplication({
-      // job_id: jobId,
-      // graduate_id: graduateId,
-      // first_name: firstName,
-      // last_name: lastName,
-      // email: email,
-      // cover_letter: coverLetter,
-      // cv_path: cvPath,
       jobId,
 			graduateId,
 			firstName,
@@ -49,7 +42,7 @@ router.post("/myApplications", ensureLoggedIn,  async (req, res) => {
 
 //Get applications by Graduates - Recruiters
 
-router.get("/graduates/:graduateId", ensureLoggedIn, async (req, res) => {
+router.get("/graduates/graduateId", ensureLoggedIn, async (req, res) => { // "/graduates/:graduateId" - this was displaying applications by all graduates
 	const { graduateId } = req.params;
 
 	try {

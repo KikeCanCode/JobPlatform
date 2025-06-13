@@ -65,25 +65,6 @@ static async login(email, password) {
 	}
 }
 
-// Post a Job without paymnet 
-/*static async postJob(companyId, title, description, salary, location) {
-	try {
-		const result = await db
-			.insert("jobs")
-			.values({
-				title,
-				description,
-				salary,
-				location,
-				company_id: companyId,
-				})
-			.returning("*");
-
-			return result;
-		} catch (err) {
-			throw new Error(`Error posting job: ${err.message}`);
-		}
-	}*/
 
 // Review Applications
 static async reviewApplications(jobId) {

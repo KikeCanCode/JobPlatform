@@ -133,7 +133,35 @@ router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), asy
     // const cvPath = req.file?.path; - this adds a number to the cv'name 
  	const cvPath = `cvs/${req.file.filename}`; // cleaner path - just cv's name
     try {
-		 // Fetch graduate details using graduateId
+
+		// 1. Get job details
+    const job = await db
+	  .select()
+	  .from(jobsTable)
+	  .where(eq(jobsTable.id, jobId))
+	  .then(rows => rows[0]); 
+
+    if (!job || !job.is_active) {
+      return res.status(400).send("This job is no longer accepting applications.");
+    }
+	// 2. Count current applications
+    const existingApplications = await db
+      .select()
+      .from(applicationsTable)
+      .where(eq(applicationsTable.job_id, jobId));
+
+    if (
+      job.application_limit && existingApplications.length >= job.application_limit ) {
+
+      // 3. Mark job as inactive
+      await db
+        .update(jobsTable)
+        .set({ is_active: false })
+        .where(eq(jobsTable.id, jobId));
+
+      return res.status(400).send("This job has reached its application limit.");
+    }
+		// 4. Fetch graduate details using graduateId
     const graduate = await db
       .select()
       .from(graduatesTable)
@@ -143,7 +171,8 @@ router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), asy
     if (!graduate) {
       return res.status(404).send("Graduate not found");
     }
-	  // Save the application
+
+	  //5. Save the application
       	await db
 	  	.insert(applicationsTable)
 	  	.values({
@@ -160,7 +189,7 @@ router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), asy
 
       res.redirect("/graduates/myApplications");
     } catch (error) {
-      console.error( err);
+      console.error( error);
       res.status(500).send("An error occurred while applying.");
     }
   }
@@ -379,7 +408,7 @@ router.delete("/deleteAccount", ensureLoggedIn, async (req, res) => {
 		await db
 			.update(graduatesTable)
 			.set({deleted_at: new Date() })
-			.where(eq(graduatesTable.id, req.graduateId ));
+			.where(eq(graduatesTable.id, req.graduateId));
 			
 			req.session = null; // Delete the session after deleting the account
 
