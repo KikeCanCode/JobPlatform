@@ -204,8 +204,12 @@ router.get("/jobs/:id", async (req, res) => {
         if (!job) {
             return res.status(404).send({ error: "Job not found or inactive" });
         }
+		 // Check if the graduate is logged in
+    const isLoggedIn = !!req.session?.graduateId; //Use isLoggedIn when rendering public pages like job details so you can show/hide UI options.
 
-        res.render("jobs/jobsDetails", { job });
+        // res.render("jobs/jobsDetails", { job });
+		res.render("jobs/jobsDetails", { job, isLoggedIn });
+
     } catch (err) {
         console.error(err);
         res.status(500).send({ error: "Error fetching job details" });
