@@ -27,10 +27,12 @@
     <h1>Login as Graduate</h1>
     
    <% if (error) { %>
+    
   <p class="error-message"><%= error %></p>
 <% } %>
      <form action="/graduates/login" method="post">  
-      <input type="hidden" name="redirect" value="<%= redirect %>">  
+      <!-- <input type="hidden" name="redirect" value="<%= redirect %>">   -->
+       <input type="hidden" name="redirect" value="<%= redirect || '' %>">
       <input type="email" name="email" placeholder="Email" required> 
       <input type="password" name="password" placeholder="Password" required>
       <button type="submit" class="login-btn">Login</button>
