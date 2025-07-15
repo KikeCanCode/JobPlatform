@@ -475,11 +475,6 @@ router.get("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
 	}
 });
 
-// Diplay Account Deletion form 
-router.get("/deleteAccount", ensureLoggedIn, (req, res) => {
-  res.render("companies/deleteAccount"); 
-});
-
   // Delete Account
   router.delete("/deleteAccount", ensureLoggedIn, async (req, res) => {
 	try {
@@ -500,23 +495,9 @@ router.get("/deleteAccount", ensureLoggedIn, (req, res) => {
 	}
 });
 
-
-// Delete Application
-router.delete("/applications/:id", ensureLoggedIn, async (req, res) => {
-  try {
-    const applicationId = req.params.id;
-
-    await db
-      .delete(applicationsTable)
-      .where(eq(applicationsTable.id, applicationId));
-
-    // Redirect back to the applications list page after deletion
-    res.redirect("/companies/applications");
-    //res.send({ message: "Application deleted successfully!" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: "Error deleting application" });
-  }
+// Diplay Account Deletion form 
+router.get("/deleteAccount", ensureLoggedIn, (req, res) => {
+  res.render("companies/deleteAccount"); 
 });
 
 // Integrating CAPTCHA verification

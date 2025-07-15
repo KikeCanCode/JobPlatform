@@ -12,7 +12,30 @@ class Application {
 
   // Method to create a new application  
   static async createApplication ({ jobId, graduateId, firstName, lastName, email, coverLetter, cvPath}) {
-    try {
+    try  {  // check for basic input validation
+      if (!jobId || !graduateId || !firstName || !lastName ||!email || !cvPath) {
+
+        throw new Error("Missing required fields to create application.");
+      }
+    
+    
+// Check for duplicate application
+
+ const existing = await db
+        .select()
+        .from(applicationsTable)
+        .where(
+          and(
+            eq(applicationsTable.job_id, Number(jobId)),
+            eq(applicationsTable.graduate_id, Number(graduateId))
+          )
+        );
+
+      if (existing.length > 0) {
+        throw new Error("You have already applied for this job.");
+      }
+
+      // Insert new application
         const result = await db
         .insert(applicationsTable)
         .values({
@@ -25,10 +48,11 @@ class Application {
             cv_path: cvPath,
             date_applied: new Date(),
         })
-
-        .returning("*"); // Return the inserted application data
-        return result;
-    } catch (err) {
+      
+        .returning(); // Return the inserted application data
+        return result[0];
+    } 
+   catch (err) {
         throw new Error(`Error creating application: ${err.message}`);
         }
  }
