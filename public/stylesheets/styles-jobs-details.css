@@ -18,6 +18,9 @@
     font-size: 16px;
     margin-bottom: 10px;
     color: #000000;
+     white-space: pre-line; /* this creates white space */
+
+
   }
   
 .job-container a.btn  {
