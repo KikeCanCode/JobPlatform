@@ -129,8 +129,17 @@ router.get("/dashboard", ensureLoggedIn, async (req, res) => {
 		
 		// Fetch only jobs posted by this company
 		const jobs = await db
-			.select()
+			.select({
+				id: jobsTable.id,
+				companyName: companiesTable.company_name,
+    			title: jobsTable.title,
+    			salary: jobsTable.salary,
+    			location: jobsTable.location,
+    			created_at: jobsTable.created_at,	
+			})
+			
 			.from(jobsTable)
+			.innerJoin(companiesTable, eq(jobsTable.company_id, companiesTable.id))
 			.where(eq(jobsTable.company_id, companyId))
 			.orderBy(jobsTable.created_at, 'desc'); // Use 'desc' directly for descending order	res.render("companies/dashboard", { company: req.company });
 			
