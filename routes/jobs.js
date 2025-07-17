@@ -1,6 +1,6 @@
 import express from "express";
 import Job from "../Model/jobsModel.js";
-import { jobsTable } from "../db/schema.js";
+import { jobsTable, companiesTable } from "../db/schema.js";
 import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
 import db from "../db/index.js"; // database connection
 import { eq } from "drizzle-orm";
@@ -73,8 +73,21 @@ router.get("/jobsDetails/:jobId", async (req, res) => {
 
   try {
     const jobResult = await db
-      .select()
+      .select({
+		id: jobsTable.id,
+        title: jobsTable.title,
+		company_name: companiesTable.company_name,
+        salary: jobsTable.salary,
+        location: jobsTable.location,
+        job_description: jobsTable.job_description,
+        application_limit: jobsTable.application_limit,
+        expiration_date: jobsTable.expiration_date,
+        is_active: jobsTable.is_active,
+        
+		
+	  })
       .from(jobsTable)
+	  .innerJoin(companiesTable, eq(jobsTable.company_id, companiesTable.id))
       .where(
 		and(
 		eq(jobsTable.id, jobId),
@@ -85,7 +98,7 @@ router.get("/jobsDetails/:jobId", async (req, res) => {
     if (!job) {
       return res.status(404).send("Job not found");
     }
-	const isLoggedIn = !!req.session.gradauteId; // track login
+	const isLoggedIn = !!req.session.graduateId; // track login
 
 
     res.render("jobs/jobsDetails", { job, ensureLoggedIn, isLoggedIn });

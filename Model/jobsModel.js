@@ -6,7 +6,8 @@ Differ from gragaute& companies because they are creating an instance */
 
 
 import db from "../db/index.js";
-import { jobsTable } from "../db/schema.js"; // Import the table schema
+import { jobsTable, companiesTable } from "../db/schema.js"; // Import the table schema
+import { eq } from "drizzle-orm";
 
 // JobModel Class
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
@@ -57,8 +58,21 @@ async getApplicationByGraduate(graduateId) {
 static async findAll() {
 	try {
 		const jobs = await db
-		.select()
+		.select({
+			id: jobsTable.id,
+			title: jobsTable.title,
+			company_name: companiesTable.company_name,
+			salary: jobsTable.salary,
+			location: jobsTable.location,
+			job_description: jobsTable.job_description,
+			application_limit: jobsTable.application_limit,
+			expiration_date: jobsTable.expiration_date,
+			is_active: jobsTable.is_active,	
+		})
+
 		.from(jobsTable)
+		.innerJoin(companiesTable, eq(jobsTable.company_id, companiesTable.id))
+		.where(eq(jobsTable.is_active, true))
 		.execute();
 		return jobs;
 	} catch (err) {

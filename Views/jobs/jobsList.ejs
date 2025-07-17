@@ -62,7 +62,7 @@
                 <div class="job-title"><%= job.title %></div>
                 
                 <div class="job-details">
-                    <strong>Company:</strong> <%= job.company %>
+                    <strong>Company:</strong> <%= job.company_name %>
                     <br> 
                     <strong>Salary:</strong> £<%= job.salary %>
                     <br>
@@ -78,7 +78,7 @@
                 </div>
 
                 <p class="job-description">
-                  <%= job.description && job.description.length > 150 ? job.description.substring(0, 150) + "..." : job.description %>                </p>
+                  <%= job.job_description && job.job_description.length > 150 ? job.job_description.substring(0, 150) + "..." : job.job_description %>                </p>
 
                   
                   <div class="job-actions">

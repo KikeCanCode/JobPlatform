@@ -33,10 +33,12 @@
     <button type="submit" class="search-btn">Search</button>
   </form>
  </div>
-
+<!-- Job Details page  -->
 <div class="job-container">
 
   <h1><%= job.title %></h1>
+  
+  <p><strong>Company:</strong> <%= job.company_name %></p>
    
   <p><strong>Salary:</strong> £<%= job.salary %></p>
   
@@ -50,7 +52,7 @@
 
   <p><%= job.job_description %></p>
 
-<!-- <p style="white-space: pre-line;"><%= job.description %></p> -->
+<!-- <p style="white-space: pre-line;"><%= job.job_description %></p>  this didn't work until I updated css.-->
 
 <!-- This session check if the graduates is logged in and render apply form, if not render login page and redirect to apply form-->
   <% if (isLoggedIn) { %>
