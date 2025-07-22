@@ -1,13 +1,27 @@
 
 import express from "express";
 import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
-import Application from "../Model/applicationsModel.js";
-
+import Application from "../Model/applicationsModel.js"; // Class 
+import multer from "multer";
 
 const router = express.Router();
 
+// Multer configuration 
+const cvStorage = multer.diskStorage({
+	destination: (req, file, callBack) => {
+		callBack(null, "uploads/cvs");
+	},
+	filename: (req, file, callBack) => {
+		callBack(null, `${Date.now()}-${file.originalname}`);
+	},
+});
+
+const uploadCV = multer({ storage: cvStorage });
+
+
 // Graduate Application Submission
-router.post("/myApplications", ensureLoggedIn,  async (req, res) => {
+// router.post("/myApplications", ensureLoggedIn,  uploadCV.single("cv"), async (req, res) => { 
+ router.post("/apply", ensureLoggedIn, uploadCV.single("cv"), async (req, res) => {
   const graduateId = req.session.graduateId;
   const {
     jobId,
@@ -16,19 +30,21 @@ router.post("/myApplications", ensureLoggedIn,  async (req, res) => {
     lastName,
     email,
     coverLetter,
-    cvPath, 
+    // cvPath, 
   } = req.body;
+
+  const cvPath = req.file.filename; // multer adds this
 
   try {
      await Application.createApplication({
-      jobId,
-			graduateId,
-			firstName,
-			lastName,
-			email,
-			coverLetter,
-			cvPath,
-      date_applied: new Date(),
+      	jobId,
+		graduateId,
+		firstName,
+		lastName,
+		email,
+		coverLetter,
+		cvPath,
+      	date_applied: new Date(),
     
     });
 

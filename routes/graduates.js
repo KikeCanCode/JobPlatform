@@ -117,7 +117,7 @@ const uploadCV = multer({ storage: cvStorage });
 
 
  // 3 - Handle application form submission - Saves the applications into myApplications.js
-router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), async (req, res) => { // Supposed to be apply to match the get - not myApplication 
+router.post("/:jobId/apply", ensureLoggedIn, uploadCV.single("cv"), async (req, res) => { // Supposed to be apply to match the get - not myApplication 
     // const { jobId } = req.params;
 	const jobId = Number(req.params.jobId);
 	
@@ -131,7 +131,8 @@ router.post("/:jobId/myApplications", ensureLoggedIn, uploadCV.single("cv"), asy
     // const { coverLetter } = req.body; 
 	const coverLetter = req.body.cover_letter || null;
     // const cvPath = req.file?.path; - this adds a number to the cv'name 
- 	const cvPath = `cvs/${req.file.filename}`; // cleaner path - just cv's name
+ 	// const cvPath = `cvs/${req.file.filename}`; // cleaner path - just cv's name
+	const cvPath = req.file.filename;
     try {
 
 		// 1. Get job details

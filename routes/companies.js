@@ -4,7 +4,7 @@ import express from "express";
 import db from "../db/index.js"; // database connection
 import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 //import Stripe from "stripe"; // Import Stripe for payment processing 
-import { eq } from "drizzle-orm";
+import { eq, and  } from "drizzle-orm";
 import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
 import { desc } from "drizzle-orm";
 import { graduatesTable } from "../db/schema.js";
@@ -309,7 +309,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 			.select({
 				applicationId: applicationsTable.id,
         		jobId: applicationsTable.job_id,
-        		First_name: applicationsTable.first_name,
+        		FirstName: applicationsTable.first_name,
        			LastName: applicationsTable.last_name,
         		Email: applicationsTable.email,
         		coverLetter: applicationsTable.cover_letter,
