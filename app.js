@@ -46,8 +46,8 @@ app.use(bodyParser.json());
 app.use(express.static("public")); 
 
 // make sure express serves the Cvs folder inside Uploads folder 
-app.use("/uploads", express.static("uploads"));
-// app.use("/cvs", express.static("uploads/cvs")); // displaying 7-8 That is when it has fixed 
+// app.use("/uploads", express.static("uploads"));
+app.use("/cvs", express.static("uploads/cvs")); // displaying 7-8 That is when it has fixed 
 
 app.use(methodOverride('_method')) // Keeps your routes RESTful. Allows you to use DELETE and PUT from standard forms (without needing AJAX or JavaScript).
 
