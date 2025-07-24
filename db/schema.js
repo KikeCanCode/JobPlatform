@@ -24,6 +24,7 @@ export const graduatesTable = mysqlTable("graduates", {
 	bootcamp_institute: varchar({ length: 255 }),
 	graduation_year: int(),
 	skills: varchar({ length: 4_000 }),
+	certificate: varchar ({ length: 500 }),
 	created_at: timestamp().defaultNow(),
   	updated_at: timestamp().defaultNow().onUpdateNow(),
   	deleted_at: timestamp().default(null) // Soft delete column

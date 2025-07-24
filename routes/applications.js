@@ -77,7 +77,8 @@ router.delete("/:applicationId", ensureLoggedIn, async (req, res) => {
 	const { applicationId } = req.params;
 
 	try {
-		await deleteApplication(applicationId);
+		// await deleteApplication(applicationId);
+		await  Application.deleteApplication(applicationId);
 		res.status(200).send({ message: "Application deleted successfully!" });
 	} catch (err) {
 		console.error(err);

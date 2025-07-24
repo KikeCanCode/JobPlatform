@@ -60,6 +60,7 @@
           <th>CV</th>
           <th>Job ID</th>
           <th>Graduate ID</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -69,17 +70,17 @@
       <td><%= application.lastName %></td>
       <td><%= application.email %></td>
       <td><%= application.coverLetter %></td>
-      <td><a href="/cvs/<%= application.cv %>" target="_download">View CV</a></td>
-      
+      <!-- <td><a href="/cvs/<%= application.cvPath %>" target="_blank">View CV</a></td> -->
+      <td><a href="/cvs/<%= application.cvPath %>" target="_download">View CV</a></td>
 
       <td><%= application.jobId %></td>
       <td><%= application.graduateId %></td>
 
-       <td>
+       <td> 
+        <!-- changed application.id to applicationId -->
             <form 
-              action="/companies/applications/<%= application.id %>?_method=DELETE" method="POST" 
-              onsubmit="return confirm('Are you sure you want to delete this application?');"
-            >
+action="/companies/applications/<%= application.applicationId %>?_method=DELETE"              onsubmit="return confirm('Are you sure you want to delete this application?');"> 
+              
               <button type="submit">Delete</button>
             </form>
           </td>

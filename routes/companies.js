@@ -306,12 +306,13 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 	const companyId = req.session.companyId;
 	try {
 		const applications = await db
-			.select({
+			.select({ // change element from pascalcase to camelcase 
 				applicationId: applicationsTable.id,
         		jobId: applicationsTable.job_id,
-        		FirstName: applicationsTable.first_name,
-       			LastName: applicationsTable.last_name,
-        		Email: applicationsTable.email,
+				graduateId: applicationsTable.graduate_id, // added this 
+        		firstName: applicationsTable.first_name,
+       			fastName: applicationsTable.last_name,
+        		email: applicationsTable.email,
         		coverLetter: applicationsTable.cover_letter,
         		cvPath: applicationsTable.cv_path,
         		dateApplied: applicationsTable.date_applied,

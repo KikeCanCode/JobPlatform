@@ -129,7 +129,8 @@ router.post("/:jobId/apply", ensureLoggedIn, uploadCV.single("cv"), async (req, 
     }
 
     // const { coverLetter } = req.body; 
-	const coverLetter = req.body.cover_letter || null;
+	const coverLetter = req.body.coverLetter || null;
+	
     // const cvPath = req.file?.path; - this adds a number to the cv'name 
  	// const cvPath = `cvs/${req.file.filename}`; // cleaner path - just cv's name
 	const cvPath = req.file.filename;
@@ -264,6 +265,7 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 				bootcamp_institute: bootcampInstitute,
 				graduation_year: graduationYear,
 				skills,
+				certificatePath,
 			})
 			.where(eq(graduatesTable.id, id)); // In Drizzle, updates are usually done like this (eq)?
 		
@@ -327,7 +329,8 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 		qualification, 
 		bootcampInstitute, 
 		graduationYear, 
-		skills, } = req.body;
+		skills,
+		certificatePath } = req.body;
 
 	try {
 		const results = await db
@@ -341,6 +344,7 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 				bootcamp_institute: bootcampInstitute,
 				graduation_year: graduationYear,
 				skills,
+				certificatePath
 			})
 			// .where("id", graduateId)
 			.where(eq(graduatesTable.id, req.graduate.id))			

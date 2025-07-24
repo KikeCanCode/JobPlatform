@@ -105,7 +105,8 @@ static async deleteApplication(applicationId) {
     try {
         await db
             .delete(applicationsTable)
-            .where(eq(applicationsTable.id, applicationId));
+            .where(
+              eq(applicationsTable.id, parseInt(applicationId)));
 
         return { message: "Application deleted successfully!" };
     } catch (err) {
