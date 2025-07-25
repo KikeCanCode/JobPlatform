@@ -311,7 +311,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
         		jobId: applicationsTable.job_id,
 				graduateId: applicationsTable.graduate_id, // added this 
         		firstName: applicationsTable.first_name,
-       			fastName: applicationsTable.last_name,
+       			lastName: applicationsTable.last_name,
         		email: applicationsTable.email,
         		coverLetter: applicationsTable.cover_letter,
         		cvPath: applicationsTable.cv_path,
