@@ -1,7 +1,7 @@
 import express from "express";
 import Job from "../Model/jobsModel.js";
 import { jobsTable, companiesTable } from "../db/schema.js";
-import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
+import { ensureCompanyLoggedIn } from "../Middlewares/companyAuthentication.js";
 import db from "../db/index.js"; // database connection
 import { eq } from "drizzle-orm";
 import { and } from "drizzle-orm";
@@ -10,12 +10,12 @@ import { and } from "drizzle-orm";
 const router = express.Router();
 
 //Display job Posting Form
-router.get("/post-jobs", ensureLoggedIn, (req, res) => {
+router.get("/post-jobs", ensureCompanyLoggedIn, (req, res) => {
 	res.render("jobs/post-jobs"); 
 });
 
 // Post a Job
-router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
+router.post("/post-jobs", ensureCompanyLoggedIn, async (req, res) => {
 	const {
 		
 		title,
@@ -28,7 +28,7 @@ router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
 		
 	} = req.body;
 	
-	// const companyId = req.user.id; // Extracted from the token by ensureLoggedIn middleware
+	// const companyId = req.user.id; // Extracted from the token by ensureCompanyLoggedIn middleware
 	const companyId = req.company.id;
 
 	try {
@@ -101,7 +101,7 @@ router.get("/jobsDetails/:jobId", async (req, res) => {
 	const isLoggedIn = !!req.session.graduateId; // track login
 
 
-    res.render("jobs/jobsDetails", { job, ensureLoggedIn, isLoggedIn });
+    res.render("jobs/jobsDetails", { job, ensureCompanyLoggedIn, isLoggedIn });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error loading job details.");
@@ -109,7 +109,7 @@ router.get("/jobsDetails/:jobId", async (req, res) => {
 });
 
 // Display form with Pre-filled details for editing.
-router.get("/updateJobs/:id", ensureLoggedIn, async (req, res) => { 
+router.get("/updateJobs/:id", ensureCompanyLoggedIn, async (req, res) => { 
 	const jobId = req.params.id; 
 
 	try {
@@ -136,7 +136,7 @@ router.get("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
 });
 
 // Update Posted Jobs  
-router.post("/updateJobs/:id", ensureLoggedIn, async (req, res) => { // Not working with PUT for some reason...
+router.post("/updateJobs/:id", ensureCompanyLoggedIn, async (req, res) => { // Not working with PUT for some reason...
 	const jobId = req.params.id;
 	const {
 		title,
@@ -226,8 +226,8 @@ router.get("/jobs/:id", async (req, res) => {
 });
 
 // Get All Jobs by a Company - Ensure logged-in
-router.get("/postedJobs", ensureLoggedIn, async (req, res) => {
-	const companyId = req.company.id; // Extracted from the token by ensureLoggedIn middleware
+router.get("/postedJobs", ensureCompanyLoggedIn, async (req, res) => {
+	const companyId = req.company.id; // Extracted from the token by ensureCompanyLoggedIn middleware
 
 	try {
 		const jobs = await Job.findByCompanyId(companyId);
@@ -239,7 +239,7 @@ router.get("/postedJobs", ensureLoggedIn, async (req, res) => {
 });
 
 // Update Job Status (e.g., Open, Close, Expired)
-router.patch("/:jobId/status", ensureLoggedIn, async (req, res) => {
+router.patch("/:jobId/status", ensureCompanyLoggedIn, async (req, res) => {
 	const { jobId} = req.params;
 	const { status } = req.body;
 // Define allowed statuses
@@ -320,7 +320,7 @@ router.get("/jobsList", async (req, res) => {
 });
 
 // Delete Job 
-router.post("/deleteJob/:id", ensureLoggedIn, async (req, res) => {
+router.post("/deleteJob/:id", ensureCompanyLoggedIn, async (req, res) => {
 	try {
 		await db
 			.delete(jobsTable)

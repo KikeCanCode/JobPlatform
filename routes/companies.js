@@ -5,7 +5,7 @@ import db from "../db/index.js"; // database connection
 import { applicationsTable, companiesTable, jobsTable } from "../db/schema.js";
 //import Stripe from "stripe"; // Import Stripe for payment processing 
 import { eq, and  } from "drizzle-orm";
-import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
+import { ensureCompanyLoggedIn} from "../Middlewares/companyAuthentication.js";
 import { desc } from "drizzle-orm";
 import { graduatesTable } from "../db/schema.js";
 import { date } from "drizzle-orm/mysql-core";
@@ -91,13 +91,13 @@ router.post("/signup", async (req, res) => {
 }); 
 
 // Display Comoanies Registration Page
-router.get("/registrationForm", ensureLoggedIn, async (req, res) => {
+router.get("/registrationForm", ensureCompanyLoggedIn, async (req, res) => {
 	const company = req.company;
 	return res.render("companies/registrationForm", { company });	
 });
 
 // Route - Companies Registration
-router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no need to include email and password in the constructor as they were already collected.
+router.post("/registrationForm", ensureCompanyLoggedIn, async (req, res) => { // no need to include email and password in the constructor as they were already collected.
 	const { companyName, contactNumber, companyAddress, companyProfile } = req.body;
 
 	try {
@@ -122,7 +122,7 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 });
 
 //Display companies Dashboard - Updated to dispay posted jobs to the dashboard
-router.get("/dashboard", ensureLoggedIn, async (req, res) => {
+router.get("/dashboard", ensureCompanyLoggedIn, async (req, res) => {
 	// console.log(req.company);
 	try {
 		const companyId = req.company.id;
@@ -151,7 +151,7 @@ router.get("/dashboard", ensureLoggedIn, async (req, res) => {
 });
 
 // View Companies profile
-router.get("/profile", ensureLoggedIn, async (req, res) => {
+router.get("/profile", ensureCompanyLoggedIn, async (req, res) => {
 	try {
 		// Query to fetch specific fields from the companiesTable
 		const company = req.company;
@@ -163,11 +163,11 @@ router.get("/profile", ensureLoggedIn, async (req, res) => {
 	}
 });
 /*
-Instead of trying to fetch the company again, I simply passed req.company because ensureLoggedIn already retrieved the company from the database.
+Instead of trying to fetch the company again, I simply passed req.company because ensureCompanyLoggedInalready retrieved the company from the database.
 */
 
 // Display Company UpdateProfile  
-router.get("/updateProfile", ensureLoggedIn, async (req, res) => {
+router.get("/updateProfile", ensureCompanyLoggedIn, async (req, res) => {
     try {
         console.log(req.company); //Check if company data exists
         const company = req.company;
@@ -181,7 +181,7 @@ router.get("/updateProfile", ensureLoggedIn, async (req, res) => {
 });
 
 // Companies Update details
-router.post("/updateProfile", ensureLoggedIn, async (req, res) => {
+router.post("/updateProfile", ensureCompanyLoggedIn, async (req, res) => {
 	const {
 		companyName,
 		email,
@@ -230,13 +230,13 @@ router.get("/jobs", async (req, res) => {
 });
 
 // Display Jobs Posting Form
-router.get("/post-jobs", ensureLoggedIn, async (req, res) => {
+router.get("/post-jobs", ensureCompanyLoggedIn, async (req, res) => {
 	const company = req.company;
 	res.render("jobs/post-jobs", { company }); 
 });
 
 // POST a Job without payment
-router.post("/post-jobs", ensureLoggedIn, async (req, res) => {
+router.post("/post-jobs", ensureCompanyLoggedIn, async (req, res) => {
 	const {
 		title,
 		job_description,
@@ -301,7 +301,7 @@ router.get("/applications", async (req, res) => {
 });
 
 //Review applications
-router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
+router.get("/applications/:jobId", ensureCompanyLoggedIn, async (req, res) => {
 	const { jobId } = req.params;
 	const companyId = req.session.companyId;
 	try {
@@ -348,7 +348,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 //const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // Use your Stripe secret key
 
 // Post a Job with Payment
-// router.post("/post-job-with-payment", ensureLoggedIn, async (req, res) => {
+// router.post("/post-job-with-payment", ensureCompanyLoggedIn, async (req, res) => {
 // 	const { title, description, salary, location, amount, currency } = req.body;
 // 	const companyId = req.user.id; // Extracted from the token by verifyToken middleware
 
@@ -374,7 +374,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 // });
 
 // Confirm Job Posting after Payment
-// router.post("/confirm-job-post", ensureLoggedIn, async (req, res) => {
+// router.post("/confirm-job-post", ensureCompanyLoggedIn, async (req, res) => {
 // 	const { title, description, salary, location, paymentIntentId } = req.body;
 // 	const companyId = req.user.id;
 
@@ -404,7 +404,7 @@ router.get("/applications/:jobId", ensureLoggedIn, async (req, res) => {
 
 
 //Save the payment into the Database after payment confirmation
-router.post("/save-job", ensureLoggedIn, async (req, res) => {
+router.post("/save-job", ensureCompanyLoggedIn, async (req, res) => {
 	const { title, description, salary, location } = req.body;
 	const companyId = req.session.companyId;
 
@@ -428,7 +428,7 @@ router.post("/save-job", ensureLoggedIn, async (req, res) => {
 });
 
 //Update an existing job
-router.post("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
+router.post("/updateJobs/:id", ensureCompanyLoggedIn, async (req, res) => {
 	const {
 		title,
 		job_description,
@@ -464,7 +464,7 @@ router.post("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
 });
 
 // Display job update form 
-router.get("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
+router.get("/updateJobs/:id", ensureCompanyLoggedIn, async (req, res) => {
 	const jobId = req.params.id;
 
 	try {
@@ -486,7 +486,7 @@ router.get("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
 });
 
   // Delete Account
-  router.delete("/deleteAccount", ensureLoggedIn, async (req, res) => {
+  router.delete("/deleteAccount", ensureCompanyLoggedIn, async (req, res) => {
 	try {
 		const companyId = req.company.id;
 		await db
@@ -505,8 +505,10 @@ router.get("/updateJobs/:id", ensureLoggedIn, async (req, res) => {
 	}
 });
 
+
+
 // Diplay Account Deletion form 
-router.get("/deleteAccount", ensureLoggedIn, (req, res) => {
+router.get("/deleteAccount", ensureCompanyLoggedIn, (req, res) => {
   res.render("companies/deleteAccount"); 
 });
 

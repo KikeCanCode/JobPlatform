@@ -8,7 +8,7 @@ router.method("/path", ensureLoggedIn, (req, res) => { ...
 */
 
 // This puts the company object in req.company if they are logged in.
-async function ensureLoggedIn(req, res, next) {
+async function ensureCompanyLoggedIn (req, res, next) {
 	if (!req.session?.companyId) {
 		return res.redirect("/companies/login");
 	}
@@ -27,4 +27,4 @@ async function ensureLoggedIn(req, res, next) {
 
 	return next();
 }
-export { ensureLoggedIn };
+export { ensureCompanyLoggedIn };

@@ -3,6 +3,7 @@ import express from "express";
 import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
 import Application from "../Model/applicationsModel.js"; // Class 
 import multer from "multer";
+import { ensureCompanyLoggedIn } from "../Middlewares/companyAuthentication.js";
 
 const router = express.Router();
 
@@ -58,7 +59,7 @@ const uploadCV = multer({ storage: cvStorage });
 
 //Get applications by Graduates - Recruiters
 
-router.get("/graduates/graduateId", ensureLoggedIn, async (req, res) => { // "/graduates/:graduateId" - this was displaying applications by all graduates
+router.get("/graduates/graduateId", ensureCompanyLoggedIn, async (req, res) => { // "/graduates/:graduateId" - this was displaying applications by all graduates
 	const { graduateId } = req.params;
 
 	try {
@@ -72,14 +73,14 @@ router.get("/graduates/graduateId", ensureLoggedIn, async (req, res) => { // "/g
 });
 
 
-// Delete an Application
-router.delete("/:applicationId", ensureLoggedIn, async (req, res) => {
+// Delete an Application - companies
+router.delete("/:applicationId", ensureCompanyLoggedIn, async (req, res) => { // Updated Middleware from ensureLoggedIn to ensureCompanyLoggedIn as it was rendering graduates login after deleting.
 	const { applicationId } = req.params;
 
 	try {
 		// await deleteApplication(applicationId);
 		await  Application.deleteApplication(applicationId);
-		res.status(200).send({ message: "Application deleted successfully!" });
+		res.redirect("/companies/applications");
 	} catch (err) {
 		console.error(err);
 		res.status(500).send({ error: "Error deleting application." });

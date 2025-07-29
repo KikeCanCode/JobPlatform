@@ -102,7 +102,12 @@ class Application {
 
 // Method to delete an application by applicationId
 static async deleteApplication(applicationId) {
+
     try {
+       //Simple safety check
+        if (!applicationId) {
+            throw new Error("Application not find");
+        }
         await db
             .delete(applicationsTable)
             .where(

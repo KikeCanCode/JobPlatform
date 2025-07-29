@@ -6,12 +6,12 @@ import { paymentTable, jobsTable, companiesTable } from "../db/schema.js";
 //import { processStripePayment, processPayPalPayment } from "../Services/paymentService.js"; // Payment service
 import { processStripePayment } from "../Service/paymentService.js"; // Payment service
 import Payment from "../Model/paymentModel.js";
-import { ensureLoggedIn } from "../Middlewares/companyAuthentication.js";
+import { ensureCompanyLoggedIn } from "../Middlewares/companyAuthentication.js";
 
 const router = express.Router();
 
 // Create a Payment
-router.post("/", ensureLoggedIn, async (req, res) => {
+router.post("/", ensureCompanyLoggedIn, async (req, res) => {
     const { jobId, amount, paymentMethod } = req.body;
     const companyId = req.user.id; // Extracted from token
 
@@ -57,7 +57,7 @@ const [payment] = await db
 });
 
 // Get Payment History for a Company 
-router.get("/", ensureLoggedIn, async (req, res) => {
+router.get("/", ensureCompanyLoggedIn, async (req, res) => {
     const companyId = req.user.id;
 
     try {
@@ -72,7 +72,7 @@ router.get("/", ensureLoggedIn, async (req, res) => {
  
 /* This is in Payment model 
 // Get Payment History for a Company 
-router.get("/", ensureLoggedIn, async (req, res) => {
+router.get("/", ensureCompanyLoggedIn, async (req, res) => {
     const companyId = req.user.id;
 
     try {
