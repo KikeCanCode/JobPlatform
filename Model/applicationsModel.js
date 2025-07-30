@@ -88,7 +88,7 @@ class Application {
 
  }
 
-//Get Applications by Job (for recruiters)
+//Get Applications by Job (for recruiters) // Added values to select()
  static async getApplicationsByJob(jobId) {
   try {
     return await db
