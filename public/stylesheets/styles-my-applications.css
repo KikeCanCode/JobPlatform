@@ -25,3 +25,22 @@
 .application p strong {
     color: #000000; 
 }
+/* Delete Button */
+ .delete-btn {
+    display: inline-block;
+    background-color: #fd8e18;
+    color: rgb(11, 11, 11);
+    padding: 10px 15px;
+    margin-top: 20px;
+    margin-right: 10px;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .delete-btn:hover {
+    background-color: #e67600;
+  }

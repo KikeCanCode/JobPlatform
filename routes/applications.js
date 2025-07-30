@@ -87,4 +87,19 @@ router.delete("/:applicationId", ensureCompanyLoggedIn, async (req, res) => { //
 	}
 });
 
+
+// Graduate withdraws their application
+router.delete("/graduate/:applicationId", ensureLoggedIn, async (req, res) => {
+    const { applicationId } = req.params;
+
+    try {
+        await Application.deleteApplication(applicationId);
+        res.redirect("/graduates/myApplications");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: "Error withdrawing application." });
+    }
+});
+
+
 export default router;

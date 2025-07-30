@@ -49,7 +49,7 @@ class Application {
             date_applied: new Date(),
         })
       
-        .returning(); // Return the inserted application data
+        .returning({ applicationId: applicationsTable.id }); // Return the inserted application data
         return result[0];
     } 
    catch (err) {
@@ -92,9 +92,22 @@ class Application {
  static async getApplicationsByJob(jobId) {
   try {
     return await db
-      .select()
+      .select({
+        applicationId: applicationsTable.id,        
+        jobId: applicationsTable.job_id,
+        firstName: applicationsTable.first_name,
+        lastName: applicationsTable.last_name,
+        email: applicationsTable.email,
+        coverLetter: applicationsTable.cover_letter,
+        cvPath: applicationsTable.cv_path,
+        dateApplied: applicationsTable.date_applied,
+        graduateId: applicationsTable.graduate_id,
+      })
       .from(applicationsTable)
-      .where(eq(applicationsTable.job_id, jobId));
+      .innerJoin(jobsTable, eq(applicationsTable.job_id, jobsTable.id))
+      .innerJoin(companiesTable, eq(companiesTable.id, jobsTable.company_id))
+      // .where(eq(applicationsTable.job_id, jobId));
+      .where(eq(applicationsTable.graduate_id, graduateId));
   } catch (err) {
     throw new Error(`Error retrieving applications for job ${jobId}: ${err.message}`);
   }
