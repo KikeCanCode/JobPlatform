@@ -3,7 +3,7 @@ import Job from "../Model/jobsModel.js";
 import { jobsTable, companiesTable } from "../db/schema.js";
 import { ensureCompanyLoggedIn } from "../Middlewares/companyAuthentication.js";
 import db from "../db/index.js"; // database connection
-import { eq } from "drizzle-orm";
+import { eq, noopDecoder } from "drizzle-orm";
 import { and } from "drizzle-orm";
 
 
@@ -25,6 +25,7 @@ router.post("/post-jobs", ensureCompanyLoggedIn, async (req, res) => {
 		qualification_required:qualificationRequired,
 		application_limit: applicationLimit,
 		expiration_date: expirationDate,
+		no_experience_required: noExperienceRequired,
 		
 	} = req.body;
 	
@@ -46,6 +47,7 @@ router.post("/post-jobs", ensureCompanyLoggedIn, async (req, res) => {
 			application_limit: applicationLimit ? Number.parseInt(applicationLimit) : null,
 			expiration_date: expirationDate ? new Date(expirationDate) : null,
 			is_active: true, // this ensures the job is active upon creation
+			no_experience_required: noExperienceRequired,
 			
 		});
 

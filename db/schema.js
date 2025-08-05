@@ -61,6 +61,7 @@ export const jobsTable = mysqlTable("jobs", {
 	expiration_date: timestamp(), // Added field
 	is_active: boolean().default(true).notNull(), // Handle application limit
 	// last_activity_at: timestamp().defaultNow().notNull(),
+	no_experience_required: boolean().notNull().default(true),
 
 });
 
