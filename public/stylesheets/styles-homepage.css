@@ -83,7 +83,7 @@
 
 .welcome-container h1 {
   text-align: center;
-  font-size: 16pt;
+  font-size: 18pt;
 }
 
 .welcome-container h3 {
@@ -103,9 +103,9 @@ main {
 
 }
 
-.heading h2 {
+.heading h1 {
   text-align: center;
-  font-size: larger;
+  font-size: 40pt;
   font-weight: bold;
 }
 .heading p {
@@ -114,6 +114,36 @@ main {
 
 
 }
+.steps-process h1 {
+  font-size: 40pt;
+  text-align: center;
+}
+ /* Steps image container */
+.steps-container {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: flex-start; /* Aligns top of items */
+  gap: 100px; /* Space between steps */
+  margin-top: 40px;
+}
+
+.step {
+  text-align: center;
+}
+
+.step i {
+  font-size: 50px; /* Icon size */
+  color: #060400; 
+  margin-bottom: 10px;
+}
+
+.step p {
+  font-size: 14px;
+  font-weight:normal;
+  color: #333;
+}
+
+
 /* Get starter registartion container styling */
 .register-container {
   display: grid;
