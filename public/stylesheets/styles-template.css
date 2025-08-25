@@ -8,17 +8,23 @@ body {
       flex-direction: column; /* Make the logo stay on top of menu list on same place*/
       justify-content: center; /* Center vertically */
       align-items: center;     /* Center horizontally */
-      height: 15vh;           /* Full viewport height */
+      height: 20vh;           /* Full viewport height */
       background-color: #fcfcfc; /* Optional background color */
   }
   
   /* Logo styling */
-  
   .logo {
-      width: 150px;  /* Adjust size as needed */
-      height: auto;  /* Maintain aspect ratio */
+      width: auto;  /* Adjust size as needed */
+      height: 11vh;  /* Maintain aspect ratio */
       margin-bottom: 20px; /* Space between logo and menu */
   }
+
+/* Hover effect for logo */
+.logo:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+  cursor: pointer;
+}
   
   /* Menu styling */
   .menu ul {
