@@ -1,6 +1,7 @@
 
 /* Container styling */
 .container {
+  margin: auto;
   text-align: center;
   width: 80%;
   max-width: 900px;
