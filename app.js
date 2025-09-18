@@ -85,6 +85,12 @@ app.get("/pages/pricing", (req, res) => {
 	res.render("pages/pricing"); 
 });
 
+// Diplay Pricing
+app.get("/pages/privacyPolicy", (req, res) => {
+	res.render("pages/privacyPolicy"); 
+});
+
+
 // Start the server
 app.listen(port, () => {
 	console.log(`Server is running on port ${port}`);
