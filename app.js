@@ -90,6 +90,10 @@ app.get("/pages/privacyPolicy", (req, res) => {
 	res.render("pages/privacyPolicy"); 
 });
 
+// Diversity and Equality Inclusion 
+app.get("/pages/diversityAndEquality", (req, res) => {
+	res.render("pages/diversityAndEquality"); 
+});
 
 // Start the server
 app.listen(port, () => {
