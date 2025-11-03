@@ -5,7 +5,7 @@
     max-width: 900px;
     margin: 50px auto;
     padding: 20px;
-    color: #333;
+    color: #000000;
     background-color: #fdfdfd;
     border: 1px solid #ddd;/* This is giving the line under each session.*/
     border-radius: 8px;
@@ -15,12 +15,12 @@
     .equality-page h1 {
       text-align: center;
       margin-bottom: 30px;
-      color: #2c3e50;
+      color: #000000;
     }
 
     .equality-page h2 {
       margin-top: 30px;
-      color: #34495e;
+      color: #000000;
     }
 
     .equality-page ul {

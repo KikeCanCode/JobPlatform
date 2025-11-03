@@ -84,7 +84,7 @@
 
 .welcome-container h1 {
   text-align: center;
-  font-size: 18pt;
+  font-size: 40pt;
 }
 
 .welcome-container h3 {
@@ -93,7 +93,7 @@
 }
 .welcome-container p {
   /* text-spacing-trim: 10pt; */
-  font-size: 12pt;
+  font-size: 16pt;
   text-align: center;
 }
 
@@ -110,7 +110,7 @@ main {
   font-weight: bold;
 }
 .heading p {
-  font-size: 14pt;
+  font-size: 16pt;
   text-align: center;
 
 
@@ -139,7 +139,7 @@ main {
 }
 
 .step p {
-  font-size: 14px;
+  font-size: 16px;
   font-weight:normal;
   color: #333;
 }
