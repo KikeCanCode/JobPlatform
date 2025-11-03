@@ -10,7 +10,6 @@ import { jobsTable, companiesTable } from "../db/schema.js"; // Import the table
 import { eq } from "drizzle-orm";
 
 // JobModel Class
-// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 class Job {
 	// Create a new job
 	static async create({
