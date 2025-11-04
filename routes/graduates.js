@@ -9,10 +9,73 @@ import { applicationsTable, graduatesTable, jobsTable, companiesTable } from "..
 import { eq } from "drizzle-orm";
 import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
 import Application from "../Model/applicationsModel.js";
+import nodemailer from "nodemailer";
+
 
 const router = express.Router();
 
 // Moved Graduates Middleware to the Middlewares Folder - import it
+
+//Sign up route - email verification 
+router.post("/signup", async (req, res) => {
+	const { email, password } = req.body;
+
+	try {
+		const { id, token } = await Graduate.signup(null, email, password);
+		req.session.graduateId = id;
+
+		// send verification email
+		const transporter = nodemailer.createTransport({
+			service: "gmail", // tells Nodemailer to use Gmail’s SMTP server.
+			auth: {
+				user: process.env.EMAIL_USER, //the Gmail address that will send the emails
+				pass: process.env.EMAIL_PASS, // the password or app-specific password for that Gmail account.
+			},
+		});
+
+		const verifyUrl = `http://localhost:3000/verify/${token}`; // will be replace by company's actual url
+		await transporter.sendMail({
+			from: process.env.EMAIL_USER,
+			to: email,
+			subject: "Verify your email address",
+			html: `
+				<h3>Welcome to CodeLeap!</h3>
+				<p>Click below to verify your email:</p>
+				<a href="${verifyUrl}">${verifyUrl}</a>
+			`,
+		});
+
+		return res.redirect("/graduates/registrationForm");
+	} catch (error) {
+		console.error(error);
+		res.status(500).send("Error creating account");
+	}
+});
+
+// Email verification route
+router.get("/verify/:token", async (req, res) => {
+	const { token } = req.params;
+
+	try {
+		const verified = await Graduate.verifyEmail(token);
+
+		if (verified) {
+			
+			return res.render("verificationSuccess", {
+				message: "Your email has been successfully verified! You can now log in.",
+			});
+		} else {
+			return res.render("verificationError", {
+				message: "Invalid or expired verification link.",
+			});
+		}
+	} catch (error) {
+		console.error(error);
+		return res.status(500).render("verificationError", {
+			message: "An unexpected error occurred during verification.",
+		});
+	}
+});
 
 // Display Graduates Login Page - this implementing redirectTo
 router.get("/login", (req, res) => {

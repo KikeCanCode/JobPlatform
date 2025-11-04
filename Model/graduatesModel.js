@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 
 class Graduate {
 	constructor(
-		username,
+		// username,
 		email,
 		password,
 		firstName,
@@ -17,7 +17,7 @@ class Graduate {
 		skills,
 		certificatePath,
 	) {
-		this.username = username;
+		// this.username = username;
 		this.email = email;
 		this.password = password;
 		this.firstName = firstName;
@@ -29,31 +29,93 @@ class Graduate {
 		this.skills = skills;
 		this.certificatePath = certificatePath;
 	}
+
 	// Graduate sign up
-	static async signup(username, email, password) {
+	static async signup(email, password) {
 		try {
 			const hashedPassword = await bcrypt.hash(password, 10);
+
+			const token = crypto.randomBytes(32).toString("hex");
+			
 			const result = await db
 				.insert("graduates")
 				.values({
-					username,
-					email,
+					// username,
+					email_address_unverified: email,
+					email_verification_token: token,
 					password_hash: hashedPassword,
 				})
 				.execute();
 
-			return result;
+			const graduateId = result.insertId;
+
+			return graduateId;
+
 		} catch (err) {
 			throw new Error(`Error during signup: ${err.message}`);
 		}
+}
+
+	// Verify graduate email
+	static async verifyEmail(token) {
+		try {
+			const [graduate] = await db
+				.select()
+				.from(graduatesTable)
+				.where(eq(graduatesTable.email_verification_token, token))
+				.execute();
+
+			if (!graduate) {
+				throw new Error("Invalid or expired verification token");
+			}
+
+			await db
+				.update(graduatesTable)
+				.set({
+					email: graduate.email_address_unverified,
+					email_verification_token: null,
+				})
+				.where(eq(graduatesTable.id, graduate.id))
+				.execute();
+
+			return true;
+		} catch (err) {
+			throw new Error(`Email verification failed: ${err.message}`);
+		}
+}
+
+
+// Login only after verification
+	static async login(email, password) {
+		try {
+			const [graduate] = await db
+				.select()
+				.from(graduatesTable)
+				.where((fields, { eq }) => eq(fields.email, email));
+
+			if (!graduate) {
+				throw new Error("Please verify your email before logging in.");
+			}
+
+			const validPassword = await bcrypt.compare(password, graduate.password_hash);
+			if (!validPassword) {
+				throw new Error("Invalid email or password");
+			}
+
+			return graduate;
+		} catch (err) {
+			throw new Error(`Error during login: ${err.message}`);
+		}
 	}
-// Graduate login and validate password
-	static async login(username, password) {
+
+
+/*// Graduate login and validate password
+	static async login(email, password) {
 		try {
 			const results = await db
 				.select()
 				.from("graduates")
-				.where({ username })
+				.where({ email })
 				.execute();
 
 			if (results.length === 0) {
@@ -72,6 +134,7 @@ class Graduate {
 			throw new Error(`Error during login: ${err.message}`);
 		}
 	}
+*/
 
 // Update graduate profile
 	static async updateProfile(opts = {}) {
