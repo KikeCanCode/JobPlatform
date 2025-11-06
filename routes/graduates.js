@@ -10,6 +10,7 @@ import { eq } from "drizzle-orm";
 import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
 import Application from "../Model/applicationsModel.js";
 import nodemailer from "nodemailer";
+import crypto from "crypto";
 
 
 const router = express.Router();
@@ -18,13 +19,33 @@ const router = express.Router();
 
 //Sign up route - email verification 
 router.post("/signup", async (req, res) => {
-	const { email, password } = req.body;
+	const { email, password } = req.body; 
 
 	try {
-		const { id, token } = await Graduate.signup(null, email, password);
-		req.session.graduateId = id;
+		
+		// 1. Hash password
+		const password_hash = await bcrypt.hash(password, 10);
 
-		// send verification email
+		// 2. Create a verification token
+		const token = crypto.randomBytes(32).toString("hex");
+
+		// 3. Insert graduate into DB
+		const result = await db
+			.insert(graduatesTable)
+			.values({
+				email_unverified: email, //  store the email here first
+				password_hash,
+				verification_token: token,  // must exist in your table
+			})
+			// .returning({ id: graduatesTable.id }) // not surported by drizzle
+			.execute();
+
+		const graduate = result[0];
+
+		// 4. Store graduate in session (but not verified yet)
+		req.session.graduateId = graduate.id;
+
+		// 5. send verification email
 		const transporter = nodemailer.createTransport({
 			service: "gmail", // tells Nodemailer to use Gmail’s SMTP server.
 			auth: {
@@ -33,7 +54,18 @@ router.post("/signup", async (req, res) => {
 			},
 		});
 
+
+// Test the connection
+	transporter.verify((err, success) => {
+  	if (err) console.log("Nodemailer error:", err);
+ 	 else console.log("Nodemailer ready:", success);
+});
+
+
+		
+
 		const verifyUrl = `http://localhost:3000/verify/${token}`; // will be replace by company's actual url
+		
 		await transporter.sendMail({
 			from: process.env.EMAIL_USER,
 			to: email,
@@ -45,11 +77,22 @@ router.post("/signup", async (req, res) => {
 			`,
 		});
 
+		// 6. Render verification confirmation page - Show success message page
+		return res.render("graduates/verificationSent", { email });
+
+	} catch (error) {
+		console.error("Signup error:", error);
+		return res.render("graduates/signup", {
+			error: "Something went wrong. Please try again.",
+		});
+
+	}
+	/*//  7. render registration form
 		return res.redirect("/graduates/registrationForm");
 	} catch (error) {
 		console.error(error);
 		res.status(500).send("Error creating account");
-	}
+	}*/
 });
 
 // Email verification route
@@ -57,25 +100,50 @@ router.get("/verify/:token", async (req, res) => {
 	const { token } = req.params;
 
 	try {
-		const verified = await Graduate.verifyEmail(token);
+		const result = await db
+			.select()
+			.from(graduatesTable)
+			.where(
+				eq(graduatesTable.email_verification_token, token))
+			.execute();
 
-		if (verified) {
+		const graduate = result[0];
+
+
+		if (!graduate) {
 			
-			return res.render("verificationSuccess", {
-				message: "Your email has been successfully verified! You can now log in.",
-			});
-		} else {
-			return res.render("verificationError", {
-				message: "Invalid or expired verification link.",
-			});
-		}
+	
+		return res.render("/graduates/verificationError", {
+		message: "Invalid or expired verification link.",
+		});
+
+	}
+
+// Move email_adress_unverified -> email
+		await db
+			.update(graduatesTable)
+			.set({
+				email: graduate.email_address_unverified,
+				email_address_unverified: null,
+				email_verification_token: null,
+			})
+			.where(
+				eq
+				(graduatesTable.id, graduate.id))
+			.execute();
+
+// Redirect to registration form
+
+		return res.redirect("/graduates/registrationForm");
+
 	} catch (error) {
 		console.error(error);
-		return res.status(500).render("verificationError", {
+		return res.status(500).render("/graduates/verificationError", {
 			message: "An unexpected error occurred during verification.",
 		});
 	}
 });
+
 
 // Display Graduates Login Page - this implementing redirectTo
 router.get("/login", (req, res) => {
@@ -102,6 +170,14 @@ router.post("/login", (req, res) => {
 		}
 
 		const graduate = results[0];
+
+		// Email verification check
+		if (!graduate.email) {
+			return res.render("graduates/login", {
+				error: "Account not verified. Please check your email for the verification link.",
+				redirect,
+			});
+		}
 
 		try {
 			const isMatch = await bcrypt.compare(password, graduate.password_hash);
