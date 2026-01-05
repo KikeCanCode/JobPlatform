@@ -33,9 +33,9 @@ router.post("/signup", async (req, res) => {
 		const result = await db
 			.insert(graduatesTable)
 			.values({
-				email_unverified: email, //  store the email here first
+				email_adress_unverified: email, //  store the email here first
 				password_hash,
-				verification_token: token,  // must exist in your table
+				email_verification_token: token,  // must exist in your table
 			})
 			// .returning({ id: graduatesTable.id }) // not surported by drizzle
 			.execute();
@@ -47,10 +47,10 @@ router.post("/signup", async (req, res) => {
 
 		// 5. send verification email
 		const transporter = nodemailer.createTransport({
-			service: "gmail", // tells Nodemailer to use Gmail’s SMTP server.
+			host: "sandbox.smatp.mailtrap.io",
 			auth: {
-				user: process.env.EMAIL_USER, //the Gmail address that will send the emails
-				pass: process.env.EMAIL_PASS, // the password or app-specific password for that Gmail account.
+				user: process.env.MAILTRAP_USER, 
+				pass: process.env.MAILTRAP_PASS, 
 			},
 		});
 
@@ -113,7 +113,7 @@ router.get("/verify/:token", async (req, res) => {
 		if (!graduate) {
 			
 	
-		return res.render("/graduates/verificationError", {
+		return res.render("graduates/verificationError", {
 		message: "Invalid or expired verification link.",
 		});
 
@@ -138,7 +138,7 @@ router.get("/verify/:token", async (req, res) => {
 
 	} catch (error) {
 		console.error(error);
-		return res.status(500).render("/graduates/verificationError", {
+		return res.status(500).render("graduates/verificationError", {
 			message: "An unexpected error occurred during verification.",
 		});
 	}
