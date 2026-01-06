@@ -46,6 +46,8 @@ router.post("/signup", async (req, res) => {
 		req.session.graduateId = graduate.id;
 
 		// 5. send verification email
+		console.log("MAILTRAP_USER =", process.env.MAILTRAP_USER);
+		console.log("MAILTRAP_PASS =", process.env.MAILTRAP_PASS);
 		const transporter = nodemailer.createTransport({ // Updated this part from gmail to Mailtrp
 			host: "sandbox.smtp.mailtrap.io",
 			port:2525,
