@@ -80,8 +80,9 @@ router.post("/signup", async (req, res) => {
 			`,
 		});
 
-		// 6. Render verification confirmation page - Show success message page
+		// 6. Show “check your email” 
 		return res.render("graduates/verificationSent", { email });
+		
 
 	} catch (error) {
 		console.error("Signup error:", error);
@@ -98,7 +99,7 @@ router.post("/signup", async (req, res) => {
 	}*/
 });
 
-// Email verification route
+// 7. Email verification route
 router.get("/verify/:token", async (req, res) => {
 	const { token } = req.params;
 
@@ -115,14 +116,14 @@ router.get("/verify/:token", async (req, res) => {
 
 		if (!graduate) {
 			
-	
+	//8. Render verification confirmation page - Show success message page
 		return res.render("graduates/verificationError", {
 		message: "Invalid or expired verification link.",
 		});
 
 	}
 
-// Move email_adress_unverified -> email
+//9. Move email_adress_unverified -> email
 		await db
 			.update(graduatesTable)
 			.set({
@@ -135,7 +136,7 @@ router.get("/verify/:token", async (req, res) => {
 				(graduatesTable.id, graduate.id))
 			.execute();
 
-// Redirect to registration form
+// 10. Redirect to registration form
 
 		return res.redirect("/graduates/registrationForm");
 

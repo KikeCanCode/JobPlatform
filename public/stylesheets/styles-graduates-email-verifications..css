@@ -1,0 +1,15 @@
+body {
+  background-color: #ffffff; 
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+  padding: 60px;
+  color: #000000;
+}
+
+h2 {
+    font-size: large;
+}
+
+p {
+    font-size: medium;
+}
