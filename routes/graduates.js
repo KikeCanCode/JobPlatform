@@ -359,7 +359,7 @@ router.get("/myApplications", ensureLoggedIn, async (req, res) => {
 router.get("/signup", (req, res) => {
 	res.render("graduates/signup");
 });
-
+/*
 // Route - Graduate Sign-up
 router.post("/signup", async (req, res) => {
 	const { email, password } = req.body;
@@ -384,7 +384,7 @@ router.post("/signup", async (req, res) => {
 		console.log(error)
 		res.status(500).send("Error creating account");
 	}
-});
+});*/
 
 // Display Graduates Registration Page
 router.get("/registrationForm", ensureLoggedIn, async (req, res) => {
@@ -409,7 +409,7 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 				bootcamp_institute: bootcampInstitute,
 				graduation_year: graduationYear,
 				skills,
-				certificatePath,
+				certificate_Path,
 			})
 			.where(eq(graduatesTable.id, id)); // In Drizzle, updates are usually done like this (eq)?
 		
