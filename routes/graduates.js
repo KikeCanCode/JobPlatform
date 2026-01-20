@@ -17,7 +17,8 @@ const router = express.Router();
 
 // Moved Graduates Middleware to the Middlewares Folder - import it
 
-//Sign up route - email verification 
+//Sign up route - email verification  (Original signup routes on Updates branche)
+// Step 1
 router.post("/signup", async (req, res) => {
 	const { email, password } = req.body; 
 
@@ -33,7 +34,7 @@ router.post("/signup", async (req, res) => {
 		const result = await db
 			.insert(graduatesTable)
 			.values({
-				email_adress_unverified: email, //  store the email here first
+				email_address_unverified: email, //  store the email here first
 				password_hash,
 				email_verification_token: token,  // must exist in your table
 			})
@@ -64,13 +65,10 @@ router.post("/signup", async (req, res) => {
  	 else console.log("Nodemailer ready:", success);
 });
 
-
-		
-
 		const verifyUrl = `http://localhost:3000/verify/${token}`; // will be replace by company's actual url
 		
 		await transporter.sendMail({
-			from: process.env.EMAIL_USER,
+			from: process.env.EMAILTRAP_USER,
 			to: email,
 			subject: "Verify your email address",
 			html: `
@@ -138,7 +136,10 @@ router.get("/verify/:token", async (req, res) => {
 
 // 10. Redirect to registration form
 
-		return res.redirect("/graduates/registrationForm");
+			//return res.redirect("/graduates/registrationForm");
+		return res.render("graduates/verificationSuccess", {
+  message: "Your email has been verified successfully. You can now continue."
+  });
 
 	} catch (error) {
 		console.error(error);
