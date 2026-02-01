@@ -57,7 +57,7 @@ router.post("/signup", async (req, res) => {
 				pass: process.env.MAILTRAP_PASS, 
 			},
 		});
-
+from
 
 // Test the connection
 	transporter.verify((err, success) => {
@@ -68,7 +68,7 @@ router.post("/signup", async (req, res) => {
 		const verifyUrl = `http://localhost:3000/verify/${token}`; // will be replace by company's actual url
 		
 		await transporter.sendMail({
-			from: process.env.EMAILTRAP_USER,
+			from: process.env.MAILTRAP_USER,
 			to: email,
 			subject: "Verify your email address",
 			html: `
@@ -102,17 +102,14 @@ router.get("/verify/:token", async (req, res) => {
 	const { token } = req.params;
 
 	try {
-		const result = await db
+		const graduate = await db
 			.select()
 			.from(graduatesTable)
 			.where(
 				eq(graduatesTable.email_verification_token, token))
 			.execute();
 
-		const graduate = result[0];
-
-
-		if (!graduate) {
+		if (!graduate.length) { // no record found
 			
 	//8. Render verification confirmation page - Show success message page
 		return res.render("graduates/verificationError", {
@@ -120,6 +117,9 @@ router.get("/verify/:token", async (req, res) => {
 		});
 
 	}
+
+	// Save verified graduate into session
+	req.session.graduateId = graduate[0].id;
 
 //9. Move email_adress_unverified -> email
 		await db
@@ -409,7 +409,7 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 				bootcamp_institute: bootcampInstitute,
 				graduation_year: graduationYear,
 				skills,
-				certificate_Path,
+				certificate_Path: certificatePath,
 			})
 			.where(eq(graduatesTable.id, id)); // In Drizzle, updates are usually done like this (eq)?
 		
