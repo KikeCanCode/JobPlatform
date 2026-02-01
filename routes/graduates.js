@@ -57,7 +57,6 @@ router.post("/signup", async (req, res) => {
 				pass: process.env.MAILTRAP_PASS, 
 			},
 		});
-from
 
 // Test the connection
 	transporter.verify((err, success) => {
@@ -68,7 +67,7 @@ from
 		const verifyUrl = `http://localhost:3000/verify/${token}`; // will be replace by company's actual url
 		
 		await transporter.sendMail({
-			from: process.env.MAILTRAP_USER,
+			from: `"CodeLeap" <no-reply@codeleap.com>`, //process.env.MAILTRAP_USER,
 			to: email,
 			subject: "Verify your email address",
 			html: `
