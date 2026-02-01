@@ -1,6 +1,7 @@
 import db from "../db/index.js"; // database connection
 
 import { graduatesTable } from "../db/schema.js";
+import { eq } from "drizzle-orm";
 
 /*Middleware to check if a graduate is logged in. Usage:
 router.method("/path", ensureLoggedIn, (req, res) => { ...

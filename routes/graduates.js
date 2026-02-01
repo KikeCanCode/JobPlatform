@@ -64,7 +64,7 @@ router.post("/signup", async (req, res) => {
  	 else console.log("Nodemailer ready:", success);
 });
 
-		const verifyUrl = `http://localhost:3000/verify/${token}`; // will be replace by company's actual url
+		const verifyUrl = `http://localhost:3000/graduates/verify/${token}`; // will be replace by company's actual url
 		
 		await transporter.sendMail({
 			from: `"CodeLeap" <no-reply@codeleap.com>`, //process.env.MAILTRAP_USER,
@@ -101,24 +101,23 @@ router.get("/verify/:token", async (req, res) => {
 	const { token } = req.params;
 
 	try {
-		const graduate = await db
+		const result = await db
 			.select()
 			.from(graduatesTable)
 			.where(
 				eq(graduatesTable.email_verification_token, token))
 			.execute();
 
-		if (!graduate.length) { // no record found
+		if (!result.length) { // no record found
 			
 	//8. Render verification confirmation page - Show success message page
 		return res.render("graduates/verificationError", {
 		message: "Invalid or expired verification link.",
 		});
-
 	}
-
+		const graduate = result[0];
 	// Save verified graduate into session
-	req.session.graduateId = graduate[0].id;
+	req.session.graduateId = graduate.id;
 
 //9. Move email_adress_unverified -> email
 		await db
