@@ -31,7 +31,8 @@ export const graduatesTable = mysqlTable("graduates", {
 	certificate: varchar ({ length: 500 }),
 	created_at: timestamp().defaultNow(),
   	updated_at: timestamp().defaultNow().onUpdateNow(),
-  	deleted_at: timestamp().default(null) // Soft delete column
+  	deleted_at: timestamp().default(null), // Soft delete column
+	registration_completed: boolean().default(false)
 
 });
 

@@ -392,7 +392,7 @@ router.get("/registrationForm", ensureLoggedIn, async (req, res) => {
 
 //Route - Graduates Registration
 router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no need to include email and password in the constructor as they were already collected.
-	const { firstName, lastName, contactNumber, qualification, bootcampInstitute, graduationYear, skills, certificatePath } = req.body;
+	const { firstName, lastName, contactNumber, qualification, bootcampInstitute, graduationYear, skills, certificate } = req.body;
 
 	try {
 		// Retrieve email & password from session
@@ -407,7 +407,7 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 				bootcamp_institute: bootcampInstitute,
 				graduation_year: graduationYear,
 				skills,
-				certificate_Path: certificatePath,
+				certificate: certificate,
 			})
 			.where(eq(graduatesTable.id, id)); // In Drizzle, updates are usually done like this (eq)?
 		
@@ -472,7 +472,7 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 		bootcampInstitute, 
 		graduationYear, 
 		skills,
-		certificatePath } = req.body;
+		certificate } = req.body;
 
 	try {
 		const results = await db
@@ -486,7 +486,7 @@ router.post("/updateProfile", ensureLoggedIn, async (req, res) => { // Chnage PU
 				bootcamp_institute: bootcampInstitute,
 				graduation_year: graduationYear,
 				skills,
-				certificatePath
+				certificate
 			})
 			// .where("id", graduateId)
 			.where(eq(graduatesTable.id, req.graduate.id))			
@@ -527,12 +527,12 @@ router.post("/upload-certificate", upload.single("certificate"), async (req, res
     }
 
     const graduateId = req.body.graduateId;
-    const certificatePath = req.file.path; // Refers to the Path where file is stored
+    const certificate = req.file.path; // Refers to the Path where file is stored
 
     try {
         const results = await db
             .update(graduatesTable)
-            .set({ certificate: certificatePath })
+            .set({ certificate: certificate })
             .where(eq(graduatesTable.id, graduateId))
             .execute();
 
@@ -540,7 +540,7 @@ router.post("/upload-certificate", upload.single("certificate"), async (req, res
             return res.status(404).json({ error: "Graduate not found" });
         }
 
-        res.json({ message: "Certificate uploaded successfully!", path: certificatePath });
+        res.json({ message: "Certificate uploaded successfully!", path: certificate });
     } catch (err) {
         console.error("Upload Error:", err);
         res.status(500).json({ error: err.message });
