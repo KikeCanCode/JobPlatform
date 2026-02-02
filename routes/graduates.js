@@ -10,7 +10,7 @@ import { eq } from "drizzle-orm";
 import { ensureLoggedIn } from "../Middlewares/graduateAuthentication.js";
 import Application from "../Model/applicationsModel.js";
 import nodemailer from "nodemailer";
-import crypto from "crypto";
+import crypto from "crypto"; // for email verification token 
 
 
 const router = express.Router();

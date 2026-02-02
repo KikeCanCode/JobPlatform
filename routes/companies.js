@@ -9,6 +9,8 @@ import { ensureCompanyLoggedIn} from "../Middlewares/companyAuthentication.js";
 import { desc } from "drizzle-orm";
 import { graduatesTable } from "../db/schema.js";
 import { date } from "drizzle-orm/mysql-core";
+import nodemailer from "nodemailer";
+import crypto from "crypto";
 
 const router = express.Router();
 
@@ -71,7 +73,7 @@ router.post("/signup", async (req, res) => {
 
 	try {
 	// 1. Hash password
-		const hashedPassword = await bcrypt.hash(password, 10);
+		const password_hash = await bcrypt.hash(password, 10);
 		
 	// 2. Create a verification token
 		const token = crypto.randomBytes(32).toString("hex");
@@ -124,7 +126,7 @@ router.post("/signup", async (req, res) => {
 
 		// 6. Show “check your email”
 		
-			return res.redirect("/companies/verificationSent", { email });
+			return res.render("companies/verificationSent", { email });
 
 	} catch (error) { 
 		console.error("Signup error:", error)

@@ -3,6 +3,7 @@ import db from "../db/index.js"; // database connection
 
 import { companiesTable } from "../db/schema.js";
 export { ensureCompanyLoggedIn };
+import { eq } from "drizzle-orm";
 
 /*Middleware to check if a company is logged in. Usage:
 router.method("/path", ensureLoggedIn, (req, res) => { ...
@@ -17,7 +18,10 @@ async function ensureCompanyLoggedIn (req, res, next) {
 	const results = await db
 		.select()
 		.from(companiesTable)
-		.where({ id: req.session.companyId });
+		.where(eq( companiesTable.id, req.session.companyId))
+		.execute();
+
+		req.company = results[0];
 
 	if (!company || !company.email) {
 		req.session = null; // Delete any session state and logout for safety

@@ -41,7 +41,7 @@ export const companiesTable = mysqlTable("companies", {
 	id: serial().primaryKey(),
 	company_name: varchar({ length: 255 }),
 	// username: varchar({ length: 100 }).notNull(),
-	email: varchar({ length: 100 }).notNull().unique(),
+	email: varchar({ length: 100 }).unique(),
 	
 	// email: varchar({ length: 100 }).unique(), // email will stay empty until verified
     email_address_unverified: varchar({ length: 100 }),
