@@ -76,7 +76,7 @@ router.post("/signup", async (req, res) => {
 	// 2. Create a verification token
 		const token = crypto.randomBytes(32).toString("hex");
 		
-	// 3. Insert graduate into DB
+	// 3. Insert company into DB
 		const result = await db // add colums to database 
 		.insert(companiesTable)
 		.values({ // id property - descontructing
@@ -106,10 +106,10 @@ router.post("/signup", async (req, res) => {
 // Test the connection
 	transporter.verify((err, success) => {
   	if (err) console.log("Nodemailer error:", err);
- 	 else console.log("Nodemailer ready:", success);
+ 	else console.log("Nodemailer ready:", success);
 });
 
-		const verifyUrl = `http://localhost:3000/comapanies/verify/${token}`; // will be replace by company's actual url
+		const verifyUrl = `http://localhost:3000/companies/verify/${token}`; // will be replace by company's actual url
 		
 		await transporter.sendMail({
 			from: `"CodeLeap" <no-reply@codeleap.com>`, //process.env.MAILTRAP_USER,
@@ -128,7 +128,7 @@ router.post("/signup", async (req, res) => {
 
 	} catch (error) { 
 		console.error("Signup error:", error)
-		return res.render("graduates/signup", {
+		return res.render("companies/signup", {
 			error: "Something went wrong. Please try again.",
 		});
 	}
