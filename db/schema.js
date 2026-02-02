@@ -44,15 +44,16 @@ export const companiesTable = mysqlTable("companies", {
 	email: varchar({ length: 100 }).notNull().unique(),
 	
 	// email: varchar({ length: 100 }).unique(), // email will stay empty until verified
-    // email_address_unverified: varchar({ length: 100 }),
-    // email_verification_token: varchar({ length: 255 }),
+    email_address_unverified: varchar({ length: 100 }),
+    email_verification_token: varchar({ length: 255 }),
 	password_hash: varchar({ length: 255 }).notNull(),
 	contact_number: varchar({ length: 255 }),
 	company_address: varchar({ length: 500 }),
 	company_profile: varchar({ length: 500 }),
   	created_at: timestamp().defaultNow(), // Automatically set to the current timestamp,
   	updated_at: timestamp().defaultNow().onUpdateNow(),
-  	deleted_at: timestamp().default(null) // Soft delete column
+  	deleted_at: timestamp().default(null), // Soft delete column
+	registration_completed: boolean().default(false)
 
 });
 
