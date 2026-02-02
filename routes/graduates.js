@@ -408,6 +408,7 @@ router.post("/registrationForm", ensureLoggedIn, async (req, res) => { // no nee
 				graduation_year: graduationYear,
 				skills,
 				certificate: certificate,
+				registration_completed: true	
 			})
 			.where(eq(graduatesTable.id, id)); // In Drizzle, updates are usually done like this (eq)?
 		

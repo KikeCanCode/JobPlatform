@@ -64,31 +64,126 @@ router.get("/signup", (req, res) => {
 	
 });
 
-// Route - Companies Sign-up
+// Route - Companies Sign-up  - email verification  (Original signup routes on Updates branche)
+// Step 1 - previous version on Updates Branch 
 router.post("/signup", async (req, res) => {
 	const { email, password } = req.body;
 
 	try {
+	// 1. Hash password
 		const hashedPassword = await bcrypt.hash(password, 10);
 		
-		const result = await db
+	// 2. Create a verification token
+		const token = crypto.randomBytes(32).toString("hex");
+		
+	// 3. Insert graduate into DB
+		const result = await db // add colums to database 
 		.insert(companiesTable)
 		.values({ // id property - descontructing
-			email,
-			password_hash: hashedPassword,
-		}).$returningId();
+			email_address_unverified: email, //  store the email here first
+			password_hash,
+			email_verification_token: token,  // must exist in your table
+		})
+		// .$returningId();
+		.execute();
 
-		const { id } = result[0]; // Extract the id from the result
+		const company = result[0]; // Extract the id from the result
+		
+	// 4. Store company in session (but not verified yet)
+		req.session.companyId = company.id; // read back into session
 
-		req.session.companyId = id; // read back into session
+	// 5. send verification email
+			console.log("MAILTRAP_USER =", process.env.MAILTRAP_USER);
+			console.log("MAILTRAP_PASS =", process.env.MAILTRAP_PASS);
+			const transporter = nodemailer.createTransport({ // Updated this part from gmail to Mailtrp
+				host: "sandbox.smtp.mailtrap.io",
+				port:2525,
+				auth: {
+					user: process.env.MAILTRAP_USER, 
+					pass: process.env.MAILTRAP_PASS, 
+					},
+			});
+// Test the connection
+	transporter.verify((err, success) => {
+  	if (err) console.log("Nodemailer error:", err);
+ 	 else console.log("Nodemailer ready:", success);
+});
 
-		return res
-			.redirect("/companies/registrationForm")
+		const verifyUrl = `http://localhost:3000/comapanies/verify/${token}`; // will be replace by company's actual url
+		
+		await transporter.sendMail({
+			from: `"CodeLeap" <no-reply@codeleap.com>`, //process.env.MAILTRAP_USER,
+			to: email,
+			subject: "Verify your email address",
+			html: `
+				<h3>Welcome to CodeLeap!</h3>
+				<p>Click below to verify your email:</p>
+				<a href="${verifyUrl}">${verifyUrl}</a>
+			`,
+		});
+
+		// 6. Show “check your email”
+		
+			return res.redirect("/companies/verificationSent", { email });
+
 	} catch (error) { 
-		console.log(error)
-		res.status(500).send("Error creating account");
+		console.error("Signup error:", error)
+		return res.render("graduates/signup", {
+			error: "Something went wrong. Please try again.",
+		});
 	}
 }); 
+
+// 7. Email verification route
+router.get("/verify/:token", async (req, res) => {
+	const { token } = req.params;
+
+	try {
+		const result = await db
+			.select()
+			.from(companiesTable)
+			.where(
+				eq(companiesTable.email_verification_token, token))
+			.execute();
+
+		if (!result.length) { // no record found
+			
+	//8. Render verification confirmation page - Show success message page
+		return res.render("companies/verificationError", {
+		message: "Invalid or expired verification link.",
+		});
+	}
+		const companie = result[0];
+	// Save verified companie into session
+	req.session.companieId = companie.id;
+
+//9. Move email_adress_unverified -> email
+		await db
+			.update(companiesTable)
+			.set({
+				email: companie.email_address_unverified,
+				email_address_unverified: null,
+				email_verification_token: null,
+			})
+			.where(
+				eq
+				(companiesTable.id, company.id))
+			.execute();
+
+// 10. Redirect to registration form
+
+			//return res.redirect("/companies/registrationForm");
+		return res.render("companies/verificationSuccess", {
+  message: "Your email has been verified successfully. You can now continue."
+  });
+
+	} catch (error) {
+		console.error(error);
+		return res.status(500).render("companies/verificationError", {
+			message: "An unexpected error occurred during verification.",
+		});
+	}
+});
 
 // Display Comoanies Registration Page
 router.get("/registrationForm", ensureCompanyLoggedIn, async (req, res) => {
@@ -109,7 +204,8 @@ router.post("/registrationForm", ensureCompanyLoggedIn, async (req, res) => { //
 				company_name: companyName,  // Ensure correct column names
 				contact_number: contactNumber,
 				company_address: companyAddress,
-				company_profile: companyProfile
+				company_profile: companyProfile,
+				registration_completed: true
 			})
 			.where(eq(companiesTable.id, id));
 
